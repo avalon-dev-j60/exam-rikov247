@@ -7,20 +7,18 @@ import ru.avalon.java.ui.AbstractFrame; // подключенная собств
 import ru.*;
 
 import javax.swing.*;
-import uk.co.caprica.vlcj.binding.internal.libvlc_marquee_position_e;
-import uk.co.caprica.vlcj.player.Marquee;
-
-import uk.co.caprica.vlcj.player.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-import uk.co.caprica.vlcj.player.embedded.windows.Win32FullScreenStrategy;
+import uk.co.caprica.vlcj.binding.LibVlc;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.base.Marquee;
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.embedded.fullscreen.windows.Win32FullScreenStrategy;
 
 public class ExampleVLC extends AbstractFrame {
 
     String filePath = "F:\\Video/Project.avi";
 
     // Создание плеера
-    protected MediaPlayerFactory mpf = new MediaPlayerFactory();
-    protected EmbeddedMediaPlayer emp = mpf.newEmbeddedMediaPlayer(new Win32FullScreenStrategy(this));
+    protected EmbeddedMediaPlayerComponent emp = new EmbeddedMediaPlayerComponent(); // Это уже панель (JPanel) !!!
 
     // Переменные для менюБара
     private MenuBar bar = new MenuBar();
@@ -48,56 +46,49 @@ public class ExampleVLC extends AbstractFrame {
         add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH);
         add(leftCPanel.createLeftCPanel(), BorderLayout.WEST);
         add(rightCPanel.createRightCPanel(), BorderLayout.EAST);
-        add(vPanel.createVPanel(), BorderLayout.CENTER);
+        add(emp, BorderLayout.CENTER); // панель видео
 
         // Добавление слушателей событий к кнопкам
         vPCPanel.b1.addActionListener(this::onStopButtonClick); // В случае нажатия на кнопку - вызывается метод в скобках. Создается объект нужного типа в котором вызывается метод данного типа. :: - ссылка на метод.
         vPCPanel.b2.addActionListener(this::onPlayPauseButtonClick);
-        vPanel.videoCanvas.addMouseListener(click);         // Добавление слушателя событий к canvas (подоснове для видео) - то есть к самому видео
+        emp.videoSurfaceComponent().addMouseListener(click); // Добавление слушателя событий к поверхности плеера (подоснове для видео) - то есть к самому видео
 
         //Подготовка и запуск видео
         Play();
 
-  
-        
-        
-        
         // Marguee (всплывающая) панель
-        emp.setMarqueeText(filePath);
-        emp.setMarqueeSize(30);
-        emp.setMarqueeColour(Color.WHITE);
-        emp.setMarqueeTimeout(3000);
-        emp.setMarqueePosition(libvlc_marquee_position_e.bottom);
-        emp.setMarqueeOpacity(0.8f);
-        emp.enableMarquee(true);
+//        emp.setMarqueeText(filePath);
+//        emp.setMarqueeSize(30);
+//        emp.setMarqueeColour(Color.WHITE);
+//        emp.setMarqueeTimeout(3000);
+//        emp.setMarqueePosition(libvlc_marquee_position_e.bottom);
+//        emp.setMarqueeOpacity(0.8f);
+//        emp.enableMarquee(true);
     }
 
     protected void Play() {
-        emp.setVideoSurface(mpf.newVideoSurface(vPanel.videoCanvas));
         // Явно отключаем встроенную обработку событий от мыши и клавиатуры
-        emp.setEnableMouseInputHandling(false);
-        emp.setEnableKeyInputHandling(false);
+        emp.mediaPlayer().input().enableMouseInputHandling(false);
+        emp.mediaPlayer().input().enableKeyInputHandling(false);
         // Подготавливаем видео
-        emp.prepareMedia(filePath);
-        emp.play();
+        emp.mediaPlayer().media().prepare(filePath, (String) null);
+        emp.mediaPlayer().controls().play();
     }
 
-    
-    
     //Обработчик нажатия кнопки СТОП.
     private void onStopButtonClick(ActionEvent e) {
-        emp.stop();
+        emp.mediaPlayer().controls().stop();
         vPCPanel.b2.setText("play");
     }
 
     //Обработчик нажатия кнопки ПАУЗА/ПЛЭЙ.
     private void onPlayPauseButtonClick(ActionEvent e) {
-        if (emp.isPlaying() == true) {
-            emp.pause();
-            vPCPanel.b2.setText("play");
+        if (emp.mediaPlayer().status().isPlaying() == true) { // Если медиа проигрывается (play)
+            emp.mediaPlayer().controls().pause(); // то - пауза (pause)
+            vPCPanel.b2.setText("play"); // текст кнопки меняется на Play
         } else {
-            emp.play();
-            vPCPanel.b2.setText("pause");
+            emp.mediaPlayer().controls().play(); // Если медиа не проигрывается, то - play
+            vPCPanel.b2.setText("pause"); // текст кнопки меняется на Play
         }
     }
 
@@ -106,11 +97,11 @@ public class ExampleVLC extends AbstractFrame {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1) {
-                if (emp.isPlaying() == true) {
-                    emp.pause();
+                if (emp.mediaPlayer().status().isPlaying() == true) {
+                    emp.mediaPlayer().controls().pause();
                     vPCPanel.b2.setText("play");
                 } else {
-                    emp.play();
+                    emp.mediaPlayer().controls().play();
                     vPCPanel.b2.setText("pause");
                 }
             }
