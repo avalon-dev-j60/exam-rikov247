@@ -1,35 +1,171 @@
 package ru;
 
-import java.awt.*;
-import javax.swing.JFrame;
-import ru.avalon.java.ui.AbstractFrame;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 public class CreateMenuBar {
 
-    private MenuBar mbar = new MenuBar();
+    private JMenuBar mbar = new JMenuBar();
+    private JMenu fileMenu = new JMenu("Файл");
+    private JMenu editMenu = new JMenu("Правка");
+    private JMenu viewMenu = new JMenu("Вид");
+    private JMenu helpMenu = new JMenu("Помощь");
 
-    public CreateMenuBar(MenuBar mbar) {
-        this.mbar = mbar;
+    public JMenuBar CreateBar() {
+
+        mbar.add(createFileMenu());
+        mbar.add(createEditMenu());
+        mbar.add(createViewMenu());
+        mbar.add(createHelpMenu());
+
+        return mbar;
     }
 
-    public void CreateBar() {
-        Menu fileBar = new Menu("File");
-        MenuItem item1 = new MenuItem("New Project...");
-        MenuItem item2 = new MenuItem("Open Project...");
-        MenuItem item3 = new MenuItem("Close Project");
-        fileBar.add(item1);
-        fileBar.add(item2);
-        fileBar.add(item3);
+    private JMenuItem fileItem1 = new JMenuItem("Новый проект...");
+    private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
+    private JMenuItem fileItem3 = new JMenuItem("Закрыть проект");
+    private JMenuItem fileItem4 = new JMenuItem("Сохранить");
+    private JMenuItem fileItem5 = new JMenuItem("Выход");
 
-        Menu editBar = new Menu("Edit");
-        Menu viewBar = new Menu("View");
-        Menu optionsBar = new Menu("Options");
-        Menu helpBar = new Menu("Help");
+    private JMenu createFileMenu() {
+        fileMenu.add(fileItem1);
+        fileMenu.add(fileItem2);
+        fileMenu.add(fileItem3);
+        fileMenu.addSeparator(); // разделитель
+        fileMenu.add(fileItem4);
+        fileMenu.addSeparator(); // разделитель
+        fileMenu.add(fileItem5);
 
-        mbar.add(fileBar);
-        mbar.add(editBar);
-        mbar.add(viewBar);
-        mbar.add(optionsBar);
-        mbar.add(helpBar);
+        return fileMenu;
     }
+
+    private JMenuItem editItem1 = new JMenuItem("Отменить");
+    private JMenuItem editItem2 = new JMenuItem("Вернуть");
+    private JMenuItem editItem3 = new JMenuItem("Вырезать");
+    private JMenuItem editItem4 = new JMenuItem("Копировать");
+    private JMenuItem editItem5 = new JMenuItem("Вставить");
+
+    private JMenu createEditMenu() {
+        editItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK)); // установка клавишного сочетания
+        editItem2.setAccelerator(KeyStroke.getKeyStroke("ctrl Y")); // установка клавишного сочетания
+
+        editMenu.add(editItem1);
+        editMenu.add(editItem2);
+        editMenu.addSeparator();
+        editMenu.add(editItem3);
+        editMenu.add(editItem4);
+        editMenu.add(editItem5);
+
+        return editMenu;
+    }
+
+    private JMenu viewMenu1 = new JMenu("Панель инструментов");
+    private JMenuItem viewItem1 = new JCheckBoxMenuItem("Замедлить");
+    private JMenuItem viewItem2 = new JCheckBoxMenuItem("Ускорить");
+    private JMenuItem viewItem3 = new JMenuItem("Полноэкранный режим");
+
+    private JMenu createViewMenu() {
+        viewMenu1.add(viewItem1);
+        viewMenu1.add(viewItem2);
+        viewMenu.add(viewMenu1);
+        viewMenu.addSeparator(); // разделитель
+        viewItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK)); // установка клавишного сочетания
+        viewMenu.add(viewItem3);
+
+        return viewMenu;
+    }
+
+    private JMenuItem helpItem1 = new JMenuItem("О нас");
+
+    private JMenu createHelpMenu() {
+        helpMenu.add(helpItem1);
+
+        return helpMenu;
+    }
+
+    public JMenuBar getMbar() {
+        return mbar;
+    }
+
+    public JMenu getFileMenu() {
+        return fileMenu;
+    }
+
+    public JMenu getEditMenu() {
+        return editMenu;
+    }
+
+    public JMenu getViewMenu() {
+        return viewMenu;
+    }
+
+    public JMenu getHelpMenu() {
+        return helpMenu;
+    }
+
+    public JMenuItem getFileItem1() {
+        return fileItem1;
+    }
+
+    public JMenuItem getFileItem2() {
+        return fileItem2;
+    }
+
+    public JMenuItem getFileItem3() {
+        return fileItem3;
+    }
+
+    public JMenuItem getFileItem4() {
+        return fileItem4;
+    }
+
+    public JMenuItem getFileItem5() {
+        return fileItem5;
+    }
+
+    public JMenuItem getEditItem1() {
+        return editItem1;
+    }
+
+    public JMenuItem getEditItem2() {
+        return editItem2;
+    }
+
+    public JMenuItem getEditItem3() {
+        return editItem3;
+    }
+
+    public JMenuItem getEditItem4() {
+        return editItem4;
+    }
+
+    public JMenuItem getEditItem5() {
+        return editItem5;
+    }
+
+    public JMenu getViewMenu1() {
+        return viewMenu1;
+    }
+
+    public JMenuItem getViewItem1() {
+        return viewItem1;
+    }
+
+    public JMenuItem getViewItem2() {
+        return viewItem2;
+    }
+
+    public JMenuItem getViewItem3() {
+        return viewItem3;
+    }
+
+    public JMenuItem getHelpItem1() {
+        return helpItem1;
+    }
+
 }

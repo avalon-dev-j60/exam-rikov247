@@ -1,3 +1,7 @@
+/**
+ * JavaDOC v.4.1.0 = http://caprica.github.io/vlcj/javadoc/4.1.0/index.html
+ * JavaDOC v.3.12.1= http://caprica.github.io/vlcj/javadoc/3.12.1/overview-summary.html
+ */
 package ru;
 
 import javax.swing.*;
@@ -10,14 +14,16 @@ import uk.co.caprica.vlcj.binding.RuntimeUtil;
 
 public class Main {
 
-    private static String vlcLibraryPath = "/Portable_programs/netbeans-11.0-bin/vlc_plugins";
+    private static final String vlcLibraryPath = "/Portable_programs/netbeans-11.0-bin/vlc_plugins";
 
     public static void main(String[] args) {
         // Подгрузка VLC библиотек
-       NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcLibraryPath);
+        NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcLibraryPath);
 //        Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
 
         // Создание окна (зачем делать через invoke later - ВЫЯСНИТЬ)
+        // Чтобы не обновлять компоненты Swing из собственного потока - все обновления компонент Swing должны проходить через поток диспетчеризации событий Swing (EDT).
+        // Это достигается использованием SwingUtilities.invokeLater в обработчике событий:
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

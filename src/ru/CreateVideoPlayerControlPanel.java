@@ -12,15 +12,12 @@ import javax.swing.JPanel;
 
 import ru.*;
 
-/**
- * @author rikov247
- */
 public class CreateVideoPlayerControlPanel {
 
-    protected JPanel vPCPanel = new JPanel(new FlowLayout()); // Панель управления видео
+    private JPanel vPCPanel = new JPanel(new FlowLayout()); // Панель управления видео
 
-    protected JButton b1 = new JButton("stop");
-    protected JButton b2 = new JButton("pause");
+    private JButton b1 = new JButton("stop");
+    private JButton b2 = new JButton("pause");
 
     public JPanel createVPCPanel() {
         vPCPanel.add(b1);
@@ -33,6 +30,14 @@ public class CreateVideoPlayerControlPanel {
 
     public JPanel getVPCPanel() {
         return vPCPanel;
+    }
+
+    public JButton getB1() {
+        return b1;
+    }
+
+    public JButton getB2() {
+        return b2;
     }
 
 }
