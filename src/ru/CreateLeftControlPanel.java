@@ -26,4 +26,9 @@ public class CreateLeftControlPanel {
     public JPanel getLeftCPanel() {
         return LeftCPanel;
     }
+
+    public JLabel getLabel() {
+        return label;
+    }
+    
 }
