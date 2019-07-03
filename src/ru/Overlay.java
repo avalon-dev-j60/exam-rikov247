@@ -4,7 +4,9 @@
 package ru;
 
 import com.sun.jna.platform.WindowUtils;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -16,6 +18,7 @@ import static javax.management.Query.lt;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Overlay extends Window {
 
@@ -23,16 +26,23 @@ public class Overlay extends Window {
     private JButton b2 = new JButton("Прямо");
     private JButton b3 = new JButton("Направо");
     private JButton b4 = new JButton("Разворот");
+
     private JButton b5 = new JButton("Налево");
     private JButton b6 = new JButton("Прямо");
     private JButton b7 = new JButton("Направо");
     private JButton b8 = new JButton("Разворот");
+
     private JButton b9 = new JButton("Налево");
     private JButton b10 = new JButton("Прямо");
     private JButton b11 = new JButton("Направо");
     private JButton b12 = new JButton("Разворот");
 
-    private int widthButton = 110; // Ширина кнопки
+    private JButton b13 = new JButton("Налево");
+    private JButton b14 = new JButton("Прямо");
+    private JButton b15 = new JButton("Направо");
+    private JButton b16 = new JButton("Разворот");
+
+    private int widthButton = 90; // Ширина кнопки
     private int heightButton = 24; // Высота кнопки
 
     public Overlay(Window owner) {
@@ -71,6 +81,24 @@ public class Overlay extends Window {
         add(b10);
         add(b11);
         add(b12);
+
+        b13.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+        b14.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+        b15.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+        b16.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+
+        add(b13);
+        add(b14);
+        add(b15);
+        add(b16);
+
+        // Панель с прозрачным задником и кнопкой
+        JPanel upButtonPanel = new JPanel(new FlowLayout());
+        upButtonPanel.add(new JButton("Налево"), FlowLayout.LEFT);
+        upButtonPanel.add(new JButton("Прямо"));
+        upButtonPanel.setBounds(300, 150, 200, (int) (1.5 * heightButton));
+//        upButtonPanel.setBackground(new Color(0, 0, 0, 0));
+//        add(upButtonPanel);
     }
 
     public int getWidthButton() {
@@ -81,45 +109,6 @@ public class Overlay extends Window {
         return heightButton;
     }
 
-//    @Override
-//    public void paint(Graphics g) {
-//        super.paint(g);
-//
-//        Graphics2D g2 = (Graphics2D) g;
-//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//
-//        GradientPaint gp = new GradientPaint(180.0f, 280.0f, new Color(255, 255, 255, 255), 250.0f, 380.0f, new Color(255, 255, 0, 0));
-//        g2.setPaint(gp);
-//        for (int i = 0; i < 3; i++) {
-//            g2.drawOval(150, 280, 100, 100);
-//            g2.fillOval(150, 280, 100, 100);
-//            g2.translate(120, 20);
-//        }
-//    }
-//
-//    private class TranslucentComponent extends JComponent {
-//
-//        public TranslucentComponent() {
-//            setOpaque(false);
-//        }
-//
-//        @Override
-//        protected void paintComponent(Graphics g) {
-//            Graphics2D g2 = (Graphics2D) g;
-//
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-//
-//            g2.setPaint(new Color(255, 128, 128, 64));
-//
-//            g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-//            g2.fillRect(0, 0, getWidth(), getHeight());
-//
-//            g2.setPaint(new Color(0, 0, 0, 128));
-//            g2.setFont(new Font("Sansserif", Font.BOLD, 18));
-//            g2.drawString("Translucent", 16, 26);
-//        }
-//    }
     public JButton getB1() {
         return b1;
     }
@@ -166,6 +155,22 @@ public class Overlay extends Window {
 
     public JButton getB12() {
         return b12;
+    }
+
+    public JButton getB13() {
+        return b13;
+    }
+
+    public JButton getB14() {
+        return b14;
+    }
+
+    public JButton getB15() {
+        return b15;
+    }
+
+    public JButton getB16() {
+        return b16;
     }
 
 }
