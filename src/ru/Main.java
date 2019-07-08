@@ -4,22 +4,19 @@
  */
 package ru;
 
-import javax.swing.*;
-
-import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.binding.RuntimeUtil;
 
 public class Main {
 
     private static final String vlcLibraryPath = "/Portable_programs/netbeans-11.0-bin/vlc_plugins";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // Подгрузка VLC библиотек
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcLibraryPath);
-//        Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
 
         // Создание окна (зачем делать через invoke later - ВЫЯСНИТЬ)
         // Чтобы не обновлять компоненты Swing из собственного потока - все обновления компонент Swing должны проходить через поток диспетчеризации событий Swing (EDT).

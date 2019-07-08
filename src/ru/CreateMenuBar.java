@@ -29,17 +29,19 @@ public class CreateMenuBar {
     private JMenuItem fileItem1 = new JMenuItem("Новый проект...");
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
     private JMenuItem fileItem3 = new JMenuItem("Закрыть проект");
-    private JMenuItem fileItem4 = new JMenuItem("Сохранить");
-    private JMenuItem fileItem5 = new JMenuItem("Выход");
+    private JMenuItem fileItem4 = new JMenuItem("Сохранить проект");
+    private JMenuItem fileItem5 = new JMenuItem("Открыть видео");
+    private JMenuItem fileItem6 = new JMenuItem("Выход");
 
     private JMenu createFileMenu() {
         fileMenu.add(fileItem1);
         fileMenu.add(fileItem2);
         fileMenu.add(fileItem3);
-        fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem4);
         fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem5);
+        fileMenu.addSeparator(); // разделитель
+        fileMenu.add(fileItem6);
 
         return fileMenu;
     }
@@ -126,6 +128,10 @@ public class CreateMenuBar {
 
     public JMenuItem getFileItem5() {
         return fileItem5;
+    }
+    
+    public JMenuItem getFileItem6() {
+        return fileItem6;
     }
 
     public JMenuItem getEditItem1() {

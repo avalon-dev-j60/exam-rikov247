@@ -47,15 +47,19 @@ public class Overlay extends Window {
 
     public Overlay(Window owner) {
         super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
-
         setBackground(new Color(0, 0, 0, 0)); // установка прозрачности overlay панели
 
         setLayout(null); // LayoutManager = null
 
-        b1.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
-        b2.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
-        b3.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
-        b4.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+        b1.setBounds(0, 0, widthButton, heightButton);
+        b2.setBounds(widthButton + heightButton, 0, widthButton, heightButton);
+        b3.setBounds(2*(widthButton + heightButton), 0, widthButton, heightButton);
+        b4.setBounds(3*(widthButton + heightButton), 0, widthButton, heightButton);
+        
+//        b1.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+//        b2.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+//        b3.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
+//        b4.setSize(widthButton, heightButton); // установка размеров кнопки (ширина, высота)
 
         add(b1);
         add(b2);
