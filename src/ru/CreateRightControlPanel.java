@@ -11,9 +11,9 @@ import ru.*;
 
 public class CreateRightControlPanel {
 
-    protected JPanel RightCPanel = new JPanel(new BorderLayout()); // Панель управления видео
+    private JPanel RightCPanel = new JPanel(new BorderLayout()); // Панель управления видео
 
-    protected JLabel label = new JLabel("This is a RIGHT Control Panel");
+    private JLabel label = new JLabel("RIGHT Panel");
 
     public JPanel createRightCPanel() {
         RightCPanel.add(label, BorderLayout.CENTER);
@@ -23,8 +23,12 @@ public class CreateRightControlPanel {
         return RightCPanel;
     }
 
-    public JPanel getLeftCPanel() {
+    public JPanel getRightCPanel() {
         return RightCPanel;
+    }
+
+    public JLabel getLabel() {
+        return label;
     }
 
 }

@@ -45,8 +45,8 @@ public class ExampleVLC extends AbstractFrame {
     @Override
     protected void onCreate() {
         setTitle("VLC Player"); // установка названия окна
-        setSize(1000, 600); // установка размером окна
-        setMinimumSize(new Dimension(1000, 600));
+        setSize(1000, 650); // установка размером окна
+        setMinimumSize(new Dimension(1000, 650));
 
         // Установка Менеджера Компоновки окна
         setLayout(new BorderLayout());
@@ -54,10 +54,11 @@ public class ExampleVLC extends AbstractFrame {
         // Установка Меню Бара
         setJMenuBar(jBar.CreateBar());
 
-        // Настройка видео и панели видео
+        // НАСТРОЙКА ВИДЕО И ПОВЕРХНОСТИ ПОД ВИДЕО
         // Установка canvas (подосновы для видео)
         emp.mediaPlayer().videoSurface().set(emp.mediaPlayerFactory().videoSurfaces().newVideoSurface(canvas));
         canvas.setBackground(Color.black); // установка цвета заднего фона для canvas (подосновы для видео)
+        canvas.setMinimumSize(new Dimension((int) this.getMinimumSize().getWidth() - 300, (int) this.getMinimumSize().getHeight() - 100)); // задаем минимальные размеры панели с видео
         // Явно отключаем встроенную обработку событий от мыши и клавиатуры
         emp.mediaPlayer().input().enableMouseInputHandling(false);
         emp.mediaPlayer().input().enableKeyInputHandling(false);
@@ -71,11 +72,9 @@ public class ExampleVLC extends AbstractFrame {
 
         // Добавление панелей
         add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH); // Контрольная панель видеоплеера
-        add(leftCPanel.createLeftCPanel(), BorderLayout.WEST); // Левая панель настроек
-        add(rightCPanel.createRightCPanel(), BorderLayout.EAST); // Правая панель настроек
-        add(canvas, BorderLayout.CENTER); // Canvas для видео
+        add(createWorkSplitPanel(), BorderLayout.CENTER); // Левая панель настроек
 
-// СЛУШАТЕЛИ СОБЫТИЙ. В случае нажатия на кнопку - вызывается метод в скобках. Создается объект нужного типа в котором вызывается метод данного типа. :: - ссылка на метод.
+// Добавление СЛУШАТЕЛЕЙ СОБЫТИЙ. В случае нажатия на кнопку - вызывается метод в скобках. Создается объект нужного типа в котором вызывается метод данного типа. :: - ссылка на метод.
         // Слушатели кнопок на панели управления видео:
         vPCPanel.getB1().addActionListener(this::onStopButtonClick); // Добавление слушателя действия для кнопки B1
         vPCPanel.getB2().addActionListener(this::onPlayPauseButtonClick); // Добавление слушателя действия для кнопки B2
@@ -84,32 +83,23 @@ public class ExampleVLC extends AbstractFrame {
         canvas.addMouseListener(videoMouseClick); // Добавление слушателя событий к поверхности плеера (подоснове для видео) - то есть к самому видео
         canvas.addKeyListener(keyAdapter); // Добавление слушателя для действий клавиатуры
 
-        // Слушатели кнопок в Баре
+        canvas.addMouseWheelListener(whellSound);  // Слушатель изменения звука
+        rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %"); // отображение состояния звука
+
+        // Слушатели КНОПОК В БАРЕ (MenuBar)
         jBar.getFileItem5().addActionListener(this::onFileChooserButtonClick); // Слушатель кнопки "Выбор видео" в Баре
         jBar.getViewItem3().addActionListener(this::onFullScreenButtonClick); // Слушатель кнопки "Полноэкранного режима" в Баре
 
         // Слушатели ПЕРЕМЕЩЕНИЯ КНОПОК по видео (Overlay)
-        MouseAdapter b1 = new MoveButtons(overlay.getB1());
-        overlay.getB1().addMouseListener(b1);
-        overlay.getB1().addMouseMotionListener(b1);
-        MouseAdapter b2 = new MoveButtons(overlay.getB2());
-        overlay.getB2().addMouseListener(b2);
-        overlay.getB2().addMouseMotionListener(b2);
-        MouseAdapter b3 = new MoveButtons(overlay.getB3());
-        overlay.getB3().addMouseListener(b3);
-        overlay.getB3().addMouseMotionListener(b3);
-        MouseAdapter b4 = new MoveButtons(overlay.getB4());
-        overlay.getB4().addMouseListener(b4);
-        overlay.getB4().addMouseMotionListener(b4);
+        JButton[] buttons = {
+            overlay.getB1(), overlay.getB2(), overlay.getB3(), overlay.getB4(),
+            overlay.getB5(), overlay.getB6(), overlay.getB7(), overlay.getB8(),
+            overlay.getB9(), overlay.getB10(), overlay.getB11(), overlay.getB12(),
+            overlay.getB13(), overlay.getB14(), overlay.getB15(), overlay.getB16()};
+        addMoveButton(buttons); // ко всем кнопкам из массива добавляем слушателей
 
-        // Слушатель закрывания окна приложения (освобождаем ресурсы)
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                emp.mediaPlayer().release();
-                emp.mediaPlayerFactory().release();
-            }
-        });
+        // Слушатель окна приложения (освобождаем ресурсы при закрывании)
+        addWindowListener(winAdapter);
 
         // Слушатель изменения размера окна
         canvas.addComponentListener(frameSizeAdapter);
@@ -127,6 +117,7 @@ public class ExampleVLC extends AbstractFrame {
         prepareVideo(filePath);
     }
 
+    // Подготовка видео, запуск и постановка на паузу. Также установка всплывающей панели
     private void prepareVideo(String filePath) {
         // Подготавливаем видео, но не запускаем его
         emp.mediaPlayer().media().prepare(filePath, (String) null);
@@ -139,17 +130,7 @@ public class ExampleVLC extends AbstractFrame {
         canvas.requestFocus(); // фокус на canvas (видео)
     }
 
-    private void setMarquee(String filePath) {
-        emp.mediaPlayer().marquee().setText(filePath);
-        emp.mediaPlayer().marquee().setSize(30);
-        emp.mediaPlayer().marquee().setColour(Color.WHITE);
-        emp.mediaPlayer().marquee().setTimeout(3000);
-        emp.mediaPlayer().marquee().setPosition(MarqueePosition.BOTTOM);
-        emp.mediaPlayer().marquee().setOpacity(0.8f);
-        emp.mediaPlayer().marquee().enable(true);
-    }
-
-    // Обработчик нажатия кнопки СТОП.
+    // Нажатие кнопки СТОП.
     private void onStopButtonClick(ActionEvent e) {
         // Связка из трех операций для правильного отображения времени на панели времени (и для правильного состояния видео)
         emp.mediaPlayer().controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
@@ -159,7 +140,7 @@ public class ExampleVLC extends AbstractFrame {
         canvas.requestFocus(); // установка фокуса на canvas (видео)
     }
 
-    // Обработчик нажатия кнопки ПАУЗА/ПЛЭЙ.
+    // Нажатие кнопки ПАУЗА/ПЛЭЙ.
     private void onPlayPauseButtonClick(ActionEvent e) {
         if (emp.mediaPlayer().status().isPlaying() == true) { // Если медиа проигрывается (play)
             emp.mediaPlayer().controls().pause(); // то - пауза (pause)
@@ -172,13 +153,13 @@ public class ExampleVLC extends AbstractFrame {
         }
     }
 
-    // Обработчик нажатия кнопки "Полноэкранный режим" в Меню Баре (Alt+Shift+Enter)
+    // Нажатие кнопки "Полноэкранный режим" в Меню Баре (Alt+Shift+Enter)
     private void onFullScreenButtonClick(ActionEvent e) {
         emp.mediaPlayer().fullScreen().set(!emp.mediaPlayer().fullScreen().isFullScreen());
         canvas.requestFocus(); // установка фокуса на canvas (видео)
     }
 
-    // Обработчик нажатия кнопки "Выбор видео" в Меню Баре (Alt+Shift+Enter). МОЖНО ДОБАВИТЬ ФИЛЬТР ФАЙЛОВ, и к другим кнопкам добавить действий (сохранение и т.п.)
+    // Нажатие кнопки "Открыь видео.." в Меню Баре (Alt+Shift+Enter). МОЖНО ДОБАВИТЬ ФИЛЬТР ФАЙЛОВ, и к другим кнопкам добавить действий (сохранение и т.п.)
     private void onFileChooserButtonClick(ActionEvent e) {
         new FileChooserRus(); // Локализация компонентов окна JFileChooser
         JFileChooser fileopen = new JFileChooser(); // создаем объект ВыбораФайлов
@@ -192,24 +173,24 @@ public class ExampleVLC extends AbstractFrame {
         }
     }
 
-    // Метод отслеживает действия с мышью на canvas (видео)
+// АДАПТЕРЫ (СЛУШАТЕЛИ)
+    // ДЕЙСТВИЯ С МЫШЬЮ на canvas (видео)
     private MouseAdapter videoMouseClick = new MouseAdapter() {
         // Pressed - только НАЖАТИЕ на кнопку мыши (отпускание не отслеживается
         @Override
         public void mousePressed(MouseEvent e) {
-            // Метод отслеживает Клик ЛЕВОЙ (button1) кнопкой мышкой по видео
+            // Метод отслеживает Клик ЛЕВОЙ (button1) кнопкой мыши по видео
             if (e.getButton() == MouseEvent.BUTTON1) {
                 actionPlayPause(); // Включение|Пауза  видео
             }
-            // Метод отслеживает Клик ПРАВОЙ (button3) кнопкой мышкой по видео
+            // Метод отслеживает Клик ПРАВОЙ (button3) кнопкой мыши по видео
             if (e.getButton() == MouseEvent.BUTTON3) {
                 popupMenu.getJpm().show(e.getComponent(), e.getX(), e.getY()); // Отображение всплывающего меню (popup menu) в том месте, где нажимается кнопка мыши
             }
         }
-
     };
 
-    // Отслеживает количество кликов левой кнопкной мыши и меняет текст (label) в панели СЛЕВА
+    // КОЛИЧЕСТВО КЛИКОВ ЛКМ по кнопке и ВРЕМЕННО: изменение текста (label) в панели СЛЕВА
     private MouseAdapter sumOfMouseClick = new MouseAdapter() {
         int sumClick = 0;
 
@@ -217,12 +198,12 @@ public class ExampleVLC extends AbstractFrame {
         public void mouseClicked(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1) {
                 sumClick = sumClick + 1;
-                leftCPanel.getLabel().setText("Количество кликов: " + sumClick);
+                leftCPanel.getL2().setText("ВЕРХ_Прямо: " + sumClick);
             }
         }
     };
 
-    // Метод отслеживает действия с клавиатурой, если фокус на canvas (видео)!
+    // ДЕЙСТВИЯ С КЛАВИАТУРОЙ, если фокус на canvas (видео)!
     private KeyAdapter keyAdapter = new KeyAdapter() {
         // Pressed - только нажал (отпускание обрабатывается отдельно)
         @Override
@@ -246,15 +227,19 @@ public class ExampleVLC extends AbstractFrame {
                 emp.mediaPlayer().overlay().enable(!emp.mediaPlayer().overlay().enabled()); // если overlay неактивен, то активировать и наоборот
                 canvas.requestFocus(); // Установка фокуса на canvas
             }
+            // Переход по видео ВЛЕВО на 1 секунду
             if ((e.getExtendedKeyCode() == e.VK_LEFT)) {
                 emp.mediaPlayer().controls().skipTime(-1000);
             }
+            // Переход по видео ВПРАВО на 1 секунду
             if ((e.getExtendedKeyCode() == e.VK_RIGHT)) {
                 emp.mediaPlayer().controls().skipTime(1000);
             }
         }
     };
 
+    // ПЕРЕМЕЩЕНИЕ КНОПОК по панели видео (передается абсрактная кнопка на canvas). 
+    // Работает только для ЛЕВОЙ кнопки мыши. Если пытаться другими кнопками мыши - то ничего не происходит и фокус перемещается на видео
     private class MoveButtons extends MouseAdapter {
 
         private int x; // внутрення координата Х кнопки = место нажатия на кнопку
@@ -269,69 +254,81 @@ public class ExampleVLC extends AbstractFrame {
         // Сохранение позиции нажатия мышкой на кнопку
         @Override
         public void mousePressed(MouseEvent e) {
-            x = e.getX(); // координата Х нажатия клавишей мыши 
-            y = e.getY(); // координата Y нажатия клавишей мыши 
+            if (SwingUtilities.isLeftMouseButton(e)) { // Проверяем, что нажата левая кнопка мыши
+                x = e.getX(); // координата Х нажатия клавишей мыши 
+                y = e.getY(); // координата Y нажатия клавишей мыши 
+            } else {
+                canvas.requestFocus();
+            }
         }
 
         // Установка ограничений для невозможности выноса кнопки за область видео (дополнительные меры). Отпускание кнопки мыши
         @Override
-        public void mouseReleased(MouseEvent e) {
-            int xButton = button.getX();
-            int yButton = button.getY();
+        public void mouseReleased(MouseEvent e
+        ) {
+            if (SwingUtilities.isLeftMouseButton(e)) { // Проверяем, что нажата левая кнопка мыши
+                int xButton = button.getX();
+                int yButton = button.getY();
 
-            if (xButton < 0) {
-                button.setLocation(0, yButton);
+                if (xButton < 0) {
+                    button.setLocation(0, yButton);
+                } else {
+                    if (xButton > canvas.getWidth() - button.getWidth()) {
+                        button.setLocation(canvas.getWidth() - button.getWidth(), yButton);
+                    }
+                };
+                if (yButton < 0) {
+                    button.setLocation(xButton, 0);
+                } else {
+                    if (yButton > canvas.getHeight() - button.getHeight()) {
+                        button.setLocation(xButton, canvas.getHeight() - button.getHeight());
+                    }
+                };
+                canvas.requestFocus(); // фокус на canvas (видео) 
+                overlayBackgroundZero(); // установка фона в прозрачное состояние
             } else {
-                if (xButton > canvas.getWidth() - button.getWidth()) {
-                    button.setLocation(canvas.getWidth() - button.getWidth(), yButton);
-                }
-            };
-            if (yButton < 0) {
-                button.setLocation(xButton, 0);
-            } else {
-                if (yButton > canvas.getHeight() - button.getHeight()) {
-                    button.setLocation(xButton, canvas.getHeight() - button.getHeight());
-                }
-            };
-            canvas.requestFocus(); // фокус на canvas (видео) 
-            overlayBackgroundZero(); // установка фона в прозрачное состояние
+                canvas.requestFocus();
+            }
         }
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            int xButton = button.getX(); // координата Х кнопки
-            int yButton = button.getY(); // координата Y кнопки
-            // Установка новых координат кнопки
-            // Новая координата Х кнопки (левого верхнего угла) = координата места, куда хотим перенести кнопку (внутрення координата кнопки) +
-            // + координата старого угла - координата места нажатия на кнопку (внутрення координата кнопки). 
-            // Координата Y - аналогично.
-            button.setLocation(e.getX() + xButton - x, e.getY() + yButton - y);
-            canvas.requestFocus(); // передача фокуса на canvas (видео)
-
-            // Установка ограничений для невозможности выноса кнопки за область видео
-            if (xButton < 0) {
-                button.setLocation(0, yButton);
+            if (SwingUtilities.isLeftMouseButton(e)) { // Проверяем, что нажата левая кнопка мыши
+                int xButton = button.getX(); // координата Х кнопки
+                int yButton = button.getY(); // координата Y кнопки
+                // Установка новых координат кнопки
+                // Новая координата Х кнопки (левого верхнего угла) = координата места, куда хотим перенести кнопку (внутрення координата кнопки) +
+                // + координата старого угла - координата места нажатия на кнопку (внутрення координата кнопки). 
+                // Координата Y - аналогично.
+                button.setLocation(e.getX() + xButton - x, e.getY() + yButton - y);
+                canvas.requestFocus(); // передача фокуса на canvas (видео)
+                // Установка ограничений для невозможности выноса кнопки за область видео
+                if (xButton < 0) {
+                    button.setLocation(0, yButton);
+                    overlayBackgroundZero(); // установка фона в прозрачное состояние
+                } else {
+                    if (xButton > canvas.getWidth() - button.getWidth()) {
+                        button.setLocation(canvas.getWidth() - button.getWidth(), yButton);
+                        overlayBackgroundZero(); // установка фона в прозрачное состояние
+                    }
+                };
+                if (yButton < 0) {
+                    button.setLocation(xButton, 0);
+                    overlayBackgroundZero(); // установка фона в прозрачное состояние
+                } else {
+                    if (yButton > canvas.getHeight() - button.getHeight()) {
+                        button.setLocation(xButton, canvas.getHeight() - button.getHeight());
+                        overlayBackgroundZero(); // установка фона в прозрачное состояние
+                    }
+                };
                 overlayBackgroundZero(); // установка фона в прозрачное состояние
             } else {
-                if (xButton > canvas.getWidth() - button.getWidth()) {
-                    button.setLocation(canvas.getWidth() - button.getWidth(), yButton);
-                    overlayBackgroundZero(); // установка фона в прозрачное состояние
-                }
-            };
-            if (yButton < 0) {
-                button.setLocation(xButton, 0);
-                overlayBackgroundZero(); // установка фона в прозрачное состояние
-            } else {
-                if (yButton > canvas.getHeight() - button.getHeight()) {
-                    button.setLocation(xButton, canvas.getHeight() - button.getHeight());
-                    overlayBackgroundZero(); // установка фона в прозрачное состояние
-                }
-            };
-            overlayBackgroundZero(); // установка фона в прозрачное состояние
+                canvas.requestFocus();
+            }
         }
     }
 
-// Слушатель изменения размера окна
+    // ИЗМЕНЕНИЕ РАЗМЕРА ОКНА
     private ComponentAdapter frameSizeAdapter = new ComponentAdapter() {
         @Override
         public void componentResized(ComponentEvent e) {
@@ -345,7 +342,7 @@ public class ExampleVLC extends AbstractFrame {
 //                upButtonOnVideoLayout2(overlay.getB3(), newWidth, newHeight);
 //                upButtonOnVideoLayout2(overlay.getB4(), newWidth, newHeight);
                 upButtonOnVideoLayout();
-                leftCPanel.getLabel().setText(newWidth + " + " + newHeight + " || " + oldWidthCanvas + " + " + oldHeightCanvas);
+//                leftCPanel.getLabel().setText(newWidth + " + " + newHeight + " || " + oldWidthCanvas + " + " + oldHeightCanvas);
                 downButtonOnVideoLayout();
                 leftButtonOnVideoLayout();
                 rightButtonOnVideoLayout();
@@ -359,6 +356,77 @@ public class ExampleVLC extends AbstractFrame {
         }
     };
 
+    // АДАПТЕР ВИДЕО (видеоплеера). Пока что для правильной реализации метода stop() плеера после окончания видео И запуска таймера (привязки к видеоплееру)
+    private MediaPlayerEventAdapter mpEventAdapter = new MediaPlayerEventAdapter() {
+        @Override
+        public void playing(MediaPlayer mediaPlayer) {
+            super.playing(mediaPlayer);
+            timer(); // конфигурация и запуск панели отображения времени видео
+        }
+
+        @Override
+        public void finished(MediaPlayer mediaPlayer) {
+            super.finished(mediaPlayer);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    // Связка из трех операций для правильного отображения времени на панели времени (и для правильного состояния видео)
+                    mediaPlayer.controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
+                    mediaPlayer.controls().play(); // запуск видео
+                    mediaPlayer.controls().setPause(true); // пауза
+                    vPCPanel.getB2().setText("play");
+                }
+            });
+        }
+    };
+
+    // СЛУШАТЕЛЬ КОЛЕСА МЫШИ (если мышь на canvas = видео). Для изменения звука видео
+    MouseAdapter whellSound = new MouseAdapter() {
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            // вращение колеса вверх (увеличение громкости)
+            if (e.getWheelRotation() < 0) {
+                if (emp.mediaPlayer().audio().volume() <= 200 && emp.mediaPlayer().audio().volume() >= 0) { // если звук в пределах допустимого, то
+                    emp.mediaPlayer().audio().setVolume(emp.mediaPlayer().audio().volume() + 10); // увеличиваем звук на 10
+                    rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %");
+                } else {
+                    if (emp.mediaPlayer().audio().volume() > 200) {
+                        emp.mediaPlayer().audio().setVolume(200);
+                    }
+                }
+            }
+            // вращение колеса вниз (уменьшение громкости)
+            if (e.getWheelRotation() > 0) {
+                if (emp.mediaPlayer().audio().volume() <= 200 && emp.mediaPlayer().audio().volume() >= 0) { // если звук в пределах допустимого, то
+                    emp.mediaPlayer().audio().setVolume(emp.mediaPlayer().audio().volume() - 10); // уменьшаем звук на 10
+                    rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %");
+                } else {
+                    if (emp.mediaPlayer().audio().volume() > 200) {
+                        emp.mediaPlayer().audio().setVolume(200);
+                    }
+                }
+            }
+        }
+    };
+
+    // ЗАКРЫТИЕ ОКНА (освобождение ресурсов)
+    WindowAdapter winAdapter = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            emp.mediaPlayer().release();
+            emp.mediaPlayerFactory().release();
+        }
+    };
+
+    // ПЕРЕХОД (дополнительный) ФОКУСА на canvas (видео), если фокус перешел на canvas (видео)
+    private FocusAdapter canvasFocusAdapter = new FocusAdapter() {
+        @Override
+        public void focusGained(FocusEvent e) {
+            canvas.requestFocus();
+        }
+    };
+
+    // РАЗМЕЩЕНИЕ КНОПОК НА ВИДЕО ПОВЕРХНОСТИ (на overlay) с присвязкой к canvas (видео)
     private void upButtonOnVideoLayout() {
         double indentFromTheMiddle = 1.75;
         double indentBetweenButtnos = 0.2; // отступ между кнопками
@@ -437,24 +505,7 @@ public class ExampleVLC extends AbstractFrame {
         overlay.getB16().setLocation(x, y);
     }
 
-    FocusAdapter canvasFocusAdapter = new FocusAdapter() {
-        @Override
-        public void focusGained(FocusEvent e) {
-            canvas.requestFocus();
-        }
-    };
-
-    private void actionPlayPause() {
-        if (emp.mediaPlayer().status().isPlaying() == true) {
-            emp.mediaPlayer().controls().pause();
-            vPCPanel.getB2().setText("play");
-        } else {
-            emp.mediaPlayer().controls().play();
-            vPCPanel.getB2().setText("pause");
-        }
-    }
-
-    // ВСПОМОГАТЕЛЬНЫЕ методы (как бы костыли)
+// ВСПОМОГАТЕЛЬНЫЕ методы
     // Включение и выключение overlay слоя - как бы его обновление
     private void overlayReload() {
         emp.mediaPlayer().overlay().enable(false); // overlay не активен
@@ -466,6 +517,72 @@ public class ExampleVLC extends AbstractFrame {
         overlay.setBackground(new Color(0, 0, 0, 0));
     }
 
+    // Добавление слушателей к кнопкам, для реализации их перемещения по видео поверхности
+    private void addMoveButton(JButton[] buttons) {
+        for (JButton button : buttons) { // Каждой кнопке из массива кнопок
+            MouseAdapter mouseAdapter = new MoveButtons(button); // создаем свой адаптер
+            button.addMouseListener(mouseAdapter); // Добавляем слушателей кнопке
+            button.addMouseMotionListener(mouseAdapter);
+        }
+    }
+
+    // Переключение состояния видео и текста кнопки
+    private void actionPlayPause() {
+        if (emp.mediaPlayer().status().isPlaying() == true) {
+            emp.mediaPlayer().controls().pause();
+            vPCPanel.getB2().setText("play");
+        } else {
+            emp.mediaPlayer().controls().play();
+            vPCPanel.getB2().setText("pause");
+        }
+    }
+
+// МЕТОДЫ СОЗДАНИЯ: панелей, сущностей
+    // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с тремя областями
+    private JSplitPane createWorkSplitPanel() {
+        JSplitPane splitMain1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
+        JSplitPane splitMain2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
+        splitMain1.setDividerSize(3); // ширина разделительной области
+        splitMain2.setDividerSize(3); // ширина разделительной области
+        splitMain1.setContinuousLayout(true); // поддержка LayoutManagerа помещенного в панель объекта
+        splitMain2.setContinuousLayout(true); // поддержка LayoutManagerа помещенного в панель объекта 
+        splitMain1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
+        splitMain2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
+
+        // МИНИМАЛЬНЫЙ размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
+        Dimension leftRightPanelMinimumSize = new Dimension(
+                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3),
+                (int) (canvas.getMinimumSize().getHeight()));
+
+        JScrollPane leftPanel = new JScrollPane(leftCPanel.createLeftCPanel()); // Создание панели прокрутки для ЛЕВОЙ панели
+        leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
+
+        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel()); // Создание панели прокрутки для ПРАВОЙ панели
+        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
+
+        // Добавление компонент в разделяющуюся панель
+        splitMain1.setLeftComponent(leftPanel);
+        splitMain1.setRightComponent(splitMain2);
+        splitMain2.setLeftComponent(canvas);
+        splitMain2.setRightComponent(rightPanel);
+
+        return splitMain1;
+    }
+
+    // ВСПЛЫВАЮЩЯЯ ПАНЕЛЬ. Метод включения и конфигурации с текстом = путь к файлу (реализовать отображение только названия)
+    private void setMarquee(String filePath) {
+        emp.mediaPlayer().marquee().setText(filePath);
+        emp.mediaPlayer().marquee().setSize(30);
+        emp.mediaPlayer().marquee().setColour(Color.WHITE);
+        emp.mediaPlayer().marquee().setTimeout(3000);
+        emp.mediaPlayer().marquee().setPosition(MarqueePosition.BOTTOM);
+        emp.mediaPlayer().marquee().setOpacity(0.8f);
+        emp.mediaPlayer().marquee().enable(true);
+    }
+
+    // ТАЙМЕР для реализации линии времени видео
     private void timer() {
         // Создание таймера с задержкой в начале работы (10 мс) и Action слушателем
         Timer timer = new Timer(100, new ActionListener() {
@@ -500,29 +617,5 @@ public class ExampleVLC extends AbstractFrame {
         });
         timer.start(); // запуск таймера
     }
-
-    // Адаптер Мероприятий МедиаПлеера. Адаптер - говорит, что делать (пытается решить проблемы). 
-    private MediaPlayerEventAdapter mpEventAdapter = new MediaPlayerEventAdapter() {
-        @Override
-        public void playing(MediaPlayer mediaPlayer) {
-            super.playing(mediaPlayer);
-            timer(); // конфигурация и запуск панели отображения времени видео
-        }
-
-        @Override
-        public void finished(MediaPlayer mediaPlayer) {
-            super.finished(mediaPlayer);
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    // Связка из трех операций для правильного отображения времени на панели времени (и для правильного состояния видео)
-                    mediaPlayer.controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
-                    mediaPlayer.controls().play(); // запуск видео
-                    mediaPlayer.controls().setPause(true); // пауза
-                    vPCPanel.getB2().setText("play");
-                }
-            });
-        }
-    };
 
 }
