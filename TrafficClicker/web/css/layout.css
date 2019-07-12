@@ -1,0 +1,43 @@
+/*Разметка*/
+
+body {
+    position: relative;
+}
+
+header {
+    position: fixed;    
+    left: 0;
+    right: 0;
+    top: 0;
+
+    z-index: 1000; /* Для правильного наложения headerа на article */
+}
+
+footer {
+    position: absolute;    
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+body>article {
+    /* Отступы от header и footer */
+    padding-top: .3in;
+    padding-bottom: .3in;
+}
+
+nav ul {
+    list-style: none; /* Отменяем стиль списка */
+    margin: 0;
+    padding: 0;
+} 
+
+nav ul li {
+    display: inline-block;
+    width: auto;
+    margin-right: 1em; /* Пропорциональный отступ (равный одной величине строки) */
+}
+
+nav ul li:last-child { /* Чтобы отредактировать только последний объект li */
+    margin-right: 0;
+}
