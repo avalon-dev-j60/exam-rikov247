@@ -12,7 +12,7 @@ import uk.co.caprica.vlcj.binding.RuntimeUtil;
 
 public class Main {
 
-    private static final String vlcLibraryPath = "/Portable_programs/netbeans-11.0-bin/vlc_plugins";
+    private static final String vlcLibraryPath = "./vlc_plugins";
 
     public static void main(String[] args) throws Exception {
         // Подгрузка VLC библиотек

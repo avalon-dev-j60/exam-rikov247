@@ -5,9 +5,10 @@ import java.awt.event.*;
 import java.io.File;
 
 import ru.avalon.java.ui.AbstractFrame; // подключенная собственная библиотека
-import ru.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import uk.co.caprica.vlcj.player.base.MarqueePosition;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -25,7 +26,7 @@ public class ExampleVLC extends AbstractFrame {
     private int newWidth;
     private int newHeight;
 
-    private String filePath = "../../Video/Project.avi";
+    private String filePath = "../../Video/RoadDornadzor.mp4";
 
     // Создание плеера. Он сам создает mediaPlayerComponent для себя. Сам является панелью JPanel (не нужна canvas)!
     private EmbeddedMediaPlayerComponent emp = new EmbeddedMediaPlayerComponent();
@@ -71,19 +72,20 @@ public class ExampleVLC extends AbstractFrame {
         emp.setComponentPopupMenu(popupMenu.createPopupMenu());
 
         // Добавление панелей
-        add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH); // Контрольная панель видеоплеера
-        add(createWorkSplitPanel(), BorderLayout.CENTER); // Левая панель настроек
+        add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH); // Контрольная панель видеоплеера (снизу)
+        add(createTabbedPane(), BorderLayout.CENTER); // панель вкладок, внутри которой есть панели с разделением на области (SplitPanel) - видео, таблица
 
 // Добавление СЛУШАТЕЛЕЙ СОБЫТИЙ. В случае нажатия на кнопку - вызывается метод в скобках. Создается объект нужного типа в котором вызывается метод данного типа. :: - ссылка на метод.
-        // Слушатели кнопок на панели управления видео:
+        // Слушатели панели управления видео:
         vPCPanel.getB1().addActionListener(this::onStopButtonClick); // Добавление слушателя действия для кнопки B1
         vPCPanel.getB2().addActionListener(this::onPlayPauseButtonClick); // Добавление слушателя действия для кнопки B2
+        vPCPanel.getvPCPanel().addKeyListener(keyTableTabeAdapter);
 
         // Слушатели на видео поверхность
         canvas.addMouseListener(videoMouseClick); // Добавление слушателя событий к поверхности плеера (подоснове для видео) - то есть к самому видео
-        canvas.addKeyListener(keyAdapter); // Добавление слушателя для действий клавиатуры
+        canvas.addKeyListener(keyVideoTabeAdapter); // Добавление слушателя для действий клавиатуры
 
-        canvas.addMouseWheelListener(whellSound);  // Слушатель изменения звука
+        canvas.addMouseWheelListener(wheelSound);  // Слушатель изменения звука
         rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %"); // отображение состояния звука
 
         // Слушатели КНОПОК В БАРЕ (MenuBar)
@@ -136,27 +138,30 @@ public class ExampleVLC extends AbstractFrame {
         emp.mediaPlayer().controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
         emp.mediaPlayer().controls().play(); // запуск видео
         emp.mediaPlayer().controls().setPause(true); // пауза
-        vPCPanel.getB2().setText("play");
+        vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
         canvas.requestFocus(); // установка фокуса на canvas (видео)
+        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки ПАУЗА/ПЛЭЙ.
     private void onPlayPauseButtonClick(ActionEvent e) {
         if (emp.mediaPlayer().status().isPlaying() == true) { // Если медиа проигрывается (play)
             emp.mediaPlayer().controls().pause(); // то - пауза (pause)
-            vPCPanel.getB2().setText("play"); // текст кнопки меняется на Play
+            vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
             canvas.requestFocus(); // установка фокуса на canvas (видео)
         } else {
             emp.mediaPlayer().controls().play(); // Если медиа не проигрывается, то - play
-            vPCPanel.getB2().setText("pause"); // текст кнопки меняется на Play
+            vPCPanel.getB2().setIcon(vPCPanel.getPauseIcon()); // иконка кнопки меняется на Pause
             canvas.requestFocus(); // установка фокуса на canvas (видео)
         }
+        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки "Полноэкранный режим" в Меню Баре (Alt+Shift+Enter)
     private void onFullScreenButtonClick(ActionEvent e) {
         emp.mediaPlayer().fullScreen().set(!emp.mediaPlayer().fullScreen().isFullScreen());
         canvas.requestFocus(); // установка фокуса на canvas (видео)
+        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки "Открыь видео.." в Меню Баре (Alt+Shift+Enter). МОЖНО ДОБАВИТЬ ФИЛЬТР ФАЙЛОВ, и к другим кнопкам добавить действий (сохранение и т.п.)
@@ -169,7 +174,7 @@ public class ExampleVLC extends AbstractFrame {
             filePath = file.getAbsolutePath(); // берем текстовый абсолютный путь к файлу
             // Подготавливаем новое видео         
             prepareVideo(filePath);
-            vPCPanel.getB2().setText("play"); // устанавливаем для кнопки play/pause новое значение
+            vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
         }
     }
 
@@ -204,7 +209,7 @@ public class ExampleVLC extends AbstractFrame {
     };
 
     // ДЕЙСТВИЯ С КЛАВИАТУРОЙ, если фокус на canvas (видео)!
-    private KeyAdapter keyAdapter = new KeyAdapter() {
+    private KeyAdapter keyVideoTabeAdapter = new KeyAdapter() {
         // Pressed - только нажал (отпускание обрабатывается отдельно)
         @Override
         public void keyPressed(KeyEvent e) {
@@ -237,6 +242,17 @@ public class ExampleVLC extends AbstractFrame {
             }
         }
     };
+    // ДЕЙСТВИЯ С КЛАВИАТУРОЙ, если фокус на canvas (видео)!
+    private KeyAdapter keyTableTabeAdapter = new KeyAdapter() {
+        // Pressed - только нажал (отпускание обрабатывается отдельно)
+        @Override
+        public void keyPressed(KeyEvent e) {
+            // Space (пробел) - проигрывание | пауза
+            if (e.getExtendedKeyCode() == e.VK_SPACE) {
+                actionPlayPause();
+            }
+        }
+    };
 
     // ПЕРЕМЕЩЕНИЕ КНОПОК по панели видео (передается абсрактная кнопка на canvas). 
     // Работает только для ЛЕВОЙ кнопки мыши. Если пытаться другими кнопками мыши - то ничего не происходит и фокус перемещается на видео
@@ -264,8 +280,7 @@ public class ExampleVLC extends AbstractFrame {
 
         // Установка ограничений для невозможности выноса кнопки за область видео (дополнительные меры). Отпускание кнопки мыши
         @Override
-        public void mouseReleased(MouseEvent e
-        ) {
+        public void mouseReleased(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) { // Проверяем, что нажата левая кнопка мыши
                 int xButton = button.getX();
                 int yButton = button.getY();
@@ -356,6 +371,17 @@ public class ExampleVLC extends AbstractFrame {
         }
     };
 
+    // ИЗМЕНЕНИЕ РАЗМЕРОВ панелей на JSplitPanel. Обновление overlay слоя 
+    ComponentAdapter dividerChange = new ComponentAdapter() {
+        @Override
+        public void componentResized(ComponentEvent e) {
+            if (overlay.isVisible()) {
+                overlayReload();
+            }
+            canvas.requestFocus(); // переключение фокуса на canvas
+        }
+    };
+
     // АДАПТЕР ВИДЕО (видеоплеера). Пока что для правильной реализации метода stop() плеера после окончания видео И запуска таймера (привязки к видеоплееру)
     private MediaPlayerEventAdapter mpEventAdapter = new MediaPlayerEventAdapter() {
         @Override
@@ -374,14 +400,14 @@ public class ExampleVLC extends AbstractFrame {
                     mediaPlayer.controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
                     mediaPlayer.controls().play(); // запуск видео
                     mediaPlayer.controls().setPause(true); // пауза
-                    vPCPanel.getB2().setText("play");
+                    vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
                 }
             });
         }
     };
 
     // СЛУШАТЕЛЬ КОЛЕСА МЫШИ (если мышь на canvas = видео). Для изменения звука видео
-    MouseAdapter whellSound = new MouseAdapter() {
+    MouseAdapter wheelSound = new MouseAdapter() {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             // вращение колеса вверх (увеличение громкости)
@@ -517,6 +543,13 @@ public class ExampleVLC extends AbstractFrame {
         overlay.setBackground(new Color(0, 0, 0, 0));
     }
 
+    // переключение фокуса на панель управления видео - сделано для вкладки Таблицы (возможно и для других вкладок)
+    private void tableFocusOnVPCPanel() {
+        if (canvas.isFocusOwner() == false) { // если не получилось (открыта другая вкладка, не видео вкладка), то
+            vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на панель контроля видео
+        }
+    }
+
     // Добавление слушателей к кнопкам, для реализации их перемещения по видео поверхности
     private void addMoveButton(JButton[] buttons) {
         for (JButton button : buttons) { // Каждой кнопке из массива кнопок
@@ -530,22 +563,22 @@ public class ExampleVLC extends AbstractFrame {
     private void actionPlayPause() {
         if (emp.mediaPlayer().status().isPlaying() == true) {
             emp.mediaPlayer().controls().pause();
-            vPCPanel.getB2().setText("play");
+            vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
         } else {
             emp.mediaPlayer().controls().play();
-            vPCPanel.getB2().setText("pause");
+            vPCPanel.getB2().setIcon(vPCPanel.getPauseIcon()); // иконка кнопки меняется на Pause
         }
     }
 
 // МЕТОДЫ СОЗДАНИЯ: панелей, сущностей
-    // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с тремя областями
-    private JSplitPane createWorkSplitPanel() {
+    // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с ВИДЕО с тремя областями
+    private JSplitPane createWorkSplitVideoPanel() {
         JSplitPane splitMain1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
         JSplitPane splitMain2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
-        splitMain1.setDividerSize(3); // ширина разделительной области
-        splitMain2.setDividerSize(3); // ширина разделительной области
-        splitMain1.setContinuousLayout(true); // поддержка LayoutManagerа помещенного в панель объекта
-        splitMain2.setContinuousLayout(true); // поддержка LayoutManagerа помещенного в панель объекта 
+        splitMain1.setDividerSize(4); // ширина разделительной области
+        splitMain2.setDividerSize(4); // ширина разделительной области
+        splitMain1.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
+        splitMain2.setContinuousLayout(true);
         splitMain1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
         splitMain2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
 
@@ -554,11 +587,13 @@ public class ExampleVLC extends AbstractFrame {
                 (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3),
                 (int) (canvas.getMinimumSize().getHeight()));
 
-        JScrollPane leftPanel = new JScrollPane(leftCPanel.createLeftCPanel()); // Создание панели прокрутки для ЛЕВОЙ панели
+        // Создание панели прокрутки для ЛЕВОЙ панели
+        JScrollPane leftPanel = new JScrollPane(leftCPanel.createLeftCPanel());
         leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
         leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
-        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel()); // Создание панели прокрутки для ПРАВОЙ панели
+        // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
+        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel());
         rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
         rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
 
@@ -568,7 +603,135 @@ public class ExampleVLC extends AbstractFrame {
         splitMain2.setLeftComponent(canvas);
         splitMain2.setRightComponent(rightPanel);
 
+        // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
+        leftPanel.addComponentListener(dividerChange);
+        rightPanel.addComponentListener(dividerChange);
+
         return splitMain1;
+    }
+
+    // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с Таблицей 
+    private JSplitPane createWorkSplitTablePanel() {
+        JSplitPane splitMain1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
+        JSplitPane splitMain2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
+        splitMain1.setDividerSize(4); // ширина разделительной области
+        splitMain2.setDividerSize(4); // ширина разделительной области
+        splitMain1.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
+        splitMain2.setContinuousLayout(true);
+        splitMain1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
+        splitMain2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
+
+        // Размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
+        Dimension leftRightPanelMinimumSize = new Dimension(
+                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3),
+                (int) (canvas.getMinimumSize().getHeight()));
+
+        // Создание панели прокрутки для ЛЕВОЙ панели
+        JScrollPane leftPanel = new JScrollPane(new JLabel("Text"));
+        leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        leftPanel.setPreferredSize(leftRightPanelMinimumSize); // Предпочтительный размер (при создании панели)
+//        leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
+
+        // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
+        JScrollPane rightPanel = new JScrollPane(new JLabel("Text"));
+        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        rightPanel.setPreferredSize(leftRightPanelMinimumSize); // Предпочтительный размер (при создании панели)
+//        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
+
+        // Добавление компонент в разделяющуюся панель
+        splitMain1.setLeftComponent(leftPanel); // левая конфигурационная панель
+        splitMain1.setRightComponent(splitMain2);
+        splitMain2.setLeftComponent(createTable()); // добавляем таблицу 
+        splitMain2.setRightComponent(rightPanel); // правая конфигурационная панель (если не нужна, то удобно сделать её null
+
+        // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
+        leftPanel.addComponentListener(dividerChange);
+        rightPanel.addComponentListener(dividerChange);
+
+        return splitMain1;
+    }
+
+    // ПАНЕЛЬ ВКЛАДОК
+    private JTabbedPane createTabbedPane() {
+        JTabbedPane videoTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // создание панели вкладок с размещением выбора вкладок вверху панели и размещением новых вкладок (если им мало места) в скролящуюся горизонтальную панель
+
+        // Вкладка 1 (index = 0). Видео с панелями настроек
+        videoTabs.addTab("Video Panel", createWorkSplitVideoPanel());
+
+        // Вкладка 2 (index = 1). Таблица данных
+        videoTabs.addTab("Table", createWorkSplitTablePanel());
+
+        // Подключение слушателя событий
+        videoTabs.addChangeListener(new ChangeListener() {
+            boolean overlayState = false; // "флаг" для отслеживания того, был ли включен overlay (кнопки) на панели с видео
+
+            // Отслеживаем изменение состояния у панели вкладок
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                // Если выделенная вкладка - это первая вкладка (видео вкладка, index = 0), то
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 0) {
+                    canvas.requestFocus(); // переключаем фокус на canvas
+                    if (overlayState == true) { // если панель кнопок (overlay) отображалась до перехода на вкладку таблицы (или другую вкладку), то
+                        overlay.setVisible(true); // показать панель кнопок (overlay)
+                    }
+                }
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 1) {
+                    vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на панель управления видео
+                    if (overlay.isVisible()) { // если overlay виден (остался виден после панели с видео), то
+                        overlay.setVisible(false); // убираем видимость панели кнопок (overlay)
+                        overlayState = true; // переключаем "флаг", который говорит о том, что панель с кнопками (overlay) была видна и при переходе на панель с видео её снова стоит показать
+                    } else {
+                        overlayState = false; // если панель с кнпоками (overlay) не видна (не была включена на панели с видео, то состояние "флага" не меняем - что говорит о том, что не нужно показывать панель кнопок (overlay) при переходе на панель видео (или другую)
+                    }
+                }
+            }
+        });
+
+        // Подключение слушателя мыши
+        videoTabs.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                // Определяем индекс выделенной мышкой вкладки
+                int idx = ((JTabbedPane) e.getSource()).getSelectedIndex(); //indexAtLocation(e.getX(), e.getY());
+                System.out.println("Выбрана вкладка " + idx);
+
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 0) {
+                    canvas.requestFocus(); // переключаем фокус на canvas
+                }
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 1) {
+                    vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на canvas
+                    // Если видео проигрывается и происходит переключение на вкладку с Таблицой, то видео ставится на паузу
+                    emp.mediaPlayer().controls().setPause(true);
+                    vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 0) {
+                    canvas.requestFocus(); // переключаем фокус на canvas
+                }
+                if (((JTabbedPane) e.getSource()).getSelectedIndex() == 1) {
+                    vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на canvas
+                }
+                canvas.requestFocus();
+            }
+
+        });
+
+        return videoTabs;
+    }
+
+    // ТАБЛИЦА данных 
+    private JScrollPane createTable() {
+        JTable table = new JTable(40, 4); // создание таблицы
+        // добавление номера строки в первый столбец
+        for (int i = 0; i < table.getRowCount(); i++) {
+            table.setValueAt(i + 1, i, 0);
+        }
+
+        JScrollPane tableScroll = new JScrollPane(table); // панель прокрутки (помещаем в нее таблицу
+
+        return tableScroll;
     }
 
     // ВСПЛЫВАЮЩЯЯ ПАНЕЛЬ. Метод включения и конфигурации с текстом = путь к файлу (реализовать отображение только названия)
