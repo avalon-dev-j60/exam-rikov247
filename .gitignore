@@ -1,1 +1,7 @@
 /dist/
+/src/libraries/GUI_library/build/
+/src/libraries/GUI_library/dist/
+/src/libraries/GUI_library/nbproject/private/
+/libraries/GUI_library/build/
+/libraries/GUI_library/dist/
+/libraries/GUI_library/nbproject/private/
