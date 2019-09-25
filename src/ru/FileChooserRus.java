@@ -1,5 +1,5 @@
 /**
- * Руссификация FileChooset
+ * Руссификация FileChooser
  */
 package ru;
 

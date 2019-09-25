@@ -32,7 +32,7 @@ public class CreateMenuBar {
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
     private ImageIcon fileItem2Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Open16.gif"));
     private JMenuItem fileItem3 = new JMenuItem("Закрыть проект");
-    private JMenuItem fileItem4 = new JMenuItem("Сохранить проект как..");
+    private JMenuItem fileItem4 = new JMenuItem("Сохранить как..");
     private ImageIcon fileItem4Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
     private JMenuItem fileItem5 = new JMenuItem("Открыть видео");
     private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
