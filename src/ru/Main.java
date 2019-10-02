@@ -4,7 +4,11 @@
  */
 package ru;
 
+import ru.trafficClicker.TrafficClicker;
 import com.sun.jna.NativeLibrary;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -24,13 +28,17 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Start();
+                try {
+                    Start();
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
-    public static void Start() {
-        JFrame frame = new ExampleVLC(); // создание окна SliderExample
+    public static void Start() throws IOException {
+        JFrame frame = new TrafficClicker(); // создание окна SliderExample
         frame.setVisible(true); // делаем это окно видимым
     }
 

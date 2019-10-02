@@ -8,13 +8,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -22,19 +22,16 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JWindow;
 import javax.swing.ListCellRenderer;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import net.miginfocom.swing.MigLayout;
+import ru.jtable.Table;
+import ru.trafficClicker.OnButtonClick;
+import ru.trafficClicker.imageBackground.SimpleBackground;
 
 public class Overlay extends JWindow {
 
+    private Table tableModel = new Table();
     // ИКОНКИ
     // Машина
     private ImageIcon IconCar = new ImageIcon(this.getClass().getResource("/icons/car/car.png"));
@@ -111,7 +108,7 @@ public class Overlay extends JWindow {
     private JButton bManUp = new JButton(manIcon);
     private JButton bBikeUp = new JButton(bikeIcon);
 
-    // исходно заполняем панель этими компонентами
+    // Исходно заполняем панель этими компонентами
     private JComponent[] componentsUp = {
         aroundUpLabel, leftUpLabel, forwardUpLabel, rightUpLabel,
         bAroundUpCar, bLeftUpCar, bForwardUpCar, bRightUpCar,
@@ -156,6 +153,8 @@ public class Overlay extends JWindow {
     };
 
     // ЛЕВАЯ панель
+    private Component[][] leftContainerComponent;
+
     private JLabel aroundLeftLabel = new JLabel(aroundIcon);
     private JLabel leftLeftLabel = new JLabel(leftIcon);
     private JLabel forwardLeftLabel = new JLabel(forwardIcon);
@@ -204,6 +203,14 @@ public class Overlay extends JWindow {
     private JButton bManLeft = new JButton(manIcon);
     private JButton bBikeLeft = new JButton(bikeIcon);
 
+    // исходно заполняем панель этими компонентами
+    private JComponent[] componentsLeft = {
+        aroundLeftLabel, leftLeftLabel, forwardLeftLabel, rightLeftLabel,
+        bAroundLeftCar, bLeftLeftCar, bForwardLeftCar, bRightLeftCar,
+        bAroundLeftTruck1, bLeftLeftTruck1, bForwardLeftTruck1, bRightLeftTruck1,
+        bAroundLeftBus1, bLeftLeftBus1, bForwardLeftBus1, bRightLeftBus1
+    };
+
     private JLabel[] labelsLeft = {
         aroundLeftLabel, leftLeftLabel, forwardLeftLabel, rightLeftLabel
     };
@@ -225,6 +232,8 @@ public class Overlay extends JWindow {
     };
 
     //НИЖНЯЯ панель
+    private Component[][] downContainerComponent;
+
     private JLabel aroundDownLabel = new JLabel(aroundIcon);
     private JLabel leftDownLabel = new JLabel(leftIcon);
     private JLabel forwardDownLabel = new JLabel(forwardIcon);
@@ -273,6 +282,14 @@ public class Overlay extends JWindow {
     private JButton bManDown = new JButton(manIcon);
     private JButton bBikeDown = new JButton(bikeIcon);
 
+    // исходно заполняем панель этими компонентами
+    private JComponent[] componentsDown = {
+        aroundDownLabel, leftDownLabel, forwardDownLabel, rightDownLabel,
+        bAroundDownCar, bLeftDownCar, bForwardDownCar, bRightDownCar,
+        bAroundDownTruck1, bLeftDownTruck1, bForwardDownTruck1, bRightDownTruck1,
+        bAroundDownBus1, bLeftDownBus1, bForwardDownBus1, bRightDownBus1
+    };
+
     private JLabel[] labelsDown = {
         aroundDownLabel, leftDownLabel, forwardDownLabel, rightDownLabel
     };
@@ -294,6 +311,8 @@ public class Overlay extends JWindow {
     };
 
     //ПРАВАЯ панель
+    private Component[][] rightContainerComponent;
+
     private JLabel aroundRightLabel = new JLabel(aroundIcon);
     private JLabel leftRightLabel = new JLabel(leftIcon);
     private JLabel forwardRightLabel = new JLabel(forwardIcon);
@@ -342,6 +361,14 @@ public class Overlay extends JWindow {
     private JButton bManRight = new JButton(manIcon);
     private JButton bBikeRight = new JButton(bikeIcon);
 
+    // исходно заполняем панель этими компонентами
+    private JComponent[] componentsRight = {
+        aroundRightLabel, leftRightLabel, forwardRightLabel, rightRightLabel,
+        bAroundRightCar, bLeftRightCar, bForwardRightCar, bRightRightCar,
+        bAroundRightTruck1, bLeftRightTruck1, bForwardRightTruck1, bRightRightTruck1,
+        bAroundRightBus1, bLeftRightBus1, bForwardRightBus1, bRightRightBus1
+    };
+
     private JLabel[] labelsRight = {
         aroundRightLabel, leftRightLabel, forwardRightLabel, rightRightLabel
     };
@@ -378,58 +405,72 @@ public class Overlay extends JWindow {
     private JComboBox comboBoxForwardUpTruck = new JComboBox(componentsComboBox);
     private JComboBox comboBoxRightUpTruck = new JComboBox(componentsComboBox);
 
+    SimpleBackground panelUp = new SimpleBackground(new MigLayout()) {
+        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            g.setColor(getBackground());
+            g.fillRect(0, 0, getWidth(), getHeight());
+            super.paintComponent(g);
+        }
+    };
+    SimpleBackground panelLeft = new SimpleBackground(new MigLayout());
+    SimpleBackground panelDown = new SimpleBackground(new MigLayout());
+    SimpleBackground panelRight = new SimpleBackground(new MigLayout());
+    
     // Ссылка на Layout менеджер, который конфигурирует 4 столбца и сколько нужно строк
-    MigLayout panelUpLayout = new MigLayout("wrap 4");
+//    MigLayout panelUpMigLayout = new MigLayout("wrap 4");
 
-    private JPanel panelUp = new JPanel(panelUpLayout) {
-//        GridLayout(4, 4, 0, 0)) {
-        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+//    private JPanel panelUp = new JPanel(panelUpMigLayout) {
+////        GridLayout(4, 4, 0, 0)) {
+//        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
+//        @Override
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//
+//            g.setColor(getBackground());
+//            g.fillRect(0, 0, getWidth(), getHeight());
+//            super.paintComponent(g);
+//        }
+//    };
 
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            super.paintComponent(g);
-        }
-    };
-
-    private JPanel panelLeft = new JPanel(new GridLayout(4, 4, 0, 0)) {
-        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            super.paintComponent(g);
-        }
-    };
-
-    private JPanel panelDown = new JPanel(new GridLayout(4, 4, 0, 0)) {
-        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            super.paintComponent(g);
-        }
-    };
-
-    private JPanel panelRight = new JPanel(new GridLayout(4, 4, 0, 0)) {
-        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            super.paintComponent(g);
-        }
-    };
-
+//    private JPanel panelLeft = new JPanel(panelLeftMigLayout) {
+//        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
+//        @Override
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//
+//            g.setColor(getBackground());
+//            g.fillRect(0, 0, getWidth(), getHeight());
+//            super.paintComponent(g);
+//        }
+//    };
+//
+//    private JPanel panelDown = new JPanel(panelDownMigLayout) {
+//        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
+//        @Override
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//
+//            g.setColor(getBackground());
+//            g.fillRect(0, 0, getWidth(), getHeight());
+//            super.paintComponent(g);
+//        }
+//    };
+//
+//    private JPanel panelRight = new JPanel(panelRightMigLayout) {
+//        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
+//        @Override
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//
+//            g.setColor(getBackground());
+//            g.fillRect(0, 0, getWidth(), getHeight());
+//            super.paintComponent(g);
+//        }
+//    };
     // Основная overlay панель, на которую помещаются кнопки. LayoutManager = null
     private JPanel overlayPanel = new JPanel(null);
 
@@ -442,7 +483,7 @@ public class Overlay extends JWindow {
     private int component2Click2 = 0;
     private int component3Click3 = 0;
 
-    public Overlay(Window owner) {
+    public Overlay(Window owner) throws IOException {
         super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
@@ -464,29 +505,40 @@ public class Overlay extends JWindow {
         fillingComboBox(comboBoxRightUpTruck, comboBoxComponentRightUpTruck);
 
         // Конфигурация панелей и добавление на панели требуемых элементов
-        panelUpLayout.setColumnConstraints("0[]0[]0[]0[]0"); // отступы между строками
-        panelUpLayout.setRowConstraints("0[]0[]0[]0[]0"); // отступы между столбцами
-//        addJLabelOnButtonsPanel(panelUp, labelsUp); // добавление Лэйблов с указанием направления движения
-//        createPanelOfButton(panelUp, buttonsUp); // конфигурация панели и добавление на панель требуемых кнопок (панель 4х4)
+//        panelUpMigLayout.setColumnConstraints("0[]0[]0[]0[]0"); // отступы между строками
+//        panelUpMigLayout.setRowConstraints("0[]0[]0[]0[]0"); // отступы между столбцами
 
         // Добавление исходных компонентов 
         upContainerComponent = new Component[4][4]; // указание размеров панели
+
+//        panelUp.setLayout(panelUpMigLayout);
+        panelUp.setBackground(ImageIO.read(new File("src/icons/numbers/11.png")));
+        panelLeft.setBackground(ImageIO.read(new File("src/icons/numbers/44.png")));
+        panelDown.setBackground(ImageIO.read(new File("src/icons/numbers/33.png")));
+        panelRight.setBackground(ImageIO.read(new File("src/icons/numbers/22.png")));
+
         createEmptyPanelOfButtons(panelUp, upContainerComponent); // заполнение панели пустыми элементами 
         createPanelOfButtons(panelUp, upContainerComponent, componentsUp); // заполнение панели нужными элементами (componentsUp)
         panelUp.setLocation(200, 0); // установка изначального местоположения панели
 
-        addJLabelOnButtonsPanel(panelLeft, labelsLeft);
-        createPanelOfButton(panelLeft, buttonsLeft);
-        panelLeft.setLocation(0, 100);
+        leftContainerComponent = new Component[4][4]; // указание размеров панели
+        createEmptyPanelOfButtons(panelLeft, leftContainerComponent); // заполнение панели пустыми элементами 
+        createPanelOfButtons(panelLeft, leftContainerComponent, componentsLeft); // заполнение панели нужными элементами (componentsUp)
+        panelLeft.setLocation(0, 100); // установка изначального местоположения панели
 
-        addJLabelOnButtonsPanel(panelDown, labelsDown);
-        createPanelOfButton(panelDown, buttonsDown);
-        panelDown.setLocation(500, 400);
+        downContainerComponent = new Component[4][4]; // указание размеров панели
+        createEmptyPanelOfButtons(panelDown, downContainerComponent); // заполнение панели пустыми элементами 
+        createPanelOfButtons(panelDown, downContainerComponent, componentsDown); // заполнение панели нужными элементами (componentsUp)
+        panelDown.setLocation(500, 400); // установка изначального местоположения панели
 
-        addJLabelOnButtonsPanel(panelRight, labelsRight);
-        createPanelOfButton(panelRight, buttonsRight);
-        panelRight.setLocation(650, 0);
+        rightContainerComponent = new Component[4][4]; // указание размеров панели
+        createEmptyPanelOfButtons(panelRight, rightContainerComponent); // заполнение панели пустыми элементами 
+        createPanelOfButtons(panelRight, rightContainerComponent, componentsRight); // заполнение панели нужными элементами (componentsUp)
+        panelRight.setLocation(650, 0); // установка изначального местоположения панели
 
+//        addJLabelOnButtonsPanel(panelRight, labelsRight);
+//        createPanelOfButton(panelRight, buttonsRight);
+//        panelRight.setLocation(650, 0);
         overlayPanel.add(panelUp);
         overlayPanel.add(panelLeft);
         overlayPanel.add(panelDown);
@@ -510,8 +562,33 @@ public class Overlay extends JWindow {
         comboBoxAroundUpTruck.getComponents()[0].setBackground(new JComboBox().getBackground());
 
         addOnPanelOfButtons(panelUp, upContainerComponent); // выполняем метод для применения обновления панели: указываем панель, на которой расположен элемент и массив элементов (контейнеров под них)
-    }
-
+        
+        // Слушатель кликов по кнопке и занесение информации в таблицу
+//        OnButtonClick bClick2 = new OnButtonClick(tableModel.getTable(), 0, 0); // Будем записывать информацию с кнопки в ячейку 0, 0
+//        bAroundUpCar.addActionListener(bClick2::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        
+//        bLeftUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, 2)::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bAroundUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bLeftUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bForwardUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bRightUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        
+        bAroundRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bLeftRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bForwardRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bRightRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        
+        bAroundDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bLeftDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bForwardDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bRightDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+     
+        bAroundLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bLeftLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bForwardLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+        bRightLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+}
+    
     // Класс подсчета количества кликов мышью по кнопкам (абстрактный, можно применять к любым кнопкам, но нужно указать переменнуые хранения количества кликов
     private class comboBoxButtonsOnPanelActionListener implements ActionListener {
 
@@ -532,6 +609,7 @@ public class Overlay extends JWindow {
             String componentName = (String) ((JComboBox) e.getSource()).getSelectedItem();
             if (componentName.equalsIgnoreCase(component0)) {
                 component0Click = component0Click + 1;
+                
                 System.out.println(component0Click + " №0");
             }
             if (componentName.equalsIgnoreCase(component1)) {
@@ -552,6 +630,8 @@ public class Overlay extends JWindow {
 
     // Метод заполнения комбобокса компонентами, через переопределенный рендерер
     private void fillingComboBox(JComboBox comboBox, JComponent[] comboBoxComponents) {
+        comboBox.setFocusable(false); // отключаем возможность перевода фокуса на себя (получения фокуса)
+
         ComboBoxRenderer renderer = new ComboBoxRenderer(); // создаем рендерер (который поможет правильно отображать (представлять) компоненты (кнопки, лэйблы и т.п.) в комбобоксе
         renderer.ComboBoxRenderer(comboBoxComponents); // указываем, что добавить в комбобокс
         createComboBox(comboBox, renderer); // конфигурация комбобокса и указание для него рендерера
@@ -560,7 +640,7 @@ public class Overlay extends JWindow {
     // Заполняем панель компонентами (абсрактными) и заменяем компоненты (ссылки на них) нужными нам элементами. Чтобы затем иметь возможность заменять элементы в сконфигурированной панели
     private JPanel createEmptyPanelOfButtons(JPanel panel, Component[][] containerComponents) {
         // Настройка панели
-        panel.setSize(new Dimension(leftIcon.getIconWidth() * 4 + 8, leftIcon.getIconHeight() * 4 + 8)); // размер панели с кнопками
+        panel.setSize(new Dimension(leftIcon.getIconWidth() * 4 + leftIcon.getIconWidth() / 2, leftIcon.getIconHeight() * 4 + leftIcon.getIconWidth() / 2)); // размер панели с кнопками
         panel.setOpaque(false); // для правильной установки прозрачности кнопок
         panel.setBackground(new Color(.0f, .0f, .0f, .1f)); // установка цвета фона и прозрачности панели с кнопками (чтобы можно было тыкать в видео между кнопок нужно сделать прозрачность нулевой!
         panel.setFocusable(false); // панель не получает фокуса никогда
@@ -572,7 +652,6 @@ public class Overlay extends JWindow {
                 panel.add(containerComponents[i][j]);
             }
         }
-
         return panel; // возвращаем панель с добавленными элементами
     }
 
@@ -581,7 +660,7 @@ public class Overlay extends JWindow {
         // компоненты заменяем на нужные элементы (JLabel, JButton, JComboBox и т.п.)
         mainLoop:
         for (int i = 0; i < containerComponents.length; i++) {
-            injectedComponents[i].setFocusable(false); // лэйбл не получает фокуса никогда
+            injectedComponents[i].setFocusable(false); // компонент не получает фокуса никогда
             for (int j = 0; j < containerComponents.length; j++) {
                 if (j + (containerComponents.length) * i == injectedComponents.length) {
                     break mainLoop;
@@ -610,31 +689,6 @@ public class Overlay extends JWindow {
         return panel; // возвращаем панель с добавленными элементами
     }
 
-    /////////////////////////////////////////////////////////////////////
-    //Старый вариант. Под замену.
-    private JPanel createPanelOfButton(JPanel panel, JButton[] buttons) {
-        panel.setSize(new Dimension(leftIcon.getIconWidth() * 4 + 8, leftIcon.getIconHeight() * 4 + 8)); // размер панели с кнопками
-        panel.setOpaque(false); // для правильной установки прозрачности кнопок
-        panel.setBackground(new Color(.0f, .0f, .0f, .1f)); // установка цвета фона и прозрачности панели с кнопками (чтобы можно было тыкать в видео между кнопок нужно сделать прозрачность нулевой!
-        panel.setFocusable(false); // панель не получает фокуса никогда
-//        panel.setBorder(new LineBorder(Color.lightGray)); // граница панели
-
-        for (JButton button : buttons) {
-            button.setFocusable(false); // кнопка не получает фокуса никогда
-            panel.add(button);
-        }
-
-        return panel;
-    }
-
-    private void addJLabelOnButtonsPanel(JPanel panel, JLabel[] labels) {
-        for (JLabel label : labels) {
-            label.setFocusable(false); // лэйбл не получает фокуса никогда
-            panel.add(label);
-        }
-    }
-    //////////////////////////////////////////////////////////////////////
-
     // Для абстрактной кнопки устанавливается размер и убирается отображение стандартных качеств кнопки
     // Если указать иконку, то размер кнопки будет установлен как размер иконки
     private JButton createButtonWithIcon(JButton button, ImageIcon icon) {
@@ -650,12 +704,15 @@ public class Overlay extends JWindow {
     private JButton createButtonWithIcon(JButton button) {
         button.setBorderPainted(false); // отключение прорисовки рамки
         button.setFocusPainted(false); // отключение прорисовки специального контура, проявляющегося, если кнопка обладает фокусом ввода
-        button.setContentAreaFilled(false); // отключение закраски кнопки в нажатом состоянии
+//        button.setContentAreaFilled(false); // отключение закраски кнопки в нажатом состоянии
 
         button.setPreferredSize(new Dimension(leftIcon.getIconWidth() + 2, leftIcon.getIconHeight() + 2)); // setPreferredSize - если в панели; setSize - если в окне сразу
         button.setMinimumSize(new Dimension(leftIcon.getIconWidth() + 2, leftIcon.getIconHeight() + 2)); // setPreferredSize - если в панели; setSize - если в окне сразу
         button.setMaximumSize(new Dimension(leftIcon.getIconWidth() + 2, leftIcon.getIconHeight() + 2)); // setPreferredSize - если в панели; setSize - если в окне сразу
-        button.setBackground(new Color(0, 0, 0, 0));
+        button.setBackground(new Color(100, 100, 100, 100)); // не работает!
+        button.setOpaque(false);
+        button.setFocusable(false); // отключаем перевод фокуса на кнопку (кнопка никогда его не получит)
+
         return button;
     }
 
@@ -663,198 +720,6 @@ public class Overlay extends JWindow {
         for (JButton button : buttons) {
             createButtonWithIcon(button);
         }
-    }
-
-    // Панель управления панелями кнопок
-    public JComponent createConfigurationTablePanel() {
-        JSplitPane vertSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        vertSplit1.setDividerSize(3);
-        vertSplit1.setContinuousLayout(true);
-
-        JSplitPane horizSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        horizSplit1.setContinuousLayout(true);
-        horizSplit1.setDividerSize(3);
-
-        JSplitPane horizSplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        horizSplit2.setDividerSize(3);
-        horizSplit2.setContinuousLayout(true);
-        vertSplit1.setTopComponent(horizSplit1);
-
-        JSplitPane vertSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        vertSplit2.setDividerSize(3);
-        vertSplit2.setContinuousLayout(true);
-        vertSplit1.setBottomComponent(vertSplit2);
-        vertSplit2.setTopComponent(horizSplit2);
-
-        // нижняя пустая панель для имитации нужных свойств панели (правильное отображение вертикальной divider)
-        JPanel p = new JPanel();
-        p.setBackground(Color.WHITE);
-        vertSplit2.setBottomComponent(p);
-
-        // Первая строка
-        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
-        JScrollBar scrollBar1 = new JScrollBar(JScrollBar.VERTICAL) {
-            @Override
-            public boolean isVisible() {
-                return true;
-            }
-        };
-        // Левый компонент
-        JLabel label1 = new JLabel("Количество направлений: "); // Лэйбл
-        // Установка фона лэйбла:
-        label1.setOpaque(true);
-        label1.setBackground(Color.WHITE);
-        label1.setFocusable(false);
-        label1.setToolTipText("Количество направлений: "); // Установка всплывающей подсказки
-
-        JPanel p1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        p1.setBackground(Color.WHITE);
-        p1.add(label1);
-
-        JScrollPane sc1 = new JScrollPane(p1); // Добавление лэйбла в прокручивающуюся панель
-        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом
-        sc1.setHorizontalScrollBar(scrollBar1);
-        sc1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        horizSplit1.setLeftComponent(sc1);
-        // ComboBox
-        String[] items1 = {"1", "2", "3", "4", "5", "6"};
-        JComboBox comboBox1 = new JComboBox(items1);
-        comboBox1.setFocusable(false);
-        comboBox1.setBackground(Color.WHITE); // установка цвета заднего фона JComboBox
-        ((JLabel) comboBox1.getRenderer()).setHorizontalAlignment(JLabel.CENTER); // выравнивание текста внутри JComboBox
-
-        // Правый компонент
-        horizSplit1.setRightComponent(comboBox1);
-
-        // Вторая строка
-        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
-        JScrollBar scrollBar2 = new JScrollBar(JScrollBar.VERTICAL) {
-            @Override
-            public boolean isVisible() {
-                return true;
-            }
-        };
-        // Левый компонент
-        JLabel label2 = new JLabel("Единицы подсчета: "); // Лэйбл
-        label2.setOpaque(true);
-        label2.setBackground(Color.WHITE);
-        label2.setFocusable(false);
-        label2.setToolTipText("Единицы подсчета: "); // Установка всплывающей подсказки
-
-        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        p2.setBackground(Color.WHITE);
-        p2.add(label2);
-
-        JScrollPane sc2 = new JScrollPane(p2); // Добавление лэйбла в прокручивающуюся панель
-        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом
-        sc2.setHorizontalScrollBar(scrollBar2);
-        sc2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        horizSplit2.setLeftComponent(sc2); //Добавление конфигурированного лэйбла в панель
-
-        // Правый компонент
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-
-        // Дерево checkBoxов
-        JCheckBoxTree checkBox = new JCheckBoxTree(); // создание дерева checkboxов
-        checkBox.setFocusable(false);
-        checkBox.setModel(createTreeModel()); // добавление нужных компонентов в него
-        JScrollPane scrollPane = new JScrollPane(checkBox);
-        scrollPane.setVisible(false); // исходно дерево checkboxов не видно
-
-        // Кнопка для отображения/сокрытия дерева checkboxов
-        JButton button = new JButton("Показать") {
-            // для правильного отображения прозрачности кнопки
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.setColor(getBackground());
-                g.fillRect(0, 0, getWidth(), getHeight());
-                super.paintComponent(g);
-            }
-        };
-        // настройка параметров отображения кнопки
-        button.setFocusable(false); // отключаем возможность получения фокуса кнопкой
-        button.setBorderPainted(false); // отключаем границу отображения кнопки
-        button.setBackground(new Color(0, 0, 0, 0)); // устанавливаем прозрачный фон для кнопки
-        button.setOpaque(false); // устанавливаем прозрачность кнопки
-        // добавление слушателя к кнопке: отображения и сокрытие дерева checkboxов (а также установка позиции вертикальной divider
-        button.addActionListener((e) -> {
-            if (scrollPane.isVisible()) {
-                scrollPane.setVisible(false);
-                button.setText("Показать");
-                vertSplit2.setDividerLocation(button.getHeight() + 4);
-            } else {
-                scrollPane.setVisible(true);
-                button.setText("Свернуть");
-                vertSplit2.setDividerLocation(200);
-            }
-        });
-
-        panel.add(button, BorderLayout.NORTH); // добавляем кнопку
-        panel.add(scrollPane, BorderLayout.CENTER); // добавляем дерево checkboxов внутри скролящейся панели
-        horizSplit2.setRightComponent(panel);
-
-        // Отслеживание положения divider разделенной панели для синхронизации нижней divider и верхней
-        horizSplit1.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, e -> {
-            horizSplit2.setDividerLocation((int) e.getNewValue());
-        });
-
-        horizSplit2.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, e -> {
-            horizSplit1.setDividerLocation((int) e.getNewValue());
-        });
-
-        // Убрать границу (тень) вокруг divider
-        // UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder()); // Убрать границу (тень) вокруг divider для всех SplitPane в приложении
-        vertSplit1.setBorder(BorderFactory.createEmptyBorder());
-        vertSplit2.setBorder(BorderFactory.createEmptyBorder());
-        horizSplit1.setBorder(BorderFactory.createEmptyBorder());
-        horizSplit2.setBorder(BorderFactory.createEmptyBorder());
-
-        return vertSplit1;
-    }
-
-    // описание дерева checkBoxов (наполнения)
-    private TreeModel createTreeModel() {
-        final String ROOT = "Учитываемые единицы";
-        // Массив листьев деревьев
-        final String[] nodes = new String[]{"Легковые", "Автобусы", "Грузовые", "Автопоезда", "Пешеходы", "Велотранспорт", "Трамвай"};
-        final String[][] leafs = new String[][]{
-            {"Особо малого класса", "Малого класса", "Среднего класса", "Большого класса", "Особо большого класса"},
-            {"2-осные", "3-осные", "4-осные", "4-осные (2 оси+прицеп)", "5-осные (3 оси+прицеп)"}, 
-            {"3 осные (2 оси+полуприцеп)", "4 осные (2 оси+полуприцеп)", "5 осные (2 оси+полуприцеп)", "5 осные (3 оси+полуприцеп)", "6 осные", "7 осные и более"}};
-        // Корневой узел дерева
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(ROOT);
-        // Добавление ветвей - потомков 1-го уровня
-        DefaultMutableTreeNode car = new DefaultMutableTreeNode(nodes[0]);
-        DefaultMutableTreeNode bus = new DefaultMutableTreeNode(nodes[1]);
-        DefaultMutableTreeNode truck = new DefaultMutableTreeNode(nodes[2]);
-        DefaultMutableTreeNode roadTrains = new DefaultMutableTreeNode(nodes[3]);
-        DefaultMutableTreeNode people = new DefaultMutableTreeNode(nodes[4]);
-        DefaultMutableTreeNode bicycle = new DefaultMutableTreeNode(nodes[5]);
-        DefaultMutableTreeNode tram = new DefaultMutableTreeNode(nodes[6]);
-        // Добавление ветвей к корневой записи
-        root.add(car);
-        root.add(bus);
-        root.add(truck);
-        root.add(roadTrains);
-        root.add(people);
-        root.add(bicycle);
-        root.add(tram);
-        // Добавление листьев - потомков 2-го уровня
-        for (int i = 0; i < leafs[0].length; i++) {
-            bus.add(new DefaultMutableTreeNode(leafs[0][i]));
-        }
-        for (int i = 0; i < leafs[1].length; i++) {
-            truck.add(new DefaultMutableTreeNode(leafs[1][i]));
-        }
-        for (int i = 0; i < leafs[1].length; i++) {
-            roadTrains.add(new DefaultMutableTreeNode(leafs[2][i]));
-        }
-        // Создание стандартной модели
-        return new DefaultTreeModel(root);
     }
 
     class ComboBoxRenderer implements ListCellRenderer {
@@ -970,5 +835,13 @@ public class Overlay extends JWindow {
 
     public JPanel getPa() {
         return overlayPanel;
+    }
+
+    public JButton getbLeftUpCar() {
+        return bLeftUpCar;
+    }
+
+    public Table getTableModel() {
+        return tableModel;
     }
 }
