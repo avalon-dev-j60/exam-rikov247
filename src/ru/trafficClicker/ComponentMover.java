@@ -218,8 +218,9 @@ public class ComponentMover extends MouseAdapter
 		int height = source.getSize().height - dragInsets.top - dragInsets.bottom;
 		Rectangle r = new Rectangle(dragInsets.left, dragInsets.top, width, height);
 
-		if (r.contains(e.getPoint()))
+		if (r.contains(e.getPoint())) {
 			setupForDragging(e);
+                }
 	}
 
 	private void setupForDragging(MouseEvent e)

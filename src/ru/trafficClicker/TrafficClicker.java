@@ -3,10 +3,11 @@ package ru.trafficClicker;
 import resources.FileChooserRus;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +17,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
+import javax.swing.tree.TreePath;
 import org.quinto.swing.table.view.JBroTable;
 import ru.AddVideoPanel;
 import ru.CreateLeftControlPanel;
@@ -26,8 +27,10 @@ import ru.CreateRightControlPanel;
 import ru.CreateVideoPlayerControlPanel;
 import ru.Overlay;
 import ru.Excel.Save.FileSave;
-import ru.jtable.Table;
+import ru.Excel.Save.templates.FileSaveWithPattern;
+import ru.Excel.Save.templates.savePattern.SaveInExistingFile;
 import ru.videoOpen;
+import tests.popupButton.OverlayTest;
 
 import uk.co.caprica.vlcj.player.base.MarqueePosition;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -36,13 +39,16 @@ import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.fullscreen.adaptive.AdaptiveFullScreenStrategy;
 
 public class TrafficClicker extends AbstractFrame {
+// ПОХОЖЕ, ЧТО ПРОБЛЕМА java.lang.stackoverflow java.awt.awteventmulticaster.mousemoved вызвана Component Mover !!! (двигает панель с кнопками)!!!
 
-    private Overlay overlay;
-    private AddVideoPanel addVideoPanel = new AddVideoPanel();
+    private OverlayTest overlay; // слой кнопок поверх видео
+    private AddVideoPanel addVideoPanel = new AddVideoPanel(); // панель с кнопкой добавления видео
+    private AddTablePanel addTablePanel = new AddTablePanel(); // панель с кнопкой добавления таблицы
     private JBroTable table = new JBroTable(); // создание таблицы
-    private Canvas canvas = new Canvas();
+    private Canvas canvas = new Canvas(); // подоснова для видео
+    private CreateConfigurationPanel configurationPanel; // инициализация панели для конфигурации таблицы подсчета
 
-    private String filePath;
+    private String filePath; // переменная для хранения полного пути к Видео
 
     // Создание плеера. Он сам создает mediaPlayerComponent для себя. Сам является панелью JPanel (не нужна canvas)!
     private EmbeddedMediaPlayerComponent emp = new EmbeddedMediaPlayerComponent();
@@ -60,11 +66,6 @@ public class TrafficClicker extends AbstractFrame {
 
     // Переменная для активации overlay слоя "Добавления видео"
     private boolean overlayAddVideoBoolean = true;
-
-    // Конструктор с созданием окна поверх видео. Отдельный конструктор, потому что Exception
-    public TrafficClicker() throws IOException {
-        this.overlay = new Overlay(this);
-    }
 
     // Что происходит при создании окна
     @Override
@@ -119,26 +120,15 @@ public class TrafficClicker extends AbstractFrame {
         canvas.addKeyListener(keyVideoTabeAdapter); // Добавление слушателя для действий клавиатуры
 
         canvas.addMouseWheelListener(wheelSound);  // Слушатель изменения звука
-        rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %"); // отображение состояния звука
-
         // Слушатели КНОПОК В БАРЕ (MenuBar)
-        jBar.getFileItem5().addActionListener(this::onAddVideoButtonClick); // Слушатель кнопки "Выбор видео" в Баре
+        jBar.getFileItem6().addActionListener(this::onAddVideoButtonClick); // Слушатель кнопки "Выбор видео" в Баре
         jBar.getViewItem3().addActionListener(this::onFullScreenButtonClick); // Слушатель кнопки "Полноэкранного режима" в Баре
-        jBar.getFileItem4().addActionListener(this::onSaveAsButtonClick); // Слушатель кнопки "Сохранить как..."
+        jBar.getFileItem4().addActionListener(configurationPanel::onSaveButtonClick); // Слушатель кнопки "Сохранить"
+        jBar.getFileItem5().addActionListener(this::onSaveAsButtonClick); // Слушатель кнопки "Сохранить как..."
+        jBar.getFileItem1().addActionListener(configurationPanel::onButtonClick); // Слушатель кнопки "Новый проект..."
 
-        // Слушатели ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
-        for (JLabel label : overlay.getLabelsUp()) {
-            new ComponentMover(overlay.getPanelUp(), label); // добавление слушателя (что перемещать, на что для этого нажимать)
-        }
-        for (JLabel label : overlay.getLabelsLeft()) {
-            new ComponentMover(overlay.getPanelLeft(), label);
-        }
-        for (JLabel label : overlay.getLabelsDown()) {
-            new ComponentMover(overlay.getPanelDown(), label);
-        }
-        for (JLabel label : overlay.getLabelsRight()) {
-            new ComponentMover(overlay.getPanelRight(), label);
-        }
+        // Слушатели КНОПОК ВО ВСПЛЫВАЮЩЕЙ ПАНЕЛИ НА ВИДЕО (MenuBar)
+        popupMenu.getMenuItem4().addActionListener(this::onPlayPauseButtonClick);
 
         // Слушатель окна приложения (освобождаем ресурсы при закрывании)
         addWindowListener(winAdapter);
@@ -155,6 +145,26 @@ public class TrafficClicker extends AbstractFrame {
 
         // Overlay слой добавления видео
         addVideoPanel.getButton().addActionListener(this::onAddVideoButtonClick);
+
+        // Overlay слой добавления Таблицы (сам слушатель берем из класса configurationPanel, метод называется onButtonClick
+        addTablePanel.getButton().addActionListener(configurationPanel::onButtonClick);
+
+        // Слушатель изменения полного имени файла. На этом реализован слушатель того, что нужно сконфигурировать новую таблицу и слой overlay.
+        // Все параметры для таблицы получаем из configurationPanel.
+        configurationPanel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                // Если fileSave был открыт, но файл не был сохранен, то новое значение становится null - новая таблица не создается
+                // Если имя не null (изменено или осталось прежним (для этого некоторые махинации проводим внутри configurationPanel)), то делаем, что нужно
+                if (evt.getNewValue() != null) {
+                    try {
+                        doOverlayAndGetTable();
+                    } catch (IOException ex) {
+                        Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
     }
 
     // Подготовка видео, запуск и постановка на паузу. Также установка всплывающей панели
@@ -166,7 +176,7 @@ public class TrafficClicker extends AbstractFrame {
         // Устанавливаем паузу
         emp.mediaPlayer().controls().setPause(true);
         // Marguee (всплывающая) панель. Можно ей управлять и до и после включения видео
-        setMarquee(filePath);
+        setMarqueeStart(filePath);
         canvas.requestFocus(); // фокус на canvas (видео)
     }
 
@@ -192,6 +202,16 @@ public class TrafficClicker extends AbstractFrame {
         tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
+    // Нажатие на кнопку "Сохранить"
+//    private void onSaveButtonClick(ActionEvent e) {
+//        System.out.println(configurationPanel.getFullFileName());
+//        System.out.println(getFullName());
+//            try {
+//                new SaveInExistingFile(getFullName(), table);
+//            } catch (IOException ex) {
+//                Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+//            } 
+//    }
     // Нажатие на кнопку "Сохранить как..."
     private void onSaveAsButtonClick(ActionEvent e) {
         try {
@@ -221,12 +241,9 @@ public class TrafficClicker extends AbstractFrame {
             if (ret == JFileChooser.APPROVE_OPTION) { //  
                 file = videoOpen.getSelectedFile(); // выбираем этот файл (получаем на него ссылку)
                 filePath = file.getAbsolutePath(); // берем текстовый абсолютный путь к файлу
-                splitMain2.setLeftComponent(canvas); // на вкладку видео панели добавляем наше видео (canvas - подоснова для видео, на ней далее будет отображено видео)
+                splitMain2Tab1.setLeftComponent(canvas); // на вкладку видео панели добавляем наше видео (canvas - подоснова для видео, на ней далее будет отображено видео)
                 // Подготавливаем новое видео         
                 prepareVideo(filePath);
-                // Установка overlay слоя над видео (слой КНОПОК)
-                emp.mediaPlayer().overlay().set(overlay);
-                emp.mediaPlayer().overlay().enable(false);
             }
             if (ret == JFileChooser.CANCEL_OPTION) {
                 // выходим из режима выбора файлов            
@@ -266,11 +283,11 @@ public class TrafficClicker extends AbstractFrame {
         @Override
         public void keyPressed(KeyEvent e) {
             // Space (пробел) - проигрывание | пауза
-            if (e.getExtendedKeyCode() == e.VK_SPACE) {
+            if (e.getKeyCode() == e.VK_SPACE) {
                 actionPlayPause();
             }
             // F11 - отображение кнопок на canvas (видео)
-            if (e.getExtendedKeyCode() == e.VK_F11) {
+            if (e.getKeyCode() == e.VK_F11) {
                 // Если canvas отображается на экране (окно отображается), то устанавливаем расположение кнопок
 //                if (canvas.isShowing()) {
 //                    upButtonOnVideoLayout();
@@ -282,13 +299,47 @@ public class TrafficClicker extends AbstractFrame {
                 emp.mediaPlayer().overlay().enable(!emp.mediaPlayer().overlay().enabled()); // если overlay неактивен, то активировать и наоборот
                 canvas.requestFocus(); // Установка фокуса на canvas
             }
+// СКОРОСТЬ ВОСПРОИЗВЕДЕНИЯ
+            // Установка скорости воспроизведения в нормальное сосояние
+            if ((e.getKeyCode() == e.VK_Z)) {
+                emp.mediaPlayer().controls().setRate(1.0f);
+                setMarquee("Скорость воспроизведения: " + fmt(emp.mediaPlayer().status().rate()) + "x", 20, MarqueePosition.TOP_LEFT);
+            }
+            // Уменьшение скорости воспроизведения на 10%. Минимум 0.2х
+            if ((e.getKeyCode() == e.VK_X)) {
+                if (emp.mediaPlayer().status().rate() >= 0.2) {
+                    emp.mediaPlayer().controls().setRate(emp.mediaPlayer().status().rate() - 0.1f);
+                    setMarquee("Скорость воспроизведения: " + fmt(emp.mediaPlayer().status().rate()) + "x", 20, MarqueePosition.TOP_LEFT);
+                }
+            }
+            // Увеличение скорости воспроизведения на 10%. Максимум 12.0х
+            if ((e.getKeyCode() == e.VK_C)) {
+                if (emp.mediaPlayer().status().rate() <= 12) {
+                    emp.mediaPlayer().controls().setRate(emp.mediaPlayer().status().rate() + 0.1f);
+                    setMarquee("Скорость воспроизведения: " + fmt(emp.mediaPlayer().status().rate()) + "x", 20, MarqueePosition.TOP_LEFT);
+                }
+            }
+// ПРОЛИСТЫВАНИЕ ВИДЕО
             // Переход по видео ВЛЕВО на 1 секунду
-            if ((e.getExtendedKeyCode() == e.VK_LEFT)) {
-                emp.mediaPlayer().controls().skipTime(-1000);
+            int skipTime = 5;
+            if ((e.getKeyCode() == e.VK_LEFT)) {
+                emp.mediaPlayer().controls().skipTime(-skipTime * 1000);
+                setMarquee("- " + skipTime + " сек.", 20, MarqueePosition.BOTTOM_LEFT);
             }
             // Переход по видео ВПРАВО на 1 секунду
-            if ((e.getExtendedKeyCode() == e.VK_RIGHT)) {
-                emp.mediaPlayer().controls().skipTime(1000);
+            if ((e.getKeyCode() == e.VK_RIGHT)) {
+                emp.mediaPlayer().controls().skipTime(skipTime * 1000);
+                setMarquee("+ " + skipTime + " сек.", 20, MarqueePosition.BOTTOM_LEFT);
+            }
+// УБРАТЬ ЗВУК
+            if ((e.getKeyCode() == e.VK_M)) {
+                if (!emp.mediaPlayer().audio().isMute()) { // если звук не выключен, то
+                    emp.mediaPlayer().audio().setMute(true); // выключаем
+                    setMarquee("Звук выключен", 20, MarqueePosition.BOTTOM);
+                } else {
+                    emp.mediaPlayer().audio().setMute(false); // если выключен - включаем
+                    setMarquee("Звук включен", 20, MarqueePosition.BOTTOM);
+                }
             }
         }
     };
@@ -329,7 +380,10 @@ public class TrafficClicker extends AbstractFrame {
         @Override // При открытии видео - отключаем overlay слой (кнопок)
         public void opening(MediaPlayer mediaPlayer) {
             super.opening(mediaPlayer);
-            emp.mediaPlayer().overlay().enable(false);
+            if (overlay != null) {
+                emp.mediaPlayer().overlay().set(overlay);
+                emp.mediaPlayer().overlay().enable(false);
+            }
         }
 
         @Override // при постановке видео на паузу - устанавливаем иконку play/pause в положение play
@@ -369,7 +423,6 @@ public class TrafficClicker extends AbstractFrame {
             if (e.getWheelRotation() < 0) {
                 if (emp.mediaPlayer().audio().volume() <= 200 && emp.mediaPlayer().audio().volume() >= 0) { // если звук в пределах допустимого, то
                     emp.mediaPlayer().audio().setVolume(emp.mediaPlayer().audio().volume() + 10); // увеличиваем звук на 10
-                    rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %");
                 } else {
                     if (emp.mediaPlayer().audio().volume() > 200) {
                         emp.mediaPlayer().audio().setVolume(200);
@@ -380,13 +433,14 @@ public class TrafficClicker extends AbstractFrame {
             if (e.getWheelRotation() > 0) {
                 if (emp.mediaPlayer().audio().volume() <= 200 && emp.mediaPlayer().audio().volume() >= 0) { // если звук в пределах допустимого, то
                     emp.mediaPlayer().audio().setVolume(emp.mediaPlayer().audio().volume() - 10); // уменьшаем звук на 10
-                    rightCPanel.getLabel().setText("volume: " + emp.mediaPlayer().audio().volume() + " %");
                 } else {
                     if (emp.mediaPlayer().audio().volume() > 200) {
                         emp.mediaPlayer().audio().setVolume(200);
                     }
                 }
             }
+            // Отображение громкости. БЫЛА ПРОБЛЕМА С ОТОБРАЖЕНИЕМ "%" !нужно его экранировать!
+            setMarquee("Громкость: " + String.valueOf(emp.mediaPlayer().audio().volume()) + " %%", 20, MarqueePosition.BOTTOM_RIGHT);
         }
     };
 
@@ -396,7 +450,9 @@ public class TrafficClicker extends AbstractFrame {
         public void windowClosing(WindowEvent e) {
             emp.mediaPlayer().release();
             emp.mediaPlayerFactory().release();
-            overlay.dispose();
+            if (overlay != null) {
+                overlay.dispose();
+            }
         }
     };
 
@@ -510,16 +566,16 @@ public class TrafficClicker extends AbstractFrame {
 
 // МЕТОДЫ СОЗДАНИЯ: панелей, сущностей
     // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с ВИДЕО с тремя областями
-    private JSplitPane splitMain1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
-    private JSplitPane splitMain2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
+    private JSplitPane splitMain1Tab1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
+    private JSplitPane splitMain2Tab1 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
 
     private JSplitPane createWorkSplitVideoPanel() {
-        splitMain1.setDividerSize(4); // ширина разделительной области
-        splitMain2.setDividerSize(4); // ширина разделительной области
-        splitMain1.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
-        splitMain2.setContinuousLayout(true);
-        splitMain1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
-        splitMain2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
+        splitMain1Tab1.setDividerSize(4); // ширина разделительной области
+        splitMain2Tab1.setDividerSize(4); // ширина разделительной области
+        splitMain1Tab1.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
+        splitMain2Tab1.setContinuousLayout(true);
+        splitMain1Tab1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
+        splitMain2Tab1.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
 
         // МИНИМАЛЬНЫЙ размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
         Dimension leftRightPanelMinimumSize = new Dimension(
@@ -532,33 +588,33 @@ public class TrafficClicker extends AbstractFrame {
         leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
         // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
-        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel());
-        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
-        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
-
+//        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel());
+//        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+//        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
         // Добавление компонент в разделяющуюся панель
-        splitMain1.setLeftComponent(leftPanel); // левая панель
-        splitMain1.setRightComponent(splitMain2); // в качестве парвой панели - еще две панели
-        splitMain2.setLeftComponent(addVideoPanel.AddVideo()); // панель с кнопкой добавления видео
-        splitMain2.setRightComponent(rightPanel); // правая конфигурационная панель
+        splitMain1Tab1.setLeftComponent(leftPanel); // левая панель
+        splitMain1Tab1.setRightComponent(splitMain2Tab1); // в качестве парвой панели - еще две панели
+        splitMain2Tab1.setLeftComponent(addVideoPanel.AddVideo()); // панель с кнопкой добавления видео
+        splitMain2Tab1.setRightComponent(null); // правая конфигурационная панель. Если не нужна - ставим null
 
         // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
         leftPanel.addComponentListener(dividerChange);
-        rightPanel.addComponentListener(dividerChange);
+//        rightPanel.addComponentListener(dividerChange);
 
-        return splitMain1;
+        return splitMain1Tab1;
     }
 
     // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с Таблицей 
-    private JSplitPane createWorkSplitTablePanel(JComponent leftComponent, JComponent rightComponent) {
-        JSplitPane splitMain1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
-        JSplitPane splitMain2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
-        splitMain1.setDividerSize(4); // ширина разделительной области
-        splitMain2.setDividerSize(4); // ширина разделительной области
-        splitMain1.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
-        splitMain2.setContinuousLayout(true);
-        splitMain1.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
-        splitMain2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
+    JSplitPane splitMain1Tab2 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
+    JSplitPane splitMain2Tab2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
+
+    private JSplitPane createWorkSplitTablePanel(JComponent leftComponent, JComponent centerComponent, JComponent rightComponent) {
+        splitMain1Tab2.setDividerSize(4); // ширина разделительной области
+        splitMain2Tab2.setDividerSize(4); // ширина разделительной области
+        splitMain1Tab2.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
+        splitMain2Tab2.setContinuousLayout(true);
+        splitMain1Tab2.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
+        splitMain2Tab2.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
 
         // Размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
         Dimension leftRightPanelMinimumSize = new Dimension(
@@ -568,26 +624,26 @@ public class TrafficClicker extends AbstractFrame {
         // Создание панели прокрутки для ЛЕВОЙ панели
         JScrollPane leftPanel = new JScrollPane(leftComponent);
         leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши (стандартно включена)
-        leftPanel.setPreferredSize(new Dimension((int) (leftRightPanelMinimumSize.getWidth() * 3.5), (int) this.getHeight())); // Предпочтительный размер (при создании панели)
+        leftPanel.setPreferredSize(new Dimension((int) (leftRightPanelMinimumSize.getWidth() * 3), (int) this.getHeight())); // Предпочтительный размер (при создании панели)
         leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
         // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
         JScrollPane rightPanel = new JScrollPane(rightComponent);
         rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
 //        rightPanel.setPreferredSize(leftRightPanelMinimumSize); // Предпочтительный размер (при создании панели)
-        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
+//        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
 
         // Добавление компонент в разделяющуюся панель
-        splitMain1.setLeftComponent(leftPanel); // левая конфигурационная панель
-        splitMain1.setRightComponent(splitMain2);
-        splitMain2.setLeftComponent(createTable()); // добавляем таблицу 
-        splitMain2.setRightComponent(rightPanel); // правая конфигурационная панель (если не нужна, то удобно сделать её null
+        splitMain1Tab2.setLeftComponent(leftPanel); // левая конфигурационная панель
+        splitMain1Tab2.setRightComponent(splitMain2Tab2);
+        splitMain2Tab2.setLeftComponent(centerComponent); // добавляем таблицу 
+        splitMain2Tab2.setRightComponent(null); // правая конфигурационная панель (если не нужна, то удобно сделать её null
 
         // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
         leftPanel.addComponentListener(dividerChange);
         rightPanel.addComponentListener(dividerChange);
 
-        return splitMain1;
+        return splitMain1Tab2;
     }
 
     // ПАНЕЛЬ ВКЛАДОК
@@ -599,8 +655,8 @@ public class TrafficClicker extends AbstractFrame {
 
         // Вкладка 2 (index = 1). Таблица данных
         // на вкладку таблицы добавляем левую панель с настройками и правую панель 
-        CreateConfigurationPanel configPanel = new CreateConfigurationPanel();
-        videoTabs.addTab("Таблица результатов подсчета", createWorkSplitTablePanel(configPanel.CreateConfigurationPanel(), new JLabel("Панель")));
+        configurationPanel = new CreateConfigurationPanel();
+        videoTabs.addTab("Таблица результатов подсчета", createWorkSplitTablePanel(configurationPanel.CreateConfigurationPanel(), addTablePanel.AddTable(), new JLabel("Панель")));
 
         // Подключение слушателя мыши
         videoTabs.addMouseListener(new MouseAdapter() {
@@ -701,20 +757,8 @@ public class TrafficClicker extends AbstractFrame {
     }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // ТАБЛИЦА данных 
-    // пытаемся инициализировать переменную класса Модифицированной Таблицы (пытаемся - потому что могут быть исключения)
-    private JScrollPane createTable() {
-        try {
-            table = overlay.getTableModel().doTable();
-        } catch (Exception ex) {
-            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return table.getScrollPane();
-    }
-
     // ВСПЛЫВАЮЩЯЯ ПАНЕЛЬ. Метод включения и конфигурации с текстом = путь к файлу (реализовать отображение только названия)
-    private void setMarquee(String filePath) {
+    private void setMarqueeStart(String filePath) {
         int index = filePath.lastIndexOf("\\") + 1; // из пути к файлу получаем индекс, после которого будет только название файла
         emp.mediaPlayer().marquee().setText(filePath.substring(index)); // получаем название файла из пути к нему
         emp.mediaPlayer().marquee().setSize(30);
@@ -725,7 +769,19 @@ public class TrafficClicker extends AbstractFrame {
         emp.mediaPlayer().marquee().enable(true);
     }
 
-    // ТАЙМЕР для реализации линии времени видео
+    private void setMarquee(String text, int size, MarqueePosition position) {
+        emp.mediaPlayer().marquee().setColour(Color.WHITE);
+        emp.mediaPlayer().marquee().setTimeout(2000);
+        emp.mediaPlayer().marquee().setOpacity(0.8f);
+
+        emp.mediaPlayer().marquee().setText(text); // получаем название файла из пути к нему
+        emp.mediaPlayer().marquee().setSize(size);
+        emp.mediaPlayer().marquee().setPosition(position);
+
+        emp.mediaPlayer().marquee().enable(true);
+    }
+
+    // ТАЙМЕР для реализации линии времени видео. Точно не виноват в ошибки вылета java машины после окончания видео
     private void timer() {
         // Создание таймера с задержкой в начале работы (10 мс) и Action слушателем
         Timer timer = new Timer(100, new ActionListener() {
@@ -759,6 +815,49 @@ public class TrafficClicker extends AbstractFrame {
             }
         });
         timer.start(); // запуск таймера
+    }
+
+    // Во вкладке Таблицы отображаем новую сконфигурированную таблицу (для этого ее сначала получаем и создаем - в другом слушателе). 
+    // Добавляем слушатели перемещения панелей кнопок. 
+    public void doOverlayAndGetTable() throws IOException {
+        // Уничтожаем предыдущий overlay, если он существовал (для правильного освобождения ресурсов и отображегния нового overlay)
+        if (overlay != null) {
+            overlay.dispose();
+        }
+        table = configurationPanel.getTable(); // получаем таблицу (до этого она перестраиваетя, в другом слушателе - слушателе кнопки)
+        String typeOfStatement = configurationPanel.getTypeOfStatement(); // получаем вид таблицы - старая или новая
+        TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
+        overlay = new OverlayTest(this, table, typeOfStatement, paths); // создаем новый overlay слой кнопок
+
+        // Слушатели ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
+        for (JLabel label : overlay.getLabelsUp()) {
+            new ComponentMover(overlay.getPanelUp(), label); // добавление слушателя (что перемещать, на что для этого нажимать)
+        }
+        for (JLabel label : overlay.getLabelsLeft()) {
+            new ComponentMover(overlay.getPanelLeft(), label);
+        }
+        for (JLabel label : overlay.getLabelsDown()) {
+            new ComponentMover(overlay.getPanelDown(), label);
+        }
+        for (JLabel label : overlay.getLabelsRight()) {
+            new ComponentMover(overlay.getPanelRight(), label);
+        }
+
+        // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
+        if (emp.mediaPlayer().media().isValid()) {
+            emp.mediaPlayer().overlay().set(overlay);
+            emp.mediaPlayer().overlay().enable(false);
+        }
+
+        table.repaint(); // перерисовываем панель 
+        table.revalidate(); // переобъявляем таблицу?)
+        splitMain2Tab2.setLeftComponent(table.getScrollPane()); // добавляем таблицу во вкладку Таблицы приложения
+    }
+
+    // Округление до двух чисел после запятой
+    private String fmt(double d) {
+        double dFormat = (double) Math.round(d * 100) / 100;
+        return String.valueOf(dFormat);
     }
 
 }

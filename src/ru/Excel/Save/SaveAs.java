@@ -71,7 +71,7 @@ public class SaveAs extends JPanel {
                     } else { // если файлов с таким же именем нет, то 
                         if (fileSave.getSelectedFile().getName().
                                 equalsIgnoreCase(fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|\\|\"", ""))) {
-                            new AsHSSFWithHeader(table, fullFileName);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls";
+                            new AsHSSF(table, fullFileName);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls";
                         } else {
                             continue again;// возвращение обратно в меню сохранения файлов
                         }

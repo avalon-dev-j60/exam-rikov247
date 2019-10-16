@@ -84,7 +84,7 @@ public class JCheckBoxTree extends JTree {
         return checkedPaths.toArray(new TreePath[checkedPaths.size()]);
     }
 
-    // Returns true in case that the node is selected, has children but not all of them are selected
+    // Возвращает true если узел выбран, имеет детей, но не все они выбраны
     public boolean isSelectedPartially(TreePath path) {
         CheckedNode cn = nodesCheckingState.get(path);
         return cn.isSelected && cn.hasChildren && !cn.allChildrenSelected;
@@ -190,7 +190,7 @@ public class JCheckBoxTree extends JTree {
         this.setSelectionModel(dtsm);
     }
 
-    // When a node is checked/unchecked, updating the states of the predecessors
+    // Когда узел выбран/невыбран, обновляем состояние родителя (предка)
     protected void updatePredecessorsWithCheckMode(TreePath tp, boolean check) {
         TreePath parentPath = tp.getParentPath();
         // If it is the root, stop the recursive calls and return
@@ -209,7 +209,7 @@ public class JCheckBoxTree extends JTree {
             if (! childCheckedNode.allChildrenSelected) {
                 parentCheckedNode.allChildrenSelected = false;      
             }
-            // If at least one child is selected, selecting also the parent
+            // Если выбраны все дети, то выбираем и родителя
             if (childCheckedNode.isSelected) {
                 parentCheckedNode.isSelected = true;
             }
@@ -223,7 +223,7 @@ public class JCheckBoxTree extends JTree {
         updatePredecessorsWithCheckMode(parentPath, check);
     }
 
-    // Recursively checks/unchecks a subtree
+    // Рекурсивно checks/unchecks a subtree
     protected void checkSubTree(TreePath tp, boolean check) {
         CheckedNode cn = nodesCheckingState.get(tp);
         cn.isSelected = check;

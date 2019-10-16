@@ -9,7 +9,7 @@ public class CreateRightControlPanel {
 
     private JPanel RightCPanel = new JPanel(new BorderLayout()); // Панель управления видео
 
-    private JLabel label = new JLabel("");
+    private JLabel label = new JLabel("Правая");
 
     public JPanel createRightCPanel() {
         RightCPanel.add(label, BorderLayout.CENTER);

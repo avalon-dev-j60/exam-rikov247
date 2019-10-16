@@ -2,10 +2,10 @@ package ru.jtable;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -16,13 +16,16 @@ import org.quinto.swing.table.view.JBroTable;
  */
 public class CellRenderer extends JLabel implements TableCellRenderer {
 
-    private int horizontalAlignment = JLabel.CENTER;
+    private int horizontalAlignment = JLabel.CENTER; // выравнивание текста в ячейках
     private DefaultTableCellRenderer renderer;
     private JLabel label = new JLabel(" ");
 
+    private String typeOfStatement; // Тип таблицы (новый или старый)
+
     // Консруктор, который принимает выравнивание в ячейке
-    public CellRenderer(JBroTable table) {
+    public CellRenderer(JBroTable table, String typeOfStatement) {
         renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
+        this.typeOfStatement = typeOfStatement; // Тип таблицы (новый или старый)
     }
 
     @Override
@@ -33,8 +36,26 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
         label = (JLabel) component; // Текстовое поле в котором будет происходить отображение значений
         label.setHorizontalAlignment(horizontalAlignment); // выравнивание текста в ячейке СТАНДАРТНОЕ
 
+        // Установка закраски строк СТАНДАРТНУЮ
         setBackgroundRow((JBroTable) table, row);
-//        setBackgroundRow((JBroTable) table, row); // устанавливаем закраску строк СТАНДАРТНУЮ
+
+        // Установка жирного шрифта для требуемых ячеек
+        for (int i = 0; i < ((JBroTable) table).getModel().getData().getFieldsCount(); i++) {
+            if (((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("ФЕ Всего")
+                    || ((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("ПЕ Всего")
+                    || ((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("Тип транспорта")
+                    || ((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("Вид транспорта")
+                    || ((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("ФЕ Итого")
+                    || ((JBroTable) table).getModel().getData().getFields()[i].getIdentifier().startsWith("ПЕ Итого")) {
+                if (((JBroTable) table).convertColumnIndexToView(i) == column) {
+                    label.setFont(new Font(null, Font.BOLD, 12));
+                }
+            }
+        }
+
+        if (((JBroTable) table).getModel().getData().getRowsCount() - 1 == row) {
+            label.setFont(new Font(null, Font.BOLD, 12));
+        }
 
         // Действия при выборе ячейки (или выделении многих)
         if (isSelected) {
@@ -58,21 +79,27 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
     public void setHorizontalAlignment(int horizontalAlignment) {
         this.horizontalAlignment = horizontalAlignment; // передаем выравнивание для ячеек
     }
-    
-    
+
     // Работает для SLAVE TABLE! (сбрасывается при взаимодействии с таблицей)
     Color color = Color.red;
     int clor = 1;
     String pmet;
 
+    // Установка цвета для строк
     public void setBackgroundRow(JBroTable table, int row) {
-        Color firstColor = new Color(0, 0, 200, 80); // синий
-        Color secondColor = new Color(255, 128, 0, 80); // красный
-        Color thirdColor = new Color(255, 203, 209, 80); // розовый
-        Color fourthColor = new Color(127, 255, 0, 80); // салатовый
-        Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
-        Color sixColor = Color.white; // белый
+        if (typeOfStatement.equalsIgnoreCase("Now")) {
+            doColorNow(row);
+        }
+        if (typeOfStatement.equalsIgnoreCase("Future")) {
+            doColorFuture(row);
+        }
 
+//        Color firstColor = new Color(0, 0, 200, 80); // синий
+//        Color secondColor = new Color(255, 128, 0, 80); // красный
+//        Color thirdColor = new Color(255, 203, 209, 80); // розовый
+//        Color fourthColor = new Color(127, 255, 0, 80); // салатовый
+//        Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
+//        Color sixColor = Color.white; // белый
 //        if (row == 0) {
 //            color = firstColor;
 //        }
@@ -103,8 +130,17 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
 //            }
 //        }
 //        return color;
-
 //         1 строка
+    }
+
+    public void doColorFuture(int row) {
+        Color firstColor = new Color(0, 0, 200, 80); // синий
+        Color secondColor = new Color(255, 128, 0, 80); // красный
+        Color thirdColor = new Color(255, 203, 209, 80); // розовый
+        Color fourthColor = new Color(127, 255, 0, 80); // салатовый
+        Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
+        Color sixColor = Color.white; // белый
+
         if (row == 0) {
             label.setBackground(firstColor);
             label.setOpaque(true);
@@ -131,6 +167,44 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
         }
         // 19 строка
         if (row == 18) {
+            label.setBackground(sixColor);
+            label.setOpaque(true);
+        }
+    }
+
+    public void doColorNow(int row) {
+        Color firstColor = new Color(0, 0, 200, 80); // синий
+        Color secondColor = new Color(255, 128, 0, 80); // красный
+        Color thirdColor = new Color(255, 173, 209, 80); // розовый
+        Color fourthColor = new Color(127, 255, 0, 80); // салатовый
+        Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
+        Color sixColor = Color.white; // белый
+
+        if (row == 0) {
+            label.setBackground(firstColor);
+            label.setOpaque(true);
+        }
+        // от 2 до 4 строки
+        for (int i = row; i >= 1 && i <= 3; i++) {
+            label.setBackground(secondColor);
+            label.setOpaque(true);
+        }
+        if (row == 4) {
+            label.setBackground(thirdColor);
+            label.setOpaque(true);
+        }
+        // от 6 до 10 строки
+        for (int i = row; i >= 5 && i <= 9; i++) {
+            label.setBackground(fourthColor);
+            label.setOpaque(true);
+        }
+        // 11 строка
+        if (row == 10) {
+            label.setBackground(fifthColor);
+            label.setOpaque(true);
+        }
+        // 12 строка
+        if (row == 11) {
             label.setBackground(sixColor);
             label.setOpaque(true);
         }

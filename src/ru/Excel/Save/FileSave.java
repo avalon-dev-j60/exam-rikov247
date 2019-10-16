@@ -7,7 +7,6 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import org.quinto.swing.table.view.JBroTable;

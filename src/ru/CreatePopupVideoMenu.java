@@ -16,18 +16,18 @@ import javax.swing.KeyStroke;
 public class CreatePopupVideoMenu {
 
     private JPopupMenu jpm = new JPopupMenu();
+    
+    private JMenuItem menuItem4;
 
     public JPopupMenu createPopupMenu() {
 
         JMenuItem menuItem1 = new JMenuItem("Открыть файл...");
         menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)); // установка клавишного сочетания
-        JMenuItem menuItem2 = new JMenuItem("Открыть адрес...");
-        menuItem2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK)); // установка клавишного сочетания
         JMenuItem menuItem3 = new JMenuItem("Открыть папку...");
         menuItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK)); // установка клавишного сочетания
 
         JMenu menu1 = new JMenu("Воспроизведение");
-        JMenuItem menuItem4 = new JMenuItem("Воспроизвести | Приостановить");
+        menuItem4 = new JMenuItem("Воспроизвести | Приостановить");
         menuItem4.setAccelerator(KeyStroke.getKeyStroke("SPACE")); // установка клавишного сочетания
         JMenuItem menuItem5 = new JMenuItem("Предыдущий файл");
         menuItem5.setAccelerator(KeyStroke.getKeyStroke("PAGE_UP")); // установка клавишного сочетания
@@ -46,7 +46,6 @@ public class CreatePopupVideoMenu {
         menuItem11.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK)); // установка клавишного сочетания
 
         jpm.add(menuItem1);
-        jpm.add(menuItem2);
         jpm.add(menuItem3);
         jpm.addSeparator();
 
@@ -73,6 +72,10 @@ public class CreatePopupVideoMenu {
 
     public JPopupMenu getJpm() {
         return jpm;
+    }
+
+    public JMenuItem getMenuItem4() {
+        return menuItem4;
     }
 
     

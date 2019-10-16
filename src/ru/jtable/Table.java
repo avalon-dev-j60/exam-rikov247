@@ -1,27 +1,10 @@
 package ru.jtable;
 
-import java.awt.BorderLayout;
 import ru.jtable.model.CrossRoadModel;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.InputMethodEvent;
-import java.awt.event.InputMethodListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import javax.swing.text.PlainDocument;
 import org.quinto.swing.table.model.IModelFieldGroup;
 import org.quinto.swing.table.model.ModelData;
@@ -34,7 +17,9 @@ import org.quinto.swing.table.view.JBroTableHeader;
 import org.quinto.swing.table.view.JBroTableUI;
 import ru.jtable.model.TRightRoadModel;
 
-public class Table implements TableModelListener {
+public class Table {
+
+    private ModelListener modelListener;
 
     private String[] typeOfTransport;
     private String[] kindOfTransport;
@@ -121,10 +106,10 @@ public class Table implements TableModelListener {
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); // включаем фиксацию введенных данных и выход из режима редактирования ячейки если фокус переключается на другую вкладку
     }
 
-    public void cellRenderer(JBroTable table, int column) {
+    public void cellRenderer(JBroTable table, int column, String typeOfStatement) {
         TableColumn tableColumn = table.getColumnModel().getColumn(column);
 
-        CellRenderer cellRenderer = new CellRenderer(table);
+        CellRenderer cellRenderer = new CellRenderer(table, typeOfStatement);
         tableColumn.setCellRenderer(cellRenderer); // Устанавливаем новый рендерер для ячейки
     }
 
@@ -158,19 +143,26 @@ public class Table implements TableModelListener {
         }
     };
 
-    public JBroTable doTable() throws Exception {
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String typeOfStatement) throws Exception {
         // Создаем переменную класса, в котором для таблицы создается требуемый хэдер
-        CrossRoadModel xModel = new CrossRoadModel();
-        TRightRoadModel tRightModel = new TRightRoadModel();
-        groups = xModel.getModel(); // создаем требуемый хэдер и передаем его
+//        CrossRoadModel xModel = new CrossRoadModel();
+//        TRightRoadModel tRightModel = new TRightRoadModel();
+        groups = modelGroup; // создаем требуемый хэдер и передаем его
 
         // Получаем информацию о модели хэдера
         ModelField fields[] = ModelFieldGroup.getBottomFields(groups);
 
         // Данные в таблице
         // Временно
-        typeOfTransport = typeOfTransportFuture;
-        kindOfTransport = kindOfTransportFuture;
+        if (typeOfStatement.equalsIgnoreCase("Now")) {
+            typeOfTransport = typeOfTransportNow;
+            kindOfTransport = kindOfTransportNow;
+        }
+        if (typeOfStatement.equalsIgnoreCase("Future")) {
+            typeOfTransport = typeOfTransportFuture;
+            kindOfTransport = kindOfTransportFuture;
+        }
+        modelListener = new ModelListener(table, kindOfTransport, typeOfStatement);
 
         ModelRow rows[] = new ModelRow[typeOfTransport.length]; // количество строк (не от 0, а от 1)
         for (int i = 0; i < rows.length; i++) {
@@ -211,7 +203,7 @@ public class Table implements TableModelListener {
             );
             // Делаем что то с ячейками в фиксированных столбцах
             for (int i = 0; i < fixed.getColumnModel().getColumnCount(); i++) {
-                cellRenderer(fixed, i);
+                cellRenderer(fixed, i, typeOfStatement);
             }
         }
 
@@ -220,7 +212,7 @@ public class Table implements TableModelListener {
 
         // ЯЧЕЙКИ. Установка отображения для всех ячеек 
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
-            cellRenderer(table, i); // устанавливаем выравнивание ячеек по центру
+            cellRenderer(table, i, typeOfStatement); // устанавливаем выравнивание ячеек по центру
             cellEditing(table, i); // Установка отображения ячейки при ее редактировании (устанавливается фильтр только на цифры)
         }
 
@@ -252,20 +244,9 @@ public class Table implements TableModelListener {
             table.getSlaveTable().getTableHeader().addMouseListener(stopEditingCell);
         }
 
-        table.getData().getRows()[0].setValue(5, 13);
         // Добавляем слушателей подсчета значений в нужных нередактируемых ячейках (имитируем формулы excel)
-//        for (int i = 1; i < 4; i = i++) {
-//            int modelColumn = table.convertColumnIndexToModel(i); // переводим стандартный индекс столбца в индекс этого столбца в моделе хэдера
-//            ModelField columnToModelField = table.getData().getFields()[modelColumn];
-//
-//            if (columnToModelField.getIdentifier().startsWith("ПЕ")) {
-//                table.getData().getRows()[0].setValue(i, 13);
-////                System.out.println(table.getData().getRows()[0].getValue(5));
-//            }
-//        }
-
         // Слушатель модели Таблицы - отслеживает изменение данных в ней
-        table.getModel().addTableModelListener(this);
+        table.getModel().addTableModelListener(modelListener);
 
         return table;
     }
@@ -276,79 +257,6 @@ public class Table implements TableModelListener {
 
     public IModelFieldGroup[] getGroups() {
         return groups;
-    }
-
-    int value1 = 0;
-    int value2 = 0;
-    int value3 = 0;
-    int value4 = 0;
-    int sum = value1 + value2 + value3 + value4;
-
-    // Слушатель изменения данных в таблице
-    @Override
-    public void tableChanged(TableModelEvent e) {
-        int row = e.getFirstRow(); // получаем 
-        // Разбираемся со столбцами
-        int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
-        int column = e.getColumn();
-        int modelColumn = table.convertColumnIndexToModel(column - unAccountedColumns); // переводим стандартный индекс столбца в индекс этого столбца в моделе хэдера
-
-        TableModel model = (TableModel) e.getSource();
-        Object dat = model.getValueAt(row, column);
-        if (String.valueOf(dat).isBlank()) {
-            dat = "0";
-            model.setValueAt(dat, row, column);
-        }
-
-        ModelField columnToModelField = table.getData().getFields()[modelColumn];
-        // Все fields (это столбцы конечные, которые уже не расщепляются) и groupFields (их как parent - родителей fields) перебираем
-        //  (чтобы перебирать передаем column переведенный в модель хэдера). Берем идентификатор и оцениваем:
-        // - если field начинается с "ПЕ"
-        // - если groupField начинается с "Итого"
-        // - если есть строка "Итого"
-
-        // Определяем строку
-        int rowTemp = - 1;
-        for (int i = 0; i < table.getData().getRows().length; i++) {
-            String rowValue = ((String) table.getData().getRows()[i].getValue(0)); // значение в 1 столбце в проверяемой ячейке
-            if (rowValue.startsWith("Легковые")) { // если в этой ячейке записано "Итого", то
-                rowTemp = i; // сохраняем номер этой строки
-            }
-        }
-
-        // Определяем столбец Итогов 
-        int columnTemp = - 1;
-        for (int i = 0; i < table.getData().getFieldsCount(); i++) {
-            if (table.getData().getFields()[i].getIdentifier().startsWith("ФЕ Итого1")) {
-                columnTemp = i;
-            }
-        }
-
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Налево 12") && row == rowTemp && columnTemp > 0) {
-            Object data = model.getValueAt(row, column);
-            value1 = Integer.valueOf((String) data);
-            sum = value1 + value2 + value3 + value4;
-            model.setValueAt(sum, row, columnTemp);
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Прямо 1") && row == rowTemp && columnTemp > 0) {
-            Object data = model.getValueAt(row, column);
-            value2 = Integer.valueOf((String) data);
-            sum = value1 + value2 + value3 + value4;
-            model.setValueAt(sum, row, columnTemp);
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Направо 14") && row == rowTemp && columnTemp > 0) {
-            Object data = model.getValueAt(row, column);
-            value3 = Integer.valueOf((String) data);
-            sum = value1 + value2 + value3 + value4;
-            model.setValueAt(sum, row, columnTemp);
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Разворот 11") && row == rowTemp && columnTemp > 0) {
-            Object data = model.getValueAt(row, column);
-            value4 = Integer.valueOf((String) data);
-            sum = value1 + value2 + value3 + value4;
-            model.setValueAt(sum, row, columnTemp);
-        }
-
     }
 
 }

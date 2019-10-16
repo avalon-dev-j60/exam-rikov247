@@ -91,7 +91,7 @@ public class AutoResize {
         }
 
         for (int i = 0; i < table.getColumnCount() - 2; i++) {
-            setWidth(table, i, width / 3);
+            setWidth(table, i, ((int) (width / 2)) - 1);
         }
 
         // Изменение ширины столцов (не трогая два последних)

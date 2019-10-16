@@ -15,8 +15,8 @@ import javax.swing.JPanel;
 
 public class AddVideoPanel {
 
-    private ImageIcon beforeIcon = new ImageIcon(this.getClass().getResource("/icons/before.png"));
-    private ImageIcon afterIcon = new ImageIcon(this.getClass().getResource("/icons/after.png"));
+    private ImageIcon beforeIcon = new ImageIcon(this.getClass().getResource("/icons/addVideo/before.png"));
+    private ImageIcon afterIcon = new ImageIcon(this.getClass().getResource("/icons/addVideo/after.png"));
     private JButton button = new JButton(beforeIcon);
 
     // Основная overlay панель, на которую помечаются кнопки. LayoutManager = null

@@ -25,13 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.ListCellRenderer;
 import net.miginfocom.swing.MigLayout;
-import ru.jtable.Table;
+import org.quinto.swing.table.view.JBroTable;
 import ru.trafficClicker.OnButtonClick;
 import ru.trafficClicker.imageBackground.SimpleBackground;
 
 public class Overlay extends JWindow {
 
-    private Table tableModel = new Table();
+    private JBroTable table;
     // ИКОНКИ
     // Машина
     private ImageIcon IconCar = new ImageIcon(this.getClass().getResource("/icons/car/car.png"));
@@ -419,10 +419,9 @@ public class Overlay extends JWindow {
     SimpleBackground panelLeft = new SimpleBackground(new MigLayout());
     SimpleBackground panelDown = new SimpleBackground(new MigLayout());
     SimpleBackground panelRight = new SimpleBackground(new MigLayout());
-    
+
     // Ссылка на Layout менеджер, который конфигурирует 4 столбца и сколько нужно строк
 //    MigLayout panelUpMigLayout = new MigLayout("wrap 4");
-
 //    private JPanel panelUp = new JPanel(panelUpMigLayout) {
 ////        GridLayout(4, 4, 0, 0)) {
 //        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
@@ -435,7 +434,6 @@ public class Overlay extends JWindow {
 //            super.paintComponent(g);
 //        }
 //    };
-
 //    private JPanel panelLeft = new JPanel(panelLeftMigLayout) {
 //        // для правильной установки прозрачности кнопок переопределяем метод отрисовки компонента
 //        @Override
@@ -483,8 +481,9 @@ public class Overlay extends JWindow {
     private int component2Click2 = 0;
     private int component3Click3 = 0;
 
-    public Overlay(Window owner) throws IOException {
+    public Overlay(Window owner, JBroTable table) throws IOException {
         super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
+        this.table = table;
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
         overlayPanel.setOpaque(false); // прозрачность включена
@@ -507,7 +506,6 @@ public class Overlay extends JWindow {
         // Конфигурация панелей и добавление на панели требуемых элементов
 //        panelUpMigLayout.setColumnConstraints("0[]0[]0[]0[]0"); // отступы между строками
 //        panelUpMigLayout.setRowConstraints("0[]0[]0[]0[]0"); // отступы между столбцами
-
         // Добавление исходных компонентов 
         upContainerComponent = new Component[4][4]; // указание размеров панели
 
@@ -554,7 +552,8 @@ public class Overlay extends JWindow {
 //        componentAroundUpTruck = new String[]{component0, component2, component3};
 //        comboBoxAroundUpTruck.setModel(new DefaultComboBoxModel(componentAroundUpTruck));
         // добавление слушателя к комбобоксу
-        comboBoxButtonsOnPanelActionListener comboBoxAroundUpTruckActionList = new comboBoxButtonsOnPanelActionListener(component0Click, component1Click, component2Click, component3Click);
+        comboBoxButtonsOnPanelActionListener comboBoxAroundUpTruckActionList
+                = new comboBoxButtonsOnPanelActionListener(component0Click, component1Click, component2Click, component3Click);
         comboBoxAroundUpTruck.addActionListener(comboBoxAroundUpTruckActionList);
 
         // установка прозрачности Комбобокса (ЗАРАБОТАЛО!?)
@@ -562,33 +561,32 @@ public class Overlay extends JWindow {
         comboBoxAroundUpTruck.getComponents()[0].setBackground(new JComboBox().getBackground());
 
         addOnPanelOfButtons(panelUp, upContainerComponent); // выполняем метод для применения обновления панели: указываем панель, на которой расположен элемент и массив элементов (контейнеров под них)
-        
+
         // Слушатель кликов по кнопке и занесение информации в таблицу
 //        OnButtonClick bClick2 = new OnButtonClick(tableModel.getTable(), 0, 0); // Будем записывать информацию с кнопки в ячейку 0, 0
 //        bAroundUpCar.addActionListener(bClick2::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        
 //        bLeftUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, 2)::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bAroundUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bLeftUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bForwardUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bRightUpCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        
-        bAroundRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bLeftRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bForwardRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bRightRightCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        
-        bAroundDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bLeftDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bForwardDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bRightDownCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-     
-        bAroundLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bLeftLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bForwardLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-        bRightLeftCar.addActionListener(new OnButtonClick(tableModel.getTable(), 0, "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-}
-    
+//        bAroundUpCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bLeftUpCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bForwardUpCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bRightUpCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//
+//        bAroundRightCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bLeftRightCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bForwardRightCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bRightRightCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//
+//        bAroundDownCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bLeftDownCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bForwardDownCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bRightDownCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//
+//        bAroundLeftCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bLeftLeftCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bForwardLeftCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+//        bRightLeftCar.addActionListener(new OnButtonClick(table, 0, "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
+    }
+
     // Класс подсчета количества кликов мышью по кнопкам (абстрактный, можно применять к любым кнопкам, но нужно указать переменнуые хранения количества кликов
     private class comboBoxButtonsOnPanelActionListener implements ActionListener {
 
@@ -609,7 +607,7 @@ public class Overlay extends JWindow {
             String componentName = (String) ((JComboBox) e.getSource()).getSelectedItem();
             if (componentName.equalsIgnoreCase(component0)) {
                 component0Click = component0Click + 1;
-                
+
                 System.out.println(component0Click + " №0");
             }
             if (componentName.equalsIgnoreCase(component1)) {
@@ -839,9 +837,5 @@ public class Overlay extends JWindow {
 
     public JButton getbLeftUpCar() {
         return bLeftUpCar;
-    }
-
-    public Table getTableModel() {
-        return tableModel;
     }
 }

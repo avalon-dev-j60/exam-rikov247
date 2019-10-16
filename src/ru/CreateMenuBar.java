@@ -32,11 +32,12 @@ public class CreateMenuBar {
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
     private ImageIcon fileItem2Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Open16.gif"));
     private JMenuItem fileItem3 = new JMenuItem("Закрыть проект");
-    private JMenuItem fileItem4 = new JMenuItem("Сохранить как..");
-    private ImageIcon fileItem4Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
-    private JMenuItem fileItem5 = new JMenuItem("Открыть видео");
-    private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
-    private JMenuItem fileItem6 = new JMenuItem("Выход");
+    private JMenuItem fileItem4 = new JMenuItem("Сохранить");
+    private JMenuItem fileItem5 = new JMenuItem("Сохранить как..");
+    private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
+    private JMenuItem fileItem6 = new JMenuItem("Открыть видео");
+    private ImageIcon fileItem6Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
+    private JMenuItem fileItem7 = new JMenuItem("Выход");
 
     private JMenu createFileMenu() {
         fileMenu.add(fileItem1);
@@ -45,12 +46,13 @@ public class CreateMenuBar {
         fileItem2.setIcon(fileItem2Icon); // устанавливаем иконку
         fileMenu.add(fileItem3);
         fileMenu.add(fileItem4);
-        fileItem4.setIcon(fileItem4Icon); // устанавливаем иконку
-        fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem5);
         fileItem5.setIcon(fileItem5Icon); // устанавливаем иконку
         fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem6);
+        fileItem6.setIcon(fileItem6Icon); // устанавливаем иконку
+        fileMenu.addSeparator(); // разделитель
+        fileMenu.add(fileItem7);
 
         return fileMenu;
     }
@@ -138,9 +140,13 @@ public class CreateMenuBar {
     public JMenuItem getFileItem5() {
         return fileItem5;
     }
-    
+
     public JMenuItem getFileItem6() {
         return fileItem6;
+    }
+    
+    public JMenuItem getFileItem7() {
+        return fileItem7;
     }
 
     public JMenuItem getEditItem1() {
