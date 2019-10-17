@@ -14,7 +14,7 @@ public class Now4CircleXSLX {
     public Now4CircleXSLX(JBroTable table, XSSFSheet sheet) {
         // Определяем столбцы, куда не переносим данные. 
         int[] columnTotal = new int[4]; // массив для хранения столбцов "Итого"
-        int[] columnPE = new int[16]; // массив для хранения столбцов "ПЕ"
+        int[] columnPE = new int[20]; // массив для хранения столбцов "ПЕ"
         int myInt = 0; // переменная для выбора следующего элемента в массиве выше, если нашли новый столбец "Итого"
         int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
 
@@ -48,7 +48,8 @@ public class Now4CircleXSLX {
                         || i == columnPE[0] || i == columnPE[1] || i == columnPE[2] || i == columnPE[3]
                         || i == columnPE[4] || i == columnPE[5] || i == columnPE[6] || i == columnPE[7]
                         || i == columnPE[8] || i == columnPE[9] || i == columnPE[10] || i == columnPE[11]
-                        || i == columnPE[12] || i == columnPE[13] || i == columnPE[14] || i == columnPE[15]) {
+                        || i == columnPE[12] || i == columnPE[13] || i == columnPE[14] || i == columnPE[15]
+                        || i == columnPE[16] || i == columnPE[17] || i == columnPE[18] || i == columnPE[19]) {
                     // не записываем в таблицу ничего и просто идем дальше по порядку
                 } // Записываем значения
                 else {

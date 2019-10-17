@@ -7,8 +7,15 @@ import javax.swing.JComponent;
  * Класс для заполнения переданного массива компонентами в нужном количестве и в
  * нужном порядке. Для 4 направлений!
  */
-public class doComponents {
+public class doComponents4 {
 
+    public JComponent[] doComponents(JComponent[] firstRow) {
+        JComponent[] container = new JComponent[]{
+            firstRow[0], firstRow[1], firstRow[2], firstRow[3]
+        };
+        return container;
+    }
+    
     public JComponent[] doComponents(JComponent[] firstRow, JComponent[] secondRow) {
         JComponent[] container = new JComponent[]{
             firstRow[0], firstRow[1], firstRow[2], firstRow[3],

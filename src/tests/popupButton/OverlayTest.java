@@ -31,6 +31,8 @@ import ru.trafficClicker.imageBackground.SimpleBackground;
 public class OverlayTest extends JWindow {
 
     private JBroTable table;
+    private TreePath[] paths; // массив путей к узлам (видам транспорта), которые были выбраны для подсчета
+    private int row; // количество строк на панели кнопок (количество видов транспорта для подсчета, не считая labels направлений)
     // ИКОНКИ
     // Машина
     private ImageIcon iconCar = new ImageIcon(this.getClass().getResource("/icons/car/car.png"));
@@ -145,142 +147,255 @@ public class OverlayTest extends JWindow {
     };
 
     // ЛЕВАЯ панель
-    private Component[][] leftContainerComponent;
-
     private JLabel aroundLeftLabel = new JLabel(aroundIcon);
     private JLabel leftLeftLabel = new JLabel(leftIcon);
     private JLabel forwardLeftLabel = new JLabel(forwardIcon);
     private JLabel rightLeftLabel = new JLabel(rightIcon);
 
     private JButton bAroundLeftCar = new JButton(iconCar);
-    private JButton bAroundLeftTruck1 = new JButton(iconTruck);
-    private JButton bAroundLeftBus1 = new JButton(iconBus);
+    private JButton bAroundLeftTruck = new JButton(iconTruck);
+    private JButton bAroundLeftBus = new JButton(iconBus);
+    private JButton bAroundLeftTrainBus = new JButton(iconTrainBus);
+    private JButton bAroundLeftTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bAroundLeftTram = new JButton(iconTram);
 
     private JButton bLeftLeftCar = new JButton(iconCar);
-    private JButton bLeftLeftTruck1 = new JButton(iconTruck);
-    private JButton bLeftLeftBus1 = new JButton(iconBus);
+    private JButton bLeftLeftTruck = new JButton(iconTruck);
+    private JButton bLeftLeftBus = new JButton(iconBus);
+    private JButton bLeftLeftTrainBus = new JButton(iconTrainBus);
+    private JButton bLeftLeftTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bLeftLeftTram = new JButton(iconTram);
 
     private JButton bForwardLeftCar = new JButton(iconCar);
-    private JButton bForwardLeftTruck1 = new JButton(iconTruck);
-    private JButton bForwardLeftBus1 = new JButton(iconBus);
+    private JButton bForwardLeftTruck = new JButton(iconTruck);
+    private JButton bForwardLeftBus = new JButton(iconBus);
+    private JButton bForwardLeftTrainBus = new JButton(iconTrainBus);
+    private JButton bForwardLeftTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bForwardLeftTram = new JButton(iconTram);
 
     private JButton bRightLeftCar = new JButton(iconCar);
-    private JButton bRightLeftTruck1 = new JButton(iconTruck);
-    private JButton bRightLeftBus1 = new JButton(iconBus);
+    private JButton bRightLeftTruck = new JButton(iconTruck);
+    private JButton bRightLeftBus = new JButton(iconBus);
+    private JButton bRightLeftTrainBus = new JButton(iconTrainBus);
+    private JButton bRightLeftTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bRightLeftTram = new JButton(iconTram);
 
     private JButton bManLeft = new JButton(manIcon);
     private JButton bBikeLeft = new JButton(bikeIcon);
 
     // исходно заполняем панель этими компонентами
-    private JComponent[] componentsLeft = {
-        aroundLeftLabel, leftLeftLabel, forwardLeftLabel, rightLeftLabel,
-        bAroundLeftCar, bLeftLeftCar, bForwardLeftCar, bRightLeftCar,
-        bAroundLeftTruck1, bLeftLeftTruck1, bForwardLeftTruck1, bRightLeftTruck1,
-        bAroundLeftBus1, bLeftLeftBus1, bForwardLeftBus1, bRightLeftBus1
-    };
+    private JComponent[] componentsLeft;
 
     private JLabel[] labelsLeft = {
         aroundLeftLabel, leftLeftLabel, forwardLeftLabel, rightLeftLabel
     };
 
+    // Массив лекговых машин
+    private JButton[] bLeftCar = {
+        bAroundLeftCar, bLeftLeftCar, bForwardLeftCar, bRightLeftCar
+    };
+
+    // Массив грузовиков
+    private JButton[] bLeftTruck = {
+        bAroundLeftTruck, bLeftLeftTruck, bForwardLeftTruck, bRightLeftTruck
+    };
+
+    // Массив автобусов
+    private JButton[] bLeftBus = {
+        bAroundLeftBus, bLeftLeftBus, bForwardLeftBus, bRightLeftBus
+    };
+
+    // Массив автопоездов
+    private JButton[] bLeftTrainBus = {
+        bAroundLeftTrainBus, bLeftLeftTrainBus, bForwardLeftTrainBus, bRightLeftTrainBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bLeftTrolleybus = {
+        bAroundLeftTrolleyBus, bLeftLeftTrolleyBus, bForwardLeftTrolleyBus, bRightLeftTrolleyBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bLeftTram = {
+        bAroundLeftTram, bLeftLeftTram, bForwardLeftTram, bRightLeftTram
+    };
+
     private JButton[] buttonsLeft = {
         bAroundLeftCar, bLeftLeftCar, bForwardLeftCar, bRightLeftCar,
-        bAroundLeftTruck1, bLeftLeftTruck1, bForwardLeftTruck1, bRightLeftTruck1,
-        bAroundLeftBus1, bLeftLeftBus1, bForwardLeftBus1, bRightLeftBus1
-    //        createButtonWithIcon(bManLeft, manIcon),       
-    //        createButtonWithIcon(bBikeLeft, bikeIcon)
+        bAroundLeftTruck, bLeftLeftTruck, bForwardLeftTruck, bRightLeftTruck,
+        bAroundLeftBus, bLeftLeftBus, bForwardLeftBus, bRightLeftBus,
+        bAroundLeftTrainBus, bLeftLeftTrainBus, bForwardLeftTrainBus, bRightLeftTrainBus,
+        bAroundLeftTrolleyBus, bLeftLeftTrolleyBus, bForwardLeftTrolleyBus, bRightLeftTrolleyBus,
+        bAroundLeftTram, bLeftLeftTram, bForwardLeftTram, bRightLeftTram,
+        bManLeft, bBikeLeft
     };
 
     //НИЖНЯЯ панель
-    private Component[][] downContainerComponent;
-
     private JLabel aroundDownLabel = new JLabel(aroundIcon);
     private JLabel leftDownLabel = new JLabel(leftIcon);
     private JLabel forwardDownLabel = new JLabel(forwardIcon);
     private JLabel rightDownLabel = new JLabel(rightIcon);
 
     private JButton bAroundDownCar = new JButton(iconCar);
-    private JButton bAroundDownTruck1 = new JButton(iconTruck);
-    private JButton bAroundDownBus1 = new JButton(iconBus);
+    private JButton bAroundDownTruck = new JButton(iconTruck);
+    private JButton bAroundDownBus = new JButton(iconBus);
+    private JButton bAroundDownTrainBus = new JButton(iconTrainBus);
+    private JButton bAroundDownTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bAroundDownTram = new JButton(iconTram);
 
     private JButton bLeftDownCar = new JButton(iconCar);
-    private JButton bLeftDownTruck1 = new JButton(iconTruck);
-    private JButton bLeftDownBus1 = new JButton(iconBus);
+    private JButton bLeftDownTruck = new JButton(iconTruck);
+    private JButton bLeftDownBus = new JButton(iconBus);
+    private JButton bLeftDownTrainBus = new JButton(iconTrainBus);
+    private JButton bLeftDownTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bLeftDownTram = new JButton(iconTram);
 
     private JButton bForwardDownCar = new JButton(iconCar);
-    private JButton bForwardDownTruck1 = new JButton(iconTruck);
-    private JButton bForwardDownBus1 = new JButton(iconBus);
+    private JButton bForwardDownTruck = new JButton(iconTruck);
+    private JButton bForwardDownBus = new JButton(iconBus);
+    private JButton bForwardDownTrainBus = new JButton(iconTrainBus);
+    private JButton bForwardDownTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bForwardDownTram = new JButton(iconTram);
 
     private JButton bRightDownCar = new JButton(iconCar);
-    private JButton bRightDownTruck1 = new JButton(iconTruck);
-    private JButton bRightDownBus1 = new JButton(iconBus);
+    private JButton bRightDownTruck = new JButton(iconTruck);
+    private JButton bRightDownBus = new JButton(iconBus);
+    private JButton bRightDownTrainBus = new JButton(iconTrainBus);
+    private JButton bRightDownTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bRightDownTram = new JButton(iconTram);
 
     private JButton bManDown = new JButton(manIcon);
     private JButton bBikeDown = new JButton(bikeIcon);
 
     // исходно заполняем панель этими компонентами
-    private JComponent[] componentsDown = {
-        aroundDownLabel, leftDownLabel, forwardDownLabel, rightDownLabel,
-        bAroundDownCar, bLeftDownCar, bForwardDownCar, bRightDownCar,
-        bAroundDownTruck1, bLeftDownTruck1, bForwardDownTruck1, bRightDownTruck1,
-        bAroundDownBus1, bLeftDownBus1, bForwardDownBus1, bRightDownBus1
-    };
+    private JComponent[] componentsDown;
 
     private JLabel[] labelsDown = {
         aroundDownLabel, leftDownLabel, forwardDownLabel, rightDownLabel
     };
 
+    // Массив лекговых машин
+    private JButton[] bDownCar = {
+        bAroundDownCar, bLeftDownCar, bForwardDownCar, bRightDownCar
+    };
+
+    // Массив грузовиков
+    private JButton[] bDownTruck = {
+        bAroundDownTruck, bLeftDownTruck, bForwardDownTruck, bRightDownTruck
+    };
+
+    // Массив автобусов
+    private JButton[] bDownBus = {
+        bAroundDownBus, bLeftDownBus, bForwardDownBus, bRightDownBus
+    };
+
+    // Массив автопоездов
+    private JButton[] bDownTrainBus = {
+        bAroundDownTrainBus, bLeftDownTrainBus, bForwardDownTrainBus, bRightDownTrainBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bDownTrolleybus = {
+        bAroundDownTrolleyBus, bLeftDownTrolleyBus, bForwardDownTrolleyBus, bRightDownTrolleyBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bDownTram = {
+        bAroundDownTram, bLeftDownTram, bForwardDownTram, bRightDownTram
+    };
+
     private JButton[] buttonsDown = {
         bAroundDownCar, bLeftDownCar, bForwardDownCar, bRightDownCar,
-        bAroundDownTruck1, bLeftDownTruck1, bForwardDownTruck1, bRightDownTruck1,
-        bAroundDownBus1, bLeftDownBus1, bForwardDownBus1, bRightDownBus1
-//        createButtonWithIcon(bManDown, manIcon),
-//        createButtonWithIcon(bBikeDown, bikeIcon)
+        bAroundDownTruck, bLeftDownTruck, bForwardDownTruck, bRightDownTruck,
+        bAroundDownBus, bLeftDownBus, bForwardDownBus, bRightDownBus,
+        bAroundDownTrainBus, bLeftDownTrainBus, bForwardDownTrainBus, bRightDownTrainBus,
+        bAroundDownTrolleyBus, bLeftDownTrolleyBus, bForwardDownTrolleyBus, bRightDownTrolleyBus,
+        bAroundDownTram, bLeftDownTram, bForwardDownTram, bRightDownTram,
+        bManDown, bBikeDown
     };
 
     //ПРАВАЯ панель
-    private Component[][] rightContainerComponent;
-
     private JLabel aroundRightLabel = new JLabel(aroundIcon);
     private JLabel leftRightLabel = new JLabel(leftIcon);
     private JLabel forwardRightLabel = new JLabel(forwardIcon);
     private JLabel rightRightLabel = new JLabel(rightIcon);
 
     private JButton bAroundRightCar = new JButton(iconCar);
-    private JButton bAroundRightTruck1 = new JButton(iconTruck);
-    private JButton bAroundRightBus1 = new JButton(iconBus);
+    private JButton bAroundRightTruck = new JButton(iconTruck);
+    private JButton bAroundRightBus = new JButton(iconBus);
+    private JButton bAroundRightTrainBus = new JButton(iconTrainBus);
+    private JButton bAroundRightTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bAroundRightTram = new JButton(iconTram);
 
     private JButton bLeftRightCar = new JButton(iconCar);
-    private JButton bLeftRightTruck1 = new JButton(iconTruck);
-    private JButton bLeftRightBus1 = new JButton(iconBus);
+    private JButton bLeftRightTruck = new JButton(iconTruck);
+    private JButton bLeftRightBus = new JButton(iconBus);
+    private JButton bLeftRightTrainBus = new JButton(iconTrainBus);
+    private JButton bLeftRightTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bLeftRightTram = new JButton(iconTram);
 
     private JButton bForwardRightCar = new JButton(iconCar);
-    private JButton bForwardRightTruck1 = new JButton(iconTruck);
-    private JButton bForwardRightBus1 = new JButton(iconBus);
+    private JButton bForwardRightTruck = new JButton(iconTruck);
+    private JButton bForwardRightBus = new JButton(iconBus);
+    private JButton bForwardRightTrainBus = new JButton(iconTrainBus);
+    private JButton bForwardRightTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bForwardRightTram = new JButton(iconTram);
 
     private JButton bRightRightCar = new JButton(iconCar);
-    private JButton bRightRightTruck1 = new JButton(iconTruck);
-    private JButton bRightRightBus1 = new JButton(iconBus);
+    private JButton bRightRightTruck = new JButton(iconTruck);
+    private JButton bRightRightBus = new JButton(iconBus);
+    private JButton bRightRightTrainBus = new JButton(iconTrainBus);
+    private JButton bRightRightTrolleyBus = new JButton(iconTrolleybus);
+    private JButton bRightRightTram = new JButton(iconTram);
 
     private JButton bManRight = new JButton(manIcon);
     private JButton bBikeRight = new JButton(bikeIcon);
 
     // исходно заполняем панель этими компонентами
-    private JComponent[] componentsRight = {
-        aroundRightLabel, leftRightLabel, forwardRightLabel, rightRightLabel,
-        bAroundRightCar, bLeftRightCar, bForwardRightCar, bRightRightCar,
-        bAroundRightTruck1, bLeftRightTruck1, bForwardRightTruck1, bRightRightTruck1,
-        bAroundRightBus1, bLeftRightBus1, bForwardRightBus1, bRightRightBus1
-    };
+    private JComponent[] componentsRight;
 
     private JLabel[] labelsRight = {
         aroundRightLabel, leftRightLabel, forwardRightLabel, rightRightLabel
     };
 
+    // Массив лекговых машин
+    private JButton[] bRightCar = {
+        bAroundRightCar, bLeftRightCar, bForwardRightCar, bRightRightCar
+    };
+
+    // Массив грузовиков
+    private JButton[] bRightTruck = {
+        bAroundRightTruck, bLeftRightTruck, bForwardRightTruck, bRightRightTruck
+    };
+
+    // Массив автобусов
+    private JButton[] bRightBus = {
+        bAroundRightBus, bLeftRightBus, bForwardRightBus, bRightRightBus
+    };
+
+    // Массив автопоездов
+    private JButton[] bRightTrainBus = {
+        bAroundRightTrainBus, bLeftRightTrainBus, bForwardRightTrainBus, bRightRightTrainBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bRightTrolleybus = {
+        bAroundRightTrolleyBus, bLeftRightTrolleyBus, bForwardRightTrolleyBus, bRightRightTrolleyBus
+    };
+
+    // Массив троллейбусов
+    private JButton[] bRightTram = {
+        bAroundRightTram, bLeftRightTram, bForwardRightTram, bRightRightTram
+    };
+
     private JButton[] buttonsRight = {
         bAroundRightCar, bLeftRightCar, bForwardRightCar, bRightRightCar,
-        bAroundRightTruck1, bLeftRightTruck1, bForwardRightTruck1, bRightRightTruck1,
-        bAroundRightBus1, bLeftRightBus1, bForwardRightBus1, bRightRightBus1
+        bAroundRightTruck, bLeftRightTruck, bForwardRightTruck, bRightRightTruck,
+        bAroundRightBus, bLeftRightBus, bForwardRightBus, bRightRightBus,
+        bAroundRightTrainBus, bLeftRightTrainBus, bForwardRightTrainBus, bRightRightTrainBus,
+        bAroundRightTrolleyBus, bLeftRightTrolleyBus, bForwardRightTrolleyBus, bRightRightTrolleyBus,
+        bAroundRightTram, bLeftRightTram, bForwardRightTram, bRightRightTram,
+        bManRight, bBikeRight
     };
 
     // Layout менеджер, который конфигурирует 4 столбца и сколько нужно строк
@@ -305,6 +420,7 @@ public class OverlayTest extends JWindow {
     public OverlayTest(Window owner, JBroTable table, String typeOfStatement, TreePath[] paths) throws IOException {
         super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
         this.table = table;
+        this.paths = paths;
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
         overlayPanel.setOpaque(false); // прозрачность панели включена. На этой панели размещаем панели с кнопками
@@ -324,196 +440,21 @@ public class OverlayTest extends JWindow {
 
         // Добавление исходных компонентов 
         if (typeOfStatement.equalsIgnoreCase("Now")) {
-            int row = 1;
-            // Определяем, какие кнопки отображать и что будем считать
-            boolean car = false;
-            boolean bus = false;
-            boolean truck = false;
-            boolean trolleybus = false;
-            boolean tram = false;
-            for (TreePath tp : paths) {
-                String temp = String.valueOf(tp.getLastPathComponent());
-                System.out.println(temp);
-                if (temp.equalsIgnoreCase("Легковой транспорт")) {
-                    car = true;
-                    row = row + 1;
-                }
-                if (temp.equalsIgnoreCase("Автобусы")) {
-                    bus = true;
-                    row = row + 1;
-                }
-                if (temp.equalsIgnoreCase("Грузовые")) {
-                    truck = true;
-                    row = row + 1;
-                }
-                if (temp.equalsIgnoreCase("Троллейбусы")) {
-                    trolleybus = true;
-                    row = row + 1;
-                }
-                if (temp.equalsIgnoreCase("Трамвай")) {
-                    tram = true;
-                    row = row + 1;
-                }
-            }
-            System.out.println(row);
 
-            doComponents up = new doComponents();
-            // 1. Есть все
-            if (car && bus && truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram);
-            }
-            // 2. Нет одного из всех:
-            // 2.1. нет трамвая
-            if (car && bus && truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus);
-            }
-            // 2.2. нет троллейбуса
-            if (car && bus && truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTruck, bUpTram);
-            }
-            // 2.3. нет грузовых
-            if (car && bus && !truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTrolleybus, bUpTram);
-            }
-            // 2.4. нет автобусов
-            if (car && !bus && truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTruck, bUpTrolleybus, bUpTram);
-            }
-            // 2.5. нет машин
-            if (!car && bus && truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTruck, bUpTrolleybus, bUpTram);
-            }
-            // 3. Нет двух из всех
-            // ТРАМВАЙ и
-            // 3.1. нет трамвая и троллейбуса
-            if (car && bus && truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTruck);
-            }
-            // 3.2. нет трамвая и грузовых
-            if (car && bus && !truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTrolleybus);
-            }
-            // 3.3. нет трамвая и автобусов
-            if (car && !bus && truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTruck, bUpTrolleybus);
-            }
-            // 3.4. нет трамвая и машин
-            if (!car && bus && truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTruck, bUpTrolleybus);
-            }
-            // ТРОЛЛЕЙБУС и
-            // 3.5. нет троллейбуса и грузовых
-            if (car && bus && !truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTram);
-            }
-            // 3.6. нет троллейбуса и автобусов
-            if (car && !bus && truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTruck, bUpTram);
-            }
-            // 3.7. нет троллейбуса и машин
-            if (!car && bus && truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTruck, bUpTram);
-            }
-            // ГРУЗОВЫЕ и
-            // 3.8. нет грузовых и автобусов
-            if (car && !bus && !truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTrolleybus, bUpTram);
-            }
-            // 3.9. нет грузовых и машин
-            if (!car && bus && !truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTrolleybus, bUpTram);
-            }
-            // АВТОБУСЫ и
-            // 3.10. нет автобусов и машин
-            if (!car && !bus && truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTruck, bUpTrolleybus, bUpTram);
-            }
-            // 4. Нет трех из всех
-            // ТРАМВАЕВ, ТРОЛЛЕЙБУСОВ и
-            // 4.1. нет трамваев,троллейбусов и грузовых
-            if (car && bus && !truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus);
-            }
-            // 4.2. нет трамваев, троллейбусов и автобусов
-            if (car && !bus && truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTruck);
-            }
-            // 4.3. нет трамваев, троллейбусов и машин
-            if (!car && bus && truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTruck);
-            }
-            // ТРАМВАЕВ, ГРУЗОВЫХ и
-            // 4.4. нет трамваев, грузовых и автобусов
-            if (car && !bus && !truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTrolleybus);
-            }
-            // 4.5. нет трамваев, грузовых и машин
-            if (!car && bus && !truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTrolleybus);
-            }
-            // ТРАМВАЕВ, АВТОБУСОВ и
-            // 4.6. нет трамваев, автобусов и машин
-            if (!car && !bus && truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTruck, bUpTrolleybus);
-            }
-            // ТРОЛЛЕЙБУСОВ, ГРУЗОВЫХ и
-            // 4.7. нет троллейбусов, грузовых и автобусов
-            if (car && !bus && !truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar, bUpTram);
-            }
-            // 4.8. нет троллейбусов, грузовых и машин
-            if (!car && bus && !truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus, bUpTram);
-            }
-            // ГРУЗОВЫХ,АВТОБУСОВ и
-            // 4.9. нет грузовых, автобусов и машин
-            if (!car && !bus && !truck && trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTrolleybus, bUpTram);
-            }
-            // ТРОЛЛЕЙБУСОВ,АВТОБУСОВ и
-            // 4.10. нет троллейбусов, автобусов и машин
-            if (!car && !bus && truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTruck, bUpTram);
-            }
-            // 5. Нет четырех из всех
-            // 5.1. есть только трамваи
-            if (!car && !bus && !truck && !trolleybus && tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTram);
-            }
-            // 5.2. есть только троллейбусы
-            if (!car && !bus && !truck && trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTrolleybus);
-            }
-            // 5.3. есть только грузовые
-            if (!car && !bus && truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpTruck);
-            }
-            // 5.4. есть только автобусы
-            if (!car && bus && !truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpBus);
-            }
-            // 5.5. есть только машины
-            if (car && !bus && !truck && !trolleybus && !tram) {
-                componentsUp = up.doComponents(labelsUp, bUpCar);
-            }
-
-//            componentsUp = up.doComponents(labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // Заполняем передаваемый контейнер тем, что нам нужно
+            componentsUp = componentsNow4(labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
             createPanelOfButtonss(panelUp, row, 4, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
             panelUp.setLocation(200, 0); // установка изначального местоположения панели
 
-            leftContainerComponent = new Component[4][4]; // указание размеров панели
-            createEmptyPanelOfButtons(panelLeft, leftContainerComponent); // заполнение панели пустыми элементами 
-            createPanelOfButtons(panelLeft, leftContainerComponent, componentsLeft); // заполнение панели нужными элементами (componentsUp)
+            componentsLeft = componentsNow4(labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrolleybus, bLeftTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            createPanelOfButtonss(panelLeft, row, 4, componentsLeft); // заполнение панели нужными элементами
             panelLeft.setLocation(0, 100); // установка изначального местоположения панели
 
-            downContainerComponent = new Component[4][4]; // указание размеров панели
-            createEmptyPanelOfButtons(panelDown, downContainerComponent); // заполнение панели пустыми элементами 
-            createPanelOfButtons(panelDown, downContainerComponent, componentsDown); // заполнение панели нужными элементами (componentsUp)
+            componentsDown = componentsNow4(labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrolleybus, bDownTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            createPanelOfButtonss(panelDown, row, 4, componentsDown); // заполнение панели нужными элементами
             panelDown.setLocation(500, 400); // установка изначального местоположения панели
 
-            rightContainerComponent = new Component[4][4]; // указание размеров панели
-            createEmptyPanelOfButtons(panelRight, rightContainerComponent); // заполнение панели пустыми элементами 
-            createPanelOfButtons(panelRight, rightContainerComponent, componentsRight); // заполнение панели нужными элементами (componentsUp)
+            componentsRight = componentsNow4(labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrolleybus, bRightTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            createPanelOfButtonss(panelRight, row, 4, componentsRight); // заполнение панели нужными элементами
             panelRight.setLocation(650, 0); // установка изначального местоположения панели
         }
 
@@ -536,13 +477,13 @@ public class OverlayTest extends JWindow {
             new popupButtonToTable(bLeftUpBus, table, typeOfStatement, "ФЕ Налево 12", "Bus");
             bLeftUpTrolleyBus.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bLeftUpTram.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            
+
             bForwardUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             new popupButtonToTable(bForwardUpTruck, table, typeOfStatement, "ФЕ Прямо 1", "Truck");
             new popupButtonToTable(bForwardUpBus, table, typeOfStatement, "ФЕ Прямо 1", "Bus");
             bForwardUpTrolleyBus.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bForwardUpTram.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            
+
             bRightUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             new popupButtonToTable(bRightUpTruck, table, typeOfStatement, "ФЕ Направо 14", "Truck");
             new popupButtonToTable(bRightUpBus, table, typeOfStatement, "ФЕ Направо 14", "Bus");
@@ -551,45 +492,45 @@ public class OverlayTest extends JWindow {
 
             // Создаем экземпляр popupMenu для Truck направления Left (4)
             bAroundLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundLeftBus1, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
-            new popupButtonToTable(bAroundLeftTruck1, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
+            new popupButtonToTable(bAroundLeftBus, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
+            new popupButtonToTable(bAroundLeftTruck, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
             bLeftLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftLeftTruck1, table, typeOfStatement, "ФЕ Налево 41", "Truck");
-            new popupButtonToTable(bLeftLeftBus1, table, typeOfStatement, "ФЕ Налево 41", "Bus");
+            new popupButtonToTable(bLeftLeftTruck, table, typeOfStatement, "ФЕ Налево 41", "Truck");
+            new popupButtonToTable(bLeftLeftBus, table, typeOfStatement, "ФЕ Налево 41", "Bus");
             bForwardLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardLeftTruck1, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
-            new popupButtonToTable(bForwardLeftBus1, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
+            new popupButtonToTable(bForwardLeftTruck, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
+            new popupButtonToTable(bForwardLeftBus, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
             bRightLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightLeftTruck1, table, typeOfStatement, "ФЕ Направо 43", "Truck");
-            new popupButtonToTable(bRightLeftBus1, table, typeOfStatement, "ФЕ Направо 43", "Bus");
+            new popupButtonToTable(bRightLeftTruck, table, typeOfStatement, "ФЕ Направо 43", "Truck");
+            new popupButtonToTable(bRightLeftBus, table, typeOfStatement, "ФЕ Направо 43", "Bus");
 
             // Инициализируем слушателей кнопок. Также создаем экземпляр popupMenu для Truck направления Down (3)
             bAroundDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundDownBus1, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
-            new popupButtonToTable(bAroundDownTruck1, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
+            new popupButtonToTable(bAroundDownBus, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
+            new popupButtonToTable(bAroundDownTruck, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
             bLeftDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftDownTruck1, table, typeOfStatement, "ФЕ Налево 34", "Truck");
-            new popupButtonToTable(bLeftDownBus1, table, typeOfStatement, "ФЕ Налево 34", "Bus");
+            new popupButtonToTable(bLeftDownTruck, table, typeOfStatement, "ФЕ Налево 34", "Truck");
+            new popupButtonToTable(bLeftDownBus, table, typeOfStatement, "ФЕ Налево 34", "Bus");
             bForwardDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardDownTruck1, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
-            new popupButtonToTable(bForwardDownBus1, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
+            new popupButtonToTable(bForwardDownTruck, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
+            new popupButtonToTable(bForwardDownBus, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
             bRightDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightDownTruck1, table, typeOfStatement, "ФЕ Направо 32", "Truck");
-            new popupButtonToTable(bRightDownBus1, table, typeOfStatement, "ФЕ Направо 32", "Bus");
+            new popupButtonToTable(bRightDownTruck, table, typeOfStatement, "ФЕ Направо 32", "Truck");
+            new popupButtonToTable(bRightDownBus, table, typeOfStatement, "ФЕ Направо 32", "Bus");
 
             // Создаем экземпляр popupMenu для Truck направления Right (2)
             bAroundRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundRightBus1, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
-            new popupButtonToTable(bAroundRightTruck1, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
+            new popupButtonToTable(bAroundRightBus, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
+            new popupButtonToTable(bAroundRightTruck, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
             bLeftRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftRightBus1, table, typeOfStatement, "ФЕ Налево 23", "Bus");
-            new popupButtonToTable(bLeftRightTruck1, table, typeOfStatement, "ФЕ Налево 23", "Truck");
+            new popupButtonToTable(bLeftRightBus, table, typeOfStatement, "ФЕ Налево 23", "Bus");
+            new popupButtonToTable(bLeftRightTruck, table, typeOfStatement, "ФЕ Налево 23", "Truck");
             bForwardRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardRightBus1, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
-            new popupButtonToTable(bForwardRightTruck1, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
+            new popupButtonToTable(bForwardRightBus, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
+            new popupButtonToTable(bForwardRightTruck, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
             bRightRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightRightBus1, table, typeOfStatement, "ФЕ Направо 21", "Bus");
-            new popupButtonToTable(bRightRightTruck1, table, typeOfStatement, "ФЕ Направо 21", "Truck");
+            new popupButtonToTable(bRightRightBus, table, typeOfStatement, "ФЕ Направо 21", "Bus");
+            new popupButtonToTable(bRightRightTruck, table, typeOfStatement, "ФЕ Направо 21", "Truck");
         }
         if (typeOfStatement.equalsIgnoreCase("Future")) {
             // Создаем экземпляр popupMenu для Truck направления Up (1)
@@ -608,45 +549,45 @@ public class OverlayTest extends JWindow {
 
             // Создаем экземпляр popupMenu для Truck направления Left (4)
             bAroundLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundLeftBus1, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
-            new popupButtonToTable(bAroundLeftTruck1, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
+            new popupButtonToTable(bAroundLeftBus, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
+            new popupButtonToTable(bAroundLeftTruck, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
             bLeftLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftLeftTruck1, table, typeOfStatement, "ФЕ Налево 41", "Truck");
-            new popupButtonToTable(bLeftLeftBus1, table, typeOfStatement, "ФЕ Налево 41", "Bus");
+            new popupButtonToTable(bLeftLeftTruck, table, typeOfStatement, "ФЕ Налево 41", "Truck");
+            new popupButtonToTable(bLeftLeftBus, table, typeOfStatement, "ФЕ Налево 41", "Bus");
             bForwardLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardLeftTruck1, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
-            new popupButtonToTable(bForwardLeftBus1, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
+            new popupButtonToTable(bForwardLeftTruck, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
+            new popupButtonToTable(bForwardLeftBus, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
             bRightLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightLeftTruck1, table, typeOfStatement, "ФЕ Направо 43", "Truck");
-            new popupButtonToTable(bRightLeftBus1, table, typeOfStatement, "ФЕ Направо 43", "Bus");
+            new popupButtonToTable(bRightLeftTruck, table, typeOfStatement, "ФЕ Направо 43", "Truck");
+            new popupButtonToTable(bRightLeftBus, table, typeOfStatement, "ФЕ Направо 43", "Bus");
 
             // Инициализируем слушателей кнопок. Также создаем экземпляр popupMenu для Truck направления Down (3)
             bAroundDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundDownBus1, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
-            new popupButtonToTable(bAroundDownTruck1, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
+            new popupButtonToTable(bAroundDownBus, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
+            new popupButtonToTable(bAroundDownTruck, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
             bLeftDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftDownTruck1, table, typeOfStatement, "ФЕ Налево 34", "Truck");
-            new popupButtonToTable(bLeftDownBus1, table, typeOfStatement, "ФЕ Налево 34", "Bus");
+            new popupButtonToTable(bLeftDownTruck, table, typeOfStatement, "ФЕ Налево 34", "Truck");
+            new popupButtonToTable(bLeftDownBus, table, typeOfStatement, "ФЕ Налево 34", "Bus");
             bForwardDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardDownTruck1, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
-            new popupButtonToTable(bForwardDownBus1, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
+            new popupButtonToTable(bForwardDownTruck, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
+            new popupButtonToTable(bForwardDownBus, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
             bRightDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightDownTruck1, table, typeOfStatement, "ФЕ Направо 32", "Truck");
-            new popupButtonToTable(bRightDownBus1, table, typeOfStatement, "ФЕ Направо 32", "Bus");
+            new popupButtonToTable(bRightDownTruck, table, typeOfStatement, "ФЕ Направо 32", "Truck");
+            new popupButtonToTable(bRightDownBus, table, typeOfStatement, "ФЕ Направо 32", "Bus");
 
             // Создаем экземпляр popupMenu для Truck направления Right (2)
             bAroundRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundRightBus1, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
-            new popupButtonToTable(bAroundRightTruck1, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
+            new popupButtonToTable(bAroundRightBus, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
+            new popupButtonToTable(bAroundRightTruck, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
             bLeftRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftRightBus1, table, typeOfStatement, "ФЕ Налево 23", "Bus");
-            new popupButtonToTable(bLeftRightTruck1, table, typeOfStatement, "ФЕ Налево 23", "Truck");
+            new popupButtonToTable(bLeftRightBus, table, typeOfStatement, "ФЕ Налево 23", "Bus");
+            new popupButtonToTable(bLeftRightTruck, table, typeOfStatement, "ФЕ Налево 23", "Truck");
             bForwardRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardRightBus1, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
-            new popupButtonToTable(bForwardRightTruck1, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
+            new popupButtonToTable(bForwardRightBus, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
+            new popupButtonToTable(bForwardRightTruck, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
             bRightRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightRightBus1, table, typeOfStatement, "ФЕ Направо 21", "Bus");
-            new popupButtonToTable(bRightRightTruck1, table, typeOfStatement, "ФЕ Направо 21", "Truck");
+            new popupButtonToTable(bRightRightBus, table, typeOfStatement, "ФЕ Направо 21", "Bus");
+            new popupButtonToTable(bRightRightTruck, table, typeOfStatement, "ФЕ Направо 21", "Truck");
         }
     }
 
@@ -740,7 +681,7 @@ public class OverlayTest extends JWindow {
         }
         ////////////////////////////////////////////////////////////////////////
         // Устанавливаем размеры панели с кнопками, исходя из компонентов в них находящихся
-        int panelWidth = ((JButton) containerComponents[1][1]).getIcon().getIconWidth();
+        int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][1]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
         int panelHeight = ((JLabel) containerComponents[0][0]).getIcon().getIconHeight() + (int) (((JLabel) containerComponents[0][0]).getIcon().getIconHeight() / 4);
         for (int q = 1; q < containerComponents.length; q++) {
             for (int a = 0; a < containerComponents[0].length - 1; a++) {
@@ -839,6 +780,184 @@ public class OverlayTest extends JWindow {
         for (JButton button : buttons) {
             createButtonWithIcon(button);
         }
+    }
+
+    private JComponent[] componentsNow4(JComponent[] labels, JComponent[] bCar, JComponent[] bBus,
+            JComponent[] bTruck, JComponent[] bTrolleybus, JComponent[] bTram) {
+
+        row = 1;
+        // Определяем, какие кнопки отображать и что будем считать
+        boolean car = false;
+        boolean bus = false;
+        boolean truck = false;
+        boolean trolleybus = false;
+        boolean tram = false;
+        for (TreePath tp : paths) {
+            String temp = String.valueOf(tp.getLastPathComponent());
+            if (temp.equalsIgnoreCase("Легковой транспорт")) {
+                car = true;
+                row = row + 1;
+            }
+            if (temp.equalsIgnoreCase("Автобусы")) {
+                bus = true;
+                row = row + 1;
+            }
+            if (temp.equalsIgnoreCase("Грузовые")) {
+                truck = true;
+                row = row + 1;
+            }
+            if (temp.equalsIgnoreCase("Троллейбусы")) {
+                trolleybus = true;
+                row = row + 1;
+            }
+            if (temp.equalsIgnoreCase("Трамвай")) {
+                tram = true;
+                row = row + 1;
+            }
+        }
+
+        doComponents4 doComp4 = new doComponents4();
+        JComponent[] components = doComp4.doComponents(labels);  // если пользователь не выберет ничего для подсчета - то появятся только labels направлений
+        // 1. Есть все
+        if (car && bus && truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTruck, bTrolleybus, bTram);
+        }
+        // 2. Нет одного из всех:
+        // 2.1. нет трамвая
+        if (car && bus && truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTruck, bTrolleybus);
+        }
+        // 2.2. нет троллейбуса
+        if (car && bus && truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTruck, bTram);
+        }
+        // 2.3. нет грузовых
+        if (car && bus && !truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTrolleybus, bTram);
+        }
+        // 2.4. нет автобусов
+        if (car && !bus && truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bTruck, bTrolleybus, bTram);
+        }
+        // 2.5. нет машин
+        if (!car && bus && truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bBus, bTruck, bTrolleybus, bTram);
+        }
+        // 3. Нет двух из всех
+        // ТРАМВАЙ и
+        // 3.1. нет трамвая и троллейбуса
+        if (car && bus && truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTruck);
+        }
+        // 3.2. нет трамвая и грузовых
+        if (car && bus && !truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTrolleybus);
+        }
+        // 3.3. нет трамвая и автобусов
+        if (car && !bus && truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bTruck, bTrolleybus);
+        }
+        // 3.4. нет трамвая и машин
+        if (!car && bus && truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bBus, bTruck, bTrolleybus);
+        }
+        // ТРОЛЛЕЙБУС и
+        // 3.5. нет троллейбуса и грузовых
+        if (car && bus && !truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bBus, bTram);
+        }
+        // 3.6. нет троллейбуса и автобусов
+        if (car && !bus && truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bTruck, bTram);
+        }
+        // 3.7. нет троллейбуса и машин
+        if (!car && bus && truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bBus, bTruck, bTram);
+        }
+        // ГРУЗОВЫЕ и
+        // 3.8. нет грузовых и автобусов
+        if (car && !bus && !truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bTrolleybus, bTram);
+        }
+        // 3.9. нет грузовых и машин
+        if (!car && bus && !truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bBus, bTrolleybus, bTram);
+        }
+        // АВТОБУСЫ и
+        // 3.10. нет автобусов и машин
+        if (!car && !bus && truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bTruck, bTrolleybus, bTram);
+        }
+        // 4. Нет трех из всех
+        // ТРАМВАЕВ, ТРОЛЛЕЙБУСОВ и
+        // 4.1. нет трамваев,троллейбусов и грузовых
+        if (car && bus && !truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bBus);
+        }
+        // 4.2. нет трамваев, троллейбусов и автобусов
+        if (car && !bus && truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bTruck);
+        }
+        // 4.3. нет трамваев, троллейбусов и машин
+        if (!car && bus && truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bBus, bTruck);
+        }
+        // ТРАМВАЕВ, ГРУЗОВЫХ и
+        // 4.4. нет трамваев, грузовых и автобусов
+        if (car && !bus && !truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar, bTrolleybus);
+        }
+        // 4.5. нет трамваев, грузовых и машин
+        if (!car && bus && !truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bBus, bTrolleybus);
+        }
+        // ТРАМВАЕВ, АВТОБУСОВ и
+        // 4.6. нет трамваев, автобусов и машин
+        if (!car && !bus && truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bTruck, bTrolleybus);
+        }
+        // ТРОЛЛЕЙБУСОВ, ГРУЗОВЫХ и
+        // 4.7. нет троллейбусов, грузовых и автобусов
+        if (car && !bus && !truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bCar, bTram);
+        }
+        // 4.8. нет троллейбусов, грузовых и машин
+        if (!car && bus && !truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bBus, bTram);
+        }
+        // ГРУЗОВЫХ,АВТОБУСОВ и
+        // 4.9. нет грузовых, автобусов и машин
+        if (!car && !bus && !truck && trolleybus && tram) {
+            components = doComp4.doComponents(labels, bTrolleybus, bTram);
+        }
+        // ТРОЛЛЕЙБУСОВ,АВТОБУСОВ и
+        // 4.10. нет троллейбусов, автобусов и машин
+        if (!car && !bus && truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bTruck, bTram);
+        }
+        // 5. Нет четырех из всех
+        // 5.1. есть только трамваи
+        if (!car && !bus && !truck && !trolleybus && tram) {
+            components = doComp4.doComponents(labels, bTram);
+        }
+        // 5.2. есть только троллейбусы
+        if (!car && !bus && !truck && trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bTrolleybus);
+        }
+        // 5.3. есть только грузовые
+        if (!car && !bus && truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bTruck);
+        }
+        // 5.4. есть только автобусы
+        if (!car && bus && !truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bBus);
+        }
+        // 5.5. есть только машины
+        if (car && !bus && !truck && !trolleybus && !tram) {
+            components = doComp4.doComponents(labels, bCar);
+        }
+
+        return components;
     }
 
     public JLabel[] getLabelsUp() {
