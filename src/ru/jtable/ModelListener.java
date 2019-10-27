@@ -3,11 +3,12 @@ package ru.jtable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import org.quinto.swing.table.model.ModelField;
 import org.quinto.swing.table.view.JBroTable;
+import ru.cartogram.CreateCartogram;
 import ru.jtable.modelListener.SumInAllDirectionInRow;
 import ru.jtable.modelListener.TotalSumLastColumns;
 import ru.jtable.modelListener.TotalSumLastRow;
+import ru.jtable.modelListener.cartograma.OneDirection;
 
 /**
  * Слушатель изменения данных в таблице. Здесь реализуем формулы как в Excel
@@ -17,6 +18,7 @@ public class ModelListener implements TableModelListener {
     private JBroTable table;
     private String[] kindOfTransport; // массив с названиями строк (для последующей идентификации строк
     private String typeOfStatement;
+    private CreateCartogram cartogram;
 
     // Переменные для инициализации подсчета суммы по каждой строке отдельно
     private SumInAllDirectionInRow carNumber1 = new SumInAllDirectionInRow();
@@ -49,11 +51,13 @@ public class ModelListener implements TableModelListener {
 
     private TotalSumLastRow totalSumRow = new TotalSumLastRow(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
     private TotalSumLastColumns totalSumColumns = new TotalSumLastColumns(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
+    private OneDirection oneDirection = new OneDirection();
 
-    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement) {
+    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, CreateCartogram cartogram) {
         this.table = table;
         this.kindOfTransport = kindOfTransport;
         this.typeOfStatement = typeOfStatement;
+        this.cartogram = cartogram;
     }
 
     // Слушатель изменения данных в таблице. Вызывается КАЖДЫЙ РАЗ, когда данные в таблице меняются (даже если ты меняешь одни данные, а они меняют другие, то метод вызовется снова   
@@ -79,5 +83,12 @@ public class ModelListener implements TableModelListener {
 
         totalSumRow.getSum(table, row, column); // Подсчет суммы по всем транспортным средствам в данном направлении в данном варианте движения (налево, направо и т.п)
         totalSumColumns.getSum(table, row, column, typeOfStatement); // Подсчет суммы по конкретному транспортному средству по всем столбцам в данной строке
+
+        // Изменяем картограмму, в соответствии с изменениями в Таблице по всем 4 направлениям
+        oneDirection.counting(table, row, column, "Направление 1", cartogram);
+        oneDirection.counting(table, row, column, "Направление 2", cartogram);
+        oneDirection.counting(table, row, column, "Направление 3", cartogram);
+        oneDirection.counting(table, row, column, "Направление 4", cartogram);
     }
+
 }

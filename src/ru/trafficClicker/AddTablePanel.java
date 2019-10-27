@@ -3,7 +3,6 @@ package ru.trafficClicker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.Box;
@@ -16,8 +15,8 @@ import javax.swing.JPanel;
  */
 public class AddTablePanel {
     
-    private ImageIcon beforeIcon = new ImageIcon(this.getClass().getResource("/icons/addTable/before.png"));
-    private ImageIcon afterIcon = new ImageIcon(this.getClass().getResource("/icons/addTable/after.png"));
+    private ImageIcon beforeIcon = new ImageIcon(this.getClass().getResource("/resources/icons/addTable/before.png"));
+    private ImageIcon afterIcon = new ImageIcon(this.getClass().getResource("/resources/icons/addTable/after.png"));
     private JButton button = new JButton(beforeIcon);
 
     // Основная overlay панель, на которую помечаются кнопки. LayoutManager = null

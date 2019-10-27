@@ -44,7 +44,7 @@ public class SaveAs extends JPanel {
                     fullFileName += extension; // дописываем расширение файла к полному пути файла
                     // ПРОВЕРКА, есть ли в выбранной директории файл с таким же именем
                     boolean equals = false;
-                    File directory = new File(pathName); // объект типа File, указывающий на каталог        
+                    File directory = new File(pathName); // объект типа File, указывающий на каталог   
                     for (int i = 0; i < directory.listFiles().length; i++) { // перебираем все файлы в указанной директории
                         // если файл из директории (имя+расширение) совпадает с сохраняемым нами (имя + расширение / имя, в котором уже написано расширение), то 
                         if (directory.listFiles()[i].getName().equalsIgnoreCase(fileName + extension)

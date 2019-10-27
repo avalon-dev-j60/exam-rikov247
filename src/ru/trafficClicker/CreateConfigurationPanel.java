@@ -4,21 +4,24 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -29,11 +32,10 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.quinto.swing.table.model.IModelFieldGroup;
 import org.quinto.swing.table.view.JBroTable;
-import ru.Excel.Save.FileSave;
 import ru.Excel.Save.templates.FileSaveWithPattern;
 import ru.Excel.Save.templates.savePattern.SaveInExistingFile;
 import ru.JCheckBoxTree;
-import ru.Overlay;
+import ru.cartogram.CreateCartogram;
 import ru.jtable.Table;
 import ru.jtable.model.*;
 
@@ -45,12 +47,15 @@ public class CreateConfigurationPanel {
 
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this); // переменная позволяющая добавить в этот слушатель изменения свойств 
 
+    private JPanel cartogramPanel;
+    private CreateCartogram cartogram;
+
     private FileSaveWithPattern fileSaveWithPattern;
     private String fullFileName;
     private String fullName;
     private String kindOfStatement;
     private String typeOfDirection;
-    private String typeOfStatement;
+    private int page = 0;
 
     private JBroTable table = new JBroTable(); // Таблица
 
@@ -66,11 +71,45 @@ public class CreateConfigurationPanel {
     private JSplitPane vertSplit2;
     private JSplitPane vertSplit3;
     private JSplitPane horizSplit3;
+    private JSplitPane vertSplitRight1;
+    private JSplitPane horizSplitRight1;
+    private JSplitPane vertSplitRight2;
+    private JSplitPane horizSplitRight2;
+    private JSplitPane vertSplitRight3;
+    private JSplitPane horizSplitRight3;
+    private JSplitPane vertSplitRight4;
+    private JSplitPane horizSplitRight4;
+    private JSplitPane vertSplitRight5;
+    private JSplitPane horizSplitRight5;
+    private JSplitPane vertSplitRight6;
+    private JSplitPane horizSplitRight6;
+    private JSplitPane vertSplitRight7;
+    private JSplitPane horizSplitRight7;
+    private JSplitPane vertSplitRight8;
+    private JSplitPane horizSplitRight8;
+    private JSplitPane vertSplitRight9;
+    private JSplitPane horizSplitRight9;
+
+    // Правая панель
+    private JLabel label1;
+
+    private JButton save15 = new JButton();
+    private JButton save30 = new JButton();
+    private JButton save45 = new JButton();
+    private JButton save60 = new JButton();
+
+    private JLabel label2;
+
+    private JButton buttonReset = new JButton();
+
+    private JRadioButton morningRadio = new JRadioButton("", true);
+    private JRadioButton dayRadio = new JRadioButton();
+    private JRadioButton eveningRadio = new JRadioButton();
 
     // Панель управления панелями кнопок
     // В вертикальную панель наверх устанавливаем горизонтальную панель, а вниз устанавливаем вертикальную панель.
     // В новую вертикальную панель навеох добавляем горизонитальную панель, а вниз ...
-    public JComponent CreateConfigurationPanel() {
+    public JComponent CreateLeftConfigurationPanel() {
         vertSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true); // устанавливаем в положение true continuousLayout - для постоянного отображения divider (разделительной линии) при ее перемещении
         vertSplit1.setDividerSize(3);
 
@@ -85,12 +124,12 @@ public class CreateConfigurationPanel {
 
         vertSplit3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         vertSplit3.setDividerSize(3);
-        vertSplit3.setDividerLocation(250); // установка положения разделительной линии первоначальное
+        vertSplit3.setDividerLocation(150); // установка положения разделительной линии первоначальное
 
         horizSplit3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         horizSplit3.setDividerSize(3);
 
-        // Самая нижняя панель
+        // Верхняя панель
         vertSplit1.setTopComponent(horizSplit3);
         vertSplit1.setBottomComponent(vertSplit2);
         vertSplit2.setTopComponent(horizSplit1);
@@ -120,6 +159,263 @@ public class CreateConfigurationPanel {
         horizSplit3.setBorder(BorderFactory.createEmptyBorder());
 
         return vertSplit1;
+    }
+
+    public JComponent CreateRightConfigurationPanel() {
+        vertSplitRight1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight1.setDividerSize(3);
+        horizSplitRight1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight1.setDividerSize(3);
+
+        vertSplitRight2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight2.setDividerSize(3);
+        horizSplitRight2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight2.setDividerSize(3);
+
+        vertSplitRight3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight3.setDividerSize(3);
+        horizSplitRight3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight3.setDividerSize(3);
+
+        vertSplitRight4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight4.setDividerSize(3);
+        horizSplitRight4 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight4.setDividerSize(3);
+
+        vertSplitRight5 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight5.setDividerSize(3);
+        horizSplitRight5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight5.setDividerSize(3);
+
+        vertSplitRight6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight6.setDividerSize(3);
+        horizSplitRight6 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight6.setDividerSize(3);
+
+        vertSplitRight7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight7.setDividerSize(3);
+        horizSplitRight7 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight7.setDividerSize(3);
+
+        vertSplitRight8 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight8.setDividerSize(3);
+        horizSplitRight8 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight8.setDividerSize(3);
+
+        vertSplitRight9 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        vertSplitRight9.setDividerSize(3);
+        horizSplitRight9 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        horizSplitRight9.setDividerSize(3);
+
+        createButton(save15, "Сохранить 15 минут");
+        createButton(save30, "Сохранить 30 минут");
+        createButton(save45, "Сохранить 45 минут");
+        createButton(save60, "Сохранить 60 минут");
+
+        vertSplitRight1.setTopComponent(createLabelOnPanel(label1, "Конфигурация сохранения:"));
+        vertSplitRight1.setBottomComponent(vertSplitRight2);
+        vertSplitRight2.setTopComponent(createGroupButton(save15, save30, save45, save60));
+        vertSplitRight2.setBottomComponent(vertSplitRight3);
+        vertSplitRight3.setTopComponent(createLabelOnPanel(label2, "Время дня:"));
+        vertSplitRight3.setBottomComponent(vertSplitRight4);
+
+        // Панель нижняя заглушка
+        JPanel p = new JPanel();
+        p.setBackground(Color.WHITE);
+
+        // Панель группы кнопок
+        createRadioButton(morningRadio, "Утро");
+        createRadioButton(dayRadio, "День");
+        createRadioButton(eveningRadio, "Вечер");
+
+        // Добавляем панель, в которой создаем группу кнопок
+        vertSplitRight4.setTopComponent(createGroupButton(morningRadio, dayRadio, eveningRadio));
+        vertSplitRight4.setBottomComponent(vertSplitRight5);
+
+        buttonReset.addActionListener(reset);
+        vertSplitRight5.setTopComponent(createButton(buttonReset, "Очистить таблицу"));
+        vertSplitRight5.setBottomComponent(p);
+
+        // Убрать границу (тень) вокруг divider
+        // UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder()); // Убрать границу (тень) вокруг divider для всех SplitPane в приложении
+        vertSplitRight1.setBorder(BorderFactory.createEmptyBorder());
+        vertSplitRight2.setBorder(BorderFactory.createEmptyBorder());
+        vertSplitRight3.setBorder(BorderFactory.createEmptyBorder());
+        vertSplitRight4.setBorder(BorderFactory.createEmptyBorder());
+        horizSplitRight1.setBorder(BorderFactory.createEmptyBorder());
+        horizSplitRight2.setBorder(BorderFactory.createEmptyBorder());
+        horizSplitRight3.setBorder(BorderFactory.createEmptyBorder());
+        horizSplitRight4.setBorder(BorderFactory.createEmptyBorder());
+
+        return vertSplitRight1;
+    }
+
+    // Возвращает текст выбранной кнопки из группы кнопок
+    public String getSelectedButtonText(ButtonGroup buttonGroup) {
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+        return "утро";
+    }
+
+    private JButton createButton(JButton button, String text) {
+        button.setText(text);
+        button.setToolTipText(text);
+        button.setFocusable(false);
+
+        return button;
+    }
+
+    private JRadioButton createRadioButton(JRadioButton button, String text) {
+        button.setText(text);
+        button.setToolTipText(text);
+        button.setBackground(Color.white);
+        button.setFocusable(false);
+
+        return button;
+    }
+
+    // Группа кнопок
+    private ButtonGroup groupPeriodOfDay = new ButtonGroup();
+
+    // Конфигурируем группу кнопок
+    private JPanel createGroupButton(JRadioButton button1, JRadioButton button2, JRadioButton button3) {
+        JPanel pp = new JPanel(new GridLayout(0, 1, 0, 3));
+        pp.setBackground(Color.WHITE);
+        pp.add(button1);
+        button1.addActionListener(timeOfDayListener);
+        pp.add(button2);
+        button2.addActionListener(timeOfDayListener);
+        pp.add(button3);
+        button3.addActionListener(timeOfDayListener);
+        groupPeriodOfDay.add(button1);
+        groupPeriodOfDay.add(button2);
+        groupPeriodOfDay.add(button3);
+
+        return pp;
+    }
+
+    private JPanel createGroupButton(JButton b1, JButton b2, JButton b3, JButton b4) {
+        JPanel pp = new JPanel(new GridLayout(0, 1, 0, 4));
+        pp.setBackground(Color.WHITE);
+        pp.add(b1);
+        pp.add(b2);
+        pp.add(b3);
+        pp.add(b4);
+        b1.addActionListener(saveTime);
+        b2.addActionListener(saveTime);
+        b3.addActionListener(saveTime);
+        b4.addActionListener(saveTime);
+
+        return pp;
+    }
+
+    // Сохраняем промежуточные результаты таблицы в нужную таблицу по 15 минуткам
+    private ActionListener saveTime = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save15.getText())) {
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 12);
+                }
+                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save30.getText())) {
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 33);
+                }
+                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save45.getText())) {
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 54);
+                }
+                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save60.getText())) {
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 84);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    };
+
+    // Слушатель выбора времени Дня (утро, день, вечер)
+    private ActionListener timeOfDayListener = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("утро")) {
+                page = 0;
+            }
+            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("день")) {
+                page = 1;
+            }
+            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("вечер")) {
+                page = 2;
+            }
+        }
+    };
+
+    // Сброс всей таблицы (во всех ячейках устанавливаем 0)
+    private ActionListener reset = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (table != null) {
+                // по строкам
+                for (int i = 0; i < table.getModel().getData().getRows().length; i++) {
+                    // по столбцам
+                    int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
+                    for (int j = unAccountedColumns; j < table.getModel().getData().getFieldsCount(); j++) {
+                        table.getModel().setValueAt("0", i, j);
+                    }
+                }
+            }
+        }
+    };
+
+    // Создаем label на панеле
+    private JPanel createLabelOnPanel(JLabel label, String text) {
+        label = new JLabel(text);
+        label.setToolTipText(text);
+        label.setFocusable(false);
+
+        label.setOpaque(true);
+        label.setBackground(Color.WHITE);
+
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        p.setBackground(Color.WHITE);
+        p.add(label);
+
+        return p;
+    }
+
+    private void createHorizontalPanel(JSplitPane horizSplit, String discription, String button) {
+        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
+        JScrollBar scrollBar = new JScrollBar(JScrollBar.VERTICAL) {
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+        };
+        // Левый компонент
+        JLabel label = new JLabel(discription); // Лэйбл
+        label.setOpaque(true);
+        label.setBackground(Color.WHITE);
+        label.setFocusable(false);
+        label.setToolTipText(label.getText()); // Установка всплывающей подсказки
+
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        p.setBackground(Color.WHITE);
+        p.add(label);
+
+        JScrollPane sc = new JScrollPane(p); // Добавление лэйбла в прокручивающуюся панель
+        // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом
+        sc.setHorizontalScrollBar(scrollBar);
+        sc.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        horizSplit.setLeftComponent(sc); //Добавление конфигурированного лэйбла в панель
+
+        // TextField
+        JButton jbutton = new JButton(button);
+
+        horizSplit.setRightComponent(jbutton);
     }
 
     // описание дерева checkBoxов (наполнения) для модели Now
@@ -164,7 +460,7 @@ public class CreateConfigurationPanel {
     private TreeModel createTreeModelFuture() {
         final String ROOT = "Учитываемые единицы";
         // Массив листьев деревьев
-        final String[] nodes = new String[]{"Легковые", "Автобусы", "Грузовые", "Автопоезда", "Пешеходы", "Велотранспорт", "Трамвай", "Троллейбусы"};
+        final String[] nodes = new String[]{"Легковые, фургоны", "Автобусы", "Грузовые", "Автопоезда", "Пешеходы", "Велотранспорт", "Трамвай", "Троллейбусы"};
         final String[][] leafs = new String[][]{
             {"Особо малого класса", "Малого класса", "Среднего класса", "Большого класса", "Особо большого класса"},
             {"2-осные", "3-осные", "4-осные", "4-осные (2 оси+прицеп)", "5-осные (3 оси+прицеп)"},
@@ -209,6 +505,7 @@ public class CreateConfigurationPanel {
 
         JButton bP = new JButton("Создать проект");
         bP.setFocusable(false); // отключаем возможность получения фокуса кнопкой
+        bP.setToolTipText(bP.getText());
         bP.addActionListener(this::onButtonClick);
         p.add(bP, BorderLayout.NORTH);
 
@@ -290,21 +587,6 @@ public class CreateConfigurationPanel {
         checkBox.setFocusable(false);
         checkBox.setModel(createTreeModelNow()); // добавление нужных компонентов в него
 
-//        checkBox.addCheckChangeEventListener(new JCheckBoxTree.CheckChangeEventListener() {
-//
-//            @Override
-//            public void checkStateChanged(JCheckBoxTree.CheckChangeEvent event) {
-//                System.out.println("event");
-//                TreePath[] paths = checkBox.getCheckedPaths();
-//                for (TreePath tp : paths) {
-////                    System.out.println("d: " + String.valueOf(tp.getLastPathComponent()));
-//                    for (Object pathPart : tp.getPath()) {
-//                        System.out.println("1 " + tp.getLastPathComponent() );
-//                    }
-//                    System.out.println();
-//                }
-//            }
-//        });
         scrollPane = new JScrollPane(checkBox);
         scrollPane.setVisible(true); // исходно дерево checkboxов видно
 
@@ -333,7 +615,7 @@ public class CreateConfigurationPanel {
             } else {
                 scrollPane.setVisible(true);
                 button.setText("Свернуть");
-                vertSplit3.setDividerLocation(250);
+                vertSplit3.setDividerLocation(150);
             }
         });
 
@@ -424,98 +706,77 @@ public class CreateConfigurationPanel {
 
             // Если выбрано 4 направления, то:
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4")) {
+
                 try {
                     fileSaveWithPattern = new FileSaveWithPattern("Now/4"); // клонируем шаблон в путь и с названием файла которые указывает пользователь
                     fullFileName = fileSaveWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
                     if (fullFileName != null) { // если успешно сохранился клон, то
-                        createTable((new CrossRoadModel()).getModel(), "Now"); // создаем новую таблицу
                         kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "4";
+                        createTable((new CrossRoadModel()).getModel(), "Now", typeOfDirection); // создаем новую таблицу
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
             // Если выбрано 4 направления кольцо, то:
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4 кольцо")) {
                 try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/4 кольцо");
+                    fileSaveWithPattern = new FileSaveWithPattern("Now/4Circle");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new CrossRoadModel()).getModel(), "Now");
                         kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "4 кольцо";
+                        createTable((new CrossRoadModel()).getModel(), "Now", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             // Если выбрано 3 направления вверх, то:
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вверх")) {
                 try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/3 вверх");
+                    fileSaveWithPattern = new FileSaveWithPattern("Now/3Up");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new TUpRoadModel()).getModel(), "Now");
                         kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "3 вверх";
+                        createTable((new TUpRoadModel()).getModel(), "Now", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             // Если выбрано 3 направления вправо, то:
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
                 try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/3 вверх");
+                    fileSaveWithPattern = new FileSaveWithPattern("Now/3Up");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new TUpRoadModel()).getModel(), "Now");
                         kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "3 вверх";
+                        createTable((new TUpRoadModel()).getModel(), "Now", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
 
         // Если вид таблицы НОВЫЙ, то:
         if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("новая")) {
-            // Определяем, какие кнопки отображать и что будем считать
-//            for (TreePath tp : paths) {
-//                String temp = String.valueOf(tp.getLastPathComponent());
-//                if (temp.equalsIgnoreCase("Легковые")) {
-//
-//                }
-//                if (temp.equalsIgnoreCase("Автобусы")) {
-//
-//                }
-//                if (temp.equalsIgnoreCase("Грузовые")) {
-//
-//                }
-//                if (temp.equalsIgnoreCase("Автопоезда")) {
-//
-//                }
-//                if (temp.equalsIgnoreCase("Трамвай")) {
-//
-//                }
-//                if (temp.equalsIgnoreCase("Троллейбусы")) {
-//
-//                }
-//            }
-
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4")) {
                 try {
                     fileSaveWithPattern = new FileSaveWithPattern("Future/4");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new CrossRoadModel()).getModel(), "Future");
                         kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "4";
+                        createTable((new CrossRoadModel()).getModel(), "Future", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4 кольцо")) {
@@ -523,38 +784,38 @@ public class CreateConfigurationPanel {
                     fileSaveWithPattern = new FileSaveWithPattern("Future/4");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new CrossRoadModel()).getModel(), "Future");
                         kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "4 кольцо";
+                        createTable((new CrossRoadModel()).getModel(), "Future", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
                 try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/3 вправо");
+                    fileSaveWithPattern = new FileSaveWithPattern("Future/3Right");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new TRightRoadModel()).getModel(), "Future");
                         kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "3 вправо";
+                        createTable((new TRightRoadModel()).getModel(), "Future", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вверх")) {
                 try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/3 вправо");
+                    fileSaveWithPattern = new FileSaveWithPattern("Future/3Right");
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
-                        createTable((new TRightRoadModel()).getModel(), "Future");
                         kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
                         typeOfDirection = "3 вправо";
+                        createTable((new TRightRoadModel()).getModel(), "Future", typeOfDirection);
                     }
                 } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
+                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -563,12 +824,13 @@ public class CreateConfigurationPanel {
 
     public void onSaveButtonClick(ActionEvent e) {
         // Если вид таблицы СТАРЫЙ, то:
+
         if (kindOfStatement.equalsIgnoreCase("старая")) {
 
             // Если выбрано 4 направления, то:
             if (typeOfDirection.equalsIgnoreCase("4")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -576,7 +838,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 4 направления кольцо, то:
             if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -584,7 +846,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 3 направления вверх, то:
             if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -592,7 +854,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 3 направления вправо, то:
             if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх");
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх", page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -604,7 +866,7 @@ public class CreateConfigurationPanel {
 
             if (typeOfDirection.equalsIgnoreCase("4")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -612,21 +874,21 @@ public class CreateConfigurationPanel {
             // Если выбрано 4 направления кольцо, то:
             if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх");
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх", page);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -634,12 +896,14 @@ public class CreateConfigurationPanel {
         }
     }
 
-    // Создание таблицы с переданными параметрами
-    private void createTable(IModelFieldGroup[] modelGroup, String typeOfStatement) {
+    // Создание таблицы и картограммы с переданными параметрами
+    private void createTable(IModelFieldGroup[] modelGroup, String kindOfStatement, String typeOfDirection) {
         Table tableModel = new Table();
+        cartogram = new CreateCartogram(fullFileName, typeOfDirection);
         try {
-            table = tableModel.doTable(modelGroup, typeOfStatement);
-            this.typeOfStatement = typeOfStatement;
+            this.cartogramPanel = cartogram.initialize();
+            this.kindOfStatement = kindOfStatement;
+            table = tableModel.doTable(modelGroup, kindOfStatement, typeOfDirection, cartogram);
         } catch (Exception ex) {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -665,12 +929,26 @@ public class CreateConfigurationPanel {
         return this.fullName;
     }
 
-    public String getTypeOfStatement() {
-        return typeOfStatement;
+    // Вид ведомости (старая, новая)
+    public String getKindOfStatement() {
+        return kindOfStatement;
+    }
+
+    // Количество направлений
+    public String getTypeOfDirection() {
+        return typeOfDirection;
     }
 
     public TreePath[] getPaths() {
         return paths;
+    }
+
+    public JPanel getCartogramPanel() {
+        return cartogramPanel;
+    }
+
+    public CreateCartogram getCartogram() {
+        return cartogram;
     }
 
 }

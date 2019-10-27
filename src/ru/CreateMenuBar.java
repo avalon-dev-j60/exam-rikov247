@@ -1,5 +1,7 @@
 package ru;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
@@ -7,6 +9,8 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import javax.swing.KeyStroke;
 
 public class CreateMenuBar {
@@ -20,37 +24,37 @@ public class CreateMenuBar {
     public JMenuBar CreateBar() {
 
         mbar.add(createFileMenu());
-        mbar.add(createEditMenu());
+//        mbar.add(createEditMenu());
         mbar.add(createViewMenu());
         mbar.add(createHelpMenu());
 
         return mbar;
     }
 
-    private JMenuItem fileItem1 = new JMenuItem("Новый проект...");
-    private ImageIcon fileItem1Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Add16.gif"));
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
     private ImageIcon fileItem2Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Open16.gif"));
-    private JMenuItem fileItem3 = new JMenuItem("Закрыть проект");
     private JMenuItem fileItem4 = new JMenuItem("Сохранить");
+    private ImageIcon fileItem4Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
     private JMenuItem fileItem5 = new JMenuItem("Сохранить как..");
-    private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
+    private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/SaveAs16.gif"));
     private JMenuItem fileItem6 = new JMenuItem("Открыть видео");
     private ImageIcon fileItem6Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
     private JMenuItem fileItem7 = new JMenuItem("Выход");
 
     private JMenu createFileMenu() {
-        fileMenu.add(fileItem1);
-        fileItem1.setIcon(fileItem1Icon); // устанавливаем иконку
         fileMenu.add(fileItem2);
         fileItem2.setIcon(fileItem2Icon); // устанавливаем иконку
-        fileMenu.add(fileItem3);
         fileMenu.add(fileItem4);
+        fileItem4.setIcon(fileItem4Icon); // устанавливаем иконку
+        fileItem4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK)); // установка клавишного сочетания
+        fileItem4.setEnabled(false);
         fileMenu.add(fileItem5);
         fileItem5.setIcon(fileItem5Icon); // устанавливаем иконку
+        fileItem5.setEnabled(false);
         fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem6);
         fileItem6.setIcon(fileItem6Icon); // устанавливаем иконку
+        fileItem6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         fileMenu.addSeparator(); // разделитель
         fileMenu.add(fileItem7);
 
@@ -83,20 +87,74 @@ public class CreateMenuBar {
     private JMenuItem viewItem3 = new JMenuItem("Полноэкранный режим");
 
     private JMenu createViewMenu() {
-        viewMenu1.add(viewItem1);
-        viewMenu1.add(viewItem2);
-        viewMenu.add(viewMenu1);
-        viewMenu.addSeparator(); // разделитель
+//        viewMenu1.add(viewItem1);
+//        viewMenu1.add(viewItem2);
+//        viewMenu.add(viewMenu1);
+//        viewMenu.addSeparator(); // разделитель
         viewItem3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK)); // установка клавишного сочетания
         viewMenu.add(viewItem3);
 
         return viewMenu;
     }
 
-    private JMenuItem helpItem1 = new JMenuItem("О нас");
+    private JMenuItem helpItem1 = new JMenuItem("Горячие клавиши");
+    private JMenuItem helpItem2 = new JMenuItem("Приступая к работе");
+    private JMenuItem helpItem3 = new JMenuItem("О нас");
 
     private JMenu createHelpMenu() {
         helpMenu.add(helpItem1);
+        helpItem1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(helpItem1,
+                        new String[]{
+                            "Горячие клавиши:",
+                            "F11 - показать панель кнопок поверх видео (если создан проект)",
+                            "Space - включить/выключить воспроизведение видео",
+                            "M - включить/выключить звук",
+                            "Z - нормальная скорость воспроизведения",
+                            "X - уменьшить скорость воспроизведения",
+                            "C - увеличить скорость воспроизведения",
+                            "<-  переход по видео на 5 секунд назад",
+                            "->  переход по видео на 5 секунд вперед",
+                            "Ctrl + S  сохранить созданный проект",
+                            "Ctrl + O  открыть видео",
+                            "Alt + Shift + Enter  полноэкранный режим"},
+                        "Горячие клавиши", INFORMATION_MESSAGE);
+            }
+        });
+        helpMenu.add(helpItem2);
+        helpItem2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(helpItem2,
+                        new String[]{
+                            "1. Добавьте видео.",
+                            "2. На вкладке \"Таблица результатов подсчета\" настройте свой проект:",
+                            "    2.1. Выберите вид таблицы (старая/нынешняя или новая/будущая)",
+                            "    2.2. Выберите количество направлений движения транспорта",
+                            "    2.3. Выберите типы транспорта для подсчета (для них создадутся соответствующие кнопки над видео)",
+                            "    2.4. Создайте свой проект, выбрав имя вашего будущего файла и место его хранения!",
+                            "3. Теперь для вас был создан файл-шаблон таблицы результатов подсчета,",
+                            "    создана таблица в приложении и панель с кнопками над видео.",
+                            "4. Считайте транспорт!",
+                            "Не забудьте периодически сохранять свой проект."},
+                        "Приступая к работе", INFORMATION_MESSAGE);
+            }
+        });
+        helpMenu.add(helpItem3);
+        helpItem3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(helpItem3,
+                        new String[]{
+                            "Тестовая версия приложения.",
+                            "По возникающим проблемам, вопросам или пожеланиям просьба писать по адресу:",
+                            "rikov247@gmail.com"
+                            },
+                        "О нас", INFORMATION_MESSAGE);
+            }
+        });
 
         return helpMenu;
     }
@@ -121,16 +179,8 @@ public class CreateMenuBar {
         return helpMenu;
     }
 
-    public JMenuItem getFileItem1() {
-        return fileItem1;
-    }
-
     public JMenuItem getFileItem2() {
         return fileItem2;
-    }
-
-    public JMenuItem getFileItem3() {
-        return fileItem3;
     }
 
     public JMenuItem getFileItem4() {
@@ -144,7 +194,7 @@ public class CreateMenuBar {
     public JMenuItem getFileItem6() {
         return fileItem6;
     }
-    
+
     public JMenuItem getFileItem7() {
         return fileItem7;
     }

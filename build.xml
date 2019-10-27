@@ -70,4 +70,14 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+    
+    
+    <target name="YourBigJar" depends="-post-jar">
+        <jar destfile="BigJar.jar">
+            <zipfileset src="dist/VideoVLC.jar"/>
+            <zipgroupfileset dir="./libr/"/>
+        </jar>
+    </target>
+    
 </project>

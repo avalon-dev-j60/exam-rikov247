@@ -12,6 +12,10 @@ import org.quinto.swing.table.view.JBroTable;
 public class Now3UpXSLX {
 
     public Now3UpXSLX(JBroTable table, XSSFSheet sheet) {
+        this(table, sheet, 112);
+    }
+    
+    public Now3UpXSLX(JBroTable table, XSSFSheet sheet, int rowStart) {
         // Определяем столбцы, куда не переносим данные (чтобы сохранить Excel формулы)
         int[] columnTotal = new int[3]; // массив для хранения столбцов "Итого"
         int[] columnPE = new int[16]; // массив для хранения столбцов "ПЕ"
@@ -38,7 +42,7 @@ public class Now3UpXSLX {
         }
 
         // ПЕРЕБОР СТРОКИ таблицы (112 - строка начала таблицы; 17 - столбец начала таблицы)
-        int row = 112;
+        int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
             int column = 17; // это столбец внутри Excel файла
             // ПЕРЕБОР СТОЛБЦОВ Java

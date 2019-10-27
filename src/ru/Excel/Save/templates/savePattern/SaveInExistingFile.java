@@ -20,14 +20,15 @@ import org.quinto.swing.table.view.JBroTable;
  */
 public class SaveInExistingFile extends JPanel {
 
-    public SaveInExistingFile(String fullFileName, JBroTable table, String kindOfStatement, String typeOfDirection) throws IOException {
+    private int page = 0;
 
+    public SaveInExistingFile(String fullFileName, JBroTable table, String kindOfStatement, String typeOfDirection, int periodOfTime) throws IOException {
+        page = periodOfTime;
         // Читаем Excel файл
         FileInputStream inputStream = new FileInputStream(new File(fullFileName));
-
         if (fullFileName.endsWith(".xls")) { // если файл с расширением .xls,
             HSSFWorkbook workBook = new HSSFWorkbook(inputStream); // загружаем файл как книгу Excel
-            HSSFSheet sheet = workBook.getSheetAt(0); // Получаем первую страницу книги Excel
+            HSSFSheet sheet = workBook.getSheetAt(page); // Получаем первую страницу книги Excel
             if (kindOfStatement.equalsIgnoreCase("старая")) {
                 if (typeOfDirection.equalsIgnoreCase("4")) {
                     new Now4(table, sheet);
@@ -65,10 +66,10 @@ public class SaveInExistingFile extends JPanel {
             out.close();
             workBook.close();
         }
-        
+
         if (fullFileName.endsWith(".xlsx")) { // если файл с расширением .xls,
             XSSFWorkbook workBook = new XSSFWorkbook(inputStream); // загружаем файл как книгу Excel
-            XSSFSheet sheet = workBook.getSheetAt(0); // Получаем первую страницу книги Excel
+            XSSFSheet sheet = workBook.getSheetAt(page); // Получаем первую страницу книги Excel
             if (kindOfStatement.equalsIgnoreCase("старая")) {
                 if (typeOfDirection.equalsIgnoreCase("4")) {
                     new Now4XSLX(table, sheet);
@@ -95,6 +96,94 @@ public class SaveInExistingFile extends JPanel {
                 }
                 if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
                     new Future3RightXSLX(table, sheet);
+                }
+            }
+
+            // Создаем файл и открываем выходной поток в этот файл
+            File file = new File(fullFileName);
+            FileOutputStream out = new FileOutputStream(file);
+            workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
+            // закрываем поток и книгу
+            out.close();
+            workBook.close();
+        }
+
+    }
+    
+    public SaveInExistingFile(String fullFileName, JBroTable table, String kindOfStatement, String typeOfDirection, int periodOfTime, int rowStart) throws IOException {
+        page = periodOfTime;
+        // Читаем Excel файл
+        FileInputStream inputStream = new FileInputStream(new File(fullFileName));
+        if (fullFileName.endsWith(".xls")) { // если файл с расширением .xls,
+            HSSFWorkbook workBook = new HSSFWorkbook(inputStream); // загружаем файл как книгу Excel
+            HSSFSheet sheet = workBook.getSheetAt(page); // Получаем первую страницу книги Excel
+            if (kindOfStatement.equalsIgnoreCase("старая")) {
+                if (typeOfDirection.equalsIgnoreCase("4")) {
+                    new Now4(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+                    new Now4Circle(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+                    new Now3Up(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+                    new Now3Up(table, sheet, rowStart);
+                }
+            }
+            if (kindOfStatement.equalsIgnoreCase("новая")) {
+                if (typeOfDirection.equalsIgnoreCase("4")) {
+                    new Future4(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+                    new Future4Circle(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+                    new Future3Right(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+                    new Future3Right(table, sheet, rowStart);
+                }
+            }
+
+            // Создаем файл и открываем выходной поток в этот файл
+            File file = new File(fullFileName);
+            FileOutputStream out = new FileOutputStream(file);
+            workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
+            // закрываем поток и книгу
+            out.close();
+            workBook.close();
+        }
+
+        if (fullFileName.endsWith(".xlsx")) { // если файл с расширением .xls,
+            XSSFWorkbook workBook = new XSSFWorkbook(inputStream); // загружаем файл как книгу Excel
+            XSSFSheet sheet = workBook.getSheetAt(page); // Получаем первую страницу книги Excel
+            if (kindOfStatement.equalsIgnoreCase("старая")) {
+                if (typeOfDirection.equalsIgnoreCase("4")) {
+                    new Now4XSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+                    new Now4CircleXSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+                    new Now3UpXSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+                    new Now3UpXSLX(table, sheet, rowStart);
+                }
+            }
+            if (kindOfStatement.equalsIgnoreCase("новая")) {
+                if (typeOfDirection.equalsIgnoreCase("4")) {
+                    new Future4XSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+                    new Future4CircleXSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+                    new Future3RightXSLX(table, sheet, rowStart);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+                    new Future3RightXSLX(table, sheet, rowStart);
                 }
             }
 

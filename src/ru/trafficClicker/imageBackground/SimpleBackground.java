@@ -2,7 +2,6 @@ package ru.trafficClicker.imageBackground;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.LayoutManager;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -20,16 +19,10 @@ public class SimpleBackground extends JPanel {
     public SimpleBackground() {
     }
 
-    // Конструктор, который принимает layoutManager. Если это MigLayout, то:
-    // - после добавления каждого 4 элемента, следующий добавляется на новую строку;
+    // - после добавления каждого wrap элемента, следующий добавляется на новую строку;
     // - настраиваем отступы между компонентами.
-    public SimpleBackground(LayoutManager layout) {
-        setLayout(layout);
-        if (layout instanceof MigLayout) {
-            ((MigLayout) layout).setLayoutConstraints("wrap 4");
-            ((MigLayout) layout).setColumnConstraints("0[]0[]0[]0[]0"); // отступы между строками
-            ((MigLayout) layout).setRowConstraints("0[]0[]0[]0[]0"); // отступы между столбцами
-        }
+    public SimpleBackground(int wrap) {
+        setLayout(new MigLayout("wrap " + wrap, "0[]0[]0[]0[]0", "0[]0[]0[]0[]0"));
     }
 
     /**
@@ -65,6 +58,7 @@ public class SimpleBackground extends JPanel {
     }
 
     // Основной метод перерисовки фона
+    // для правильной установки прозрачности кнопок делаем setColor и fillRect
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -77,7 +71,6 @@ public class SimpleBackground extends JPanel {
             // Ниже добавлено мной - в теории для правильного отображения прозрачности фона
             g.setColor(getBackground());
             g.fillRect(0, 0, getWidth(), getHeight());
-            super.paintComponent(g);
         }
     }
 

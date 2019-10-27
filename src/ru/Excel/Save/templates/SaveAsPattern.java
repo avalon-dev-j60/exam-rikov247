@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import org.quinto.swing.table.view.JBroTable;
 
 /**
  * В данном классе реализован выбор места и имени сохраняемого файла (с помощью

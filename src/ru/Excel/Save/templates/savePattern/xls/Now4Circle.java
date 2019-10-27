@@ -11,6 +11,10 @@ import org.quinto.swing.table.view.JBroTable;
 public class Now4Circle {
 
     public Now4Circle(JBroTable table, HSSFSheet sheet) {
+        this(table, sheet, 112);
+    }
+    
+    public Now4Circle(JBroTable table, HSSFSheet sheet, int rowStart) {
         // Определяем столбцы, куда не переносим данные. 
         int[] columnTotal = new int[4]; // массив для хранения столбцов "Итого"
         int[] columnPE = new int[20]; // массив для хранения столбцов "ПЕ"
@@ -37,7 +41,7 @@ public class Now4Circle {
         }
 
         // Перебираем строки таблицы (row - строка начала таблицы; column - столбец начала таблицы)
-        int row = 112;
+        int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
             int column = 7;
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке

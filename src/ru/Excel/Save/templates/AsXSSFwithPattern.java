@@ -4,11 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.quinto.swing.table.view.JBroTable;
 
 /**
  * Данный класс считывает данные с Java Table и сохраняет их в таблицу .xlsx
@@ -18,7 +14,8 @@ public class AsXSSFwithPattern {
     public AsXSSFwithPattern(String filename, String pattern) throws IOException {
 
         // Read XSLX file
-        FileInputStream inputStream = new FileInputStream(new File("patterns/" + pattern + ".xlsx"));
+        String patternPath = AsHSSFwithPattern.class.getResource("/resources/patterns/" + pattern + ".xlsx").getPath();
+        FileInputStream inputStream = new FileInputStream(new File(patternPath));
 
         // Создание файла (книги) для всех новых (xlsx, docx, pptx) файлов Microsoft Office
         XSSFWorkbook workBook = new XSSFWorkbook(inputStream);

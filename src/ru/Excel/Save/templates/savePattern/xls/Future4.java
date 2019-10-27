@@ -11,6 +11,10 @@ import org.quinto.swing.table.view.JBroTable;
 public class Future4 {
 
     public Future4(JBroTable table, HSSFSheet sheet) {
+        this(table, sheet, 89);
+    }
+    
+    public Future4(JBroTable table, HSSFSheet sheet, int rowStart) {
         // Определяем столбцы, куда не переносим данные. 
         int[] columnTotal = new int[4]; // массив для хранения столбцов "Итого"
         int[] columnPE = new int[20]; // массив для хранения столбцов "ПЕ"
@@ -37,7 +41,7 @@ public class Future4 {
         }
 
         // Перебираем строки таблицы (row - строка начала таблицы; column - столбец начала таблицы)
-        int row = 89;
+        int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
             int column = 6;
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке
