@@ -8,7 +8,7 @@ import ru.cartogram.CreateCartogram;
 /**
  * Подсчет суммы внутри одного направления по видам движения ФЕ. Графа ИТОГО.
  */
-public class OneDirection {
+public class CountingOneDirection {
 
     // Переменные для хранения номера строки для конкретного вида транспорта
     private int rowCar;
@@ -16,6 +16,8 @@ public class OneDirection {
     private int rowBus1, rowBus2, rowBus3;
     private int[] rowTruckNow = {rowTruck1, rowTruck2, rowTruck3, rowTruck4, rowTruck5};
     private int[] rowBusNow = {rowBus1, rowBus2, rowBus3};
+    private int rowTrolleyBus;
+    private int rowTram;
 
     // ФЕ
     private int columnAroundFE, columnLeftFE, columnForwardFE, columnRightFE, columnTotalFE;
@@ -87,23 +89,31 @@ public class OneDirection {
 
     // Рассчет для стрелки ВНУТРЬ перекрестка. Цифры СНИЗУ
     private void TotalInside(TableModel model, CreateCartogram cartogram, String idName) {
+        // Легковые авто
         Object TotalInsideCarObj = model.getValueAt(rowCar, columnTotalFE); // получаем данные из ячейки
         int TotalInsideCarFE = Integer.valueOf(String.valueOf(TotalInsideCarObj)); // переводим значение из текста в числовой формат
         double TotalInsideCarPE = Double.valueOf(String.valueOf(TotalInsideCarObj));
-
+        // Грузовые авто
         int TotalTruckSumFE = TotalFE(model, rowTruckNow, columnTotalFE);
         double TotalTruckSumPE = TotalPE(model, rowTruckNow, columnTotalPE);
-
+        // Автобусы
         int TotalBusSumFE = TotalFE(model, rowBusNow, columnTotalFE);
         double TotalBusSumPE = TotalPE(model, rowBusNow, columnTotalPE);
+        // Троллейбусы
+        int TotalInsideTrolleyBusFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalFE)));
+        double TotalInsideTrolleyBusPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalPE)));
+        // Трамваи
+        int TotalInsideTramFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalFE)));
+        double TotalInsideTramPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalPE)));
+
         // Устанавливаем значение для стрелки "в перекресток" НАД ней
         cartogram.changeValueWithoutSave("Total_inside_" + idName,
                 String.valueOf(TotalInsideCarFE) + "-"
                 + String.valueOf(TotalTruckSumFE) + "-"
-                + String.valueOf(TotalBusSumFE));
+                + String.valueOf(TotalBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE));
 
-        int TotalAutoSumFE = TotalInsideCarFE + TotalTruckSumFE + TotalBusSumFE;
-        double TotalAutoSumPE = TotalInsideCarPE + TotalTruckSumPE + TotalBusSumPE;
+        int TotalAutoSumFE = TotalInsideCarFE + TotalTruckSumFE + TotalBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE;
+        double TotalAutoSumPE = TotalInsideCarPE + TotalTruckSumPE + TotalBusSumPE + TotalInsideTrolleyBusPE + TotalInsideTramPE;
         // Устанавливаем значение для стрелки "в перекресток" ПОД ней
         cartogram.changeValueWithoutSave("TotalSum_inside_" + idName,
                 String.valueOf(TotalAutoSumFE),
@@ -121,10 +131,16 @@ public class OneDirection {
 
         int BusSumFE = TotalFE(model, rowBusNow, columnFE);
         double BusSumPE = TotalPE(model, rowBusNow, columnPE);
+        // Троллейбусы
+        int TrolleyBusSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnFE)));
+        double TrolleyBusSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnPE)));
+        // Трамваи
+        int TramSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnFE)));
+        double TramSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnPE)));
 
-        double AutoSumPE = CarPE + TruckSumPE + BusSumPE;
+        double AutoSumPE = CarPE + TruckSumPE + BusSumPE + TrolleyBusSumPE + TramSumPE;
         cartogram.changeValueWithoutSave(idName + "_" + smallDirection,
-                String.valueOf(CarFE) + "-" + String.valueOf(TruckSumFE) + "-" + String.valueOf(BusSumFE),
+                String.valueOf(CarFE) + "-" + String.valueOf(TruckSumFE) + "-" + String.valueOf(BusSumFE + TrolleyBusSumFE + TramSumFE),
                 " (" + String.valueOf(fmt(AutoSumPE)) + ")");
     }
 
@@ -132,25 +148,25 @@ public class OneDirection {
     private void TotalOutside(CreateCartogram cartogram, String id0AlsoID, String id1, String id2, String id3) {
         // Верх
         // Считываем значения с файла SVG
-        String carUparound = cartogram.getValue(id0AlsoID).substring(0, cartogram.getValue(id0AlsoID).indexOf("-")).trim();
-        String truckUparound = cartogram.getValue(id0AlsoID).substring(cartogram.getValue(id0AlsoID).indexOf("-") + 1, cartogram.getValue(id0AlsoID).lastIndexOf("-")).trim();
-        String busUparound = cartogram.getValue(id0AlsoID).substring(cartogram.getValue(id0AlsoID).lastIndexOf("-") + 1, cartogram.getValue(id0AlsoID).indexOf("(")).trim();
-        String sumPEUparound = cartogram.getValue(id0AlsoID).substring(cartogram.getValue(id0AlsoID).indexOf("(") + 1, cartogram.getValue(id0AlsoID).indexOf(")")).trim();
+        String carUparound = cartogram.getValueTspan2(id0AlsoID).substring(0, cartogram.getValueTspan2(id0AlsoID).indexOf("-")).trim();
+        String truckUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).indexOf("-") + 1, cartogram.getValueTspan2(id0AlsoID).lastIndexOf("-")).trim();
+        String busUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).lastIndexOf("-") + 1, cartogram.getValueTspan2(id0AlsoID).indexOf("(")).trim();
+        String sumPEUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).indexOf("(") + 1, cartogram.getValueTspan2(id0AlsoID).indexOf(")")).trim();
 
-        String carLeftleft = cartogram.getValue(id1).substring(0, cartogram.getValue(id1).indexOf("-")).trim();
-        String truckLeftleft = cartogram.getValue(id1).substring(cartogram.getValue(id1).indexOf("-") + 1, cartogram.getValue(id1).lastIndexOf("-")).trim();
-        String busLeftleft = cartogram.getValue(id1).substring(cartogram.getValue(id1).lastIndexOf("-") + 1, cartogram.getValue(id1).indexOf("(")).trim();
-        String sumPELeftleft = cartogram.getValue(id1).substring(cartogram.getValue(id1).indexOf("(") + 1, cartogram.getValue(id1).indexOf(")")).trim();
+        String carLeftleft = cartogram.getValueTspan2(id1).substring(0, cartogram.getValueTspan2(id1).indexOf("-")).trim();
+        String truckLeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).indexOf("-") + 1, cartogram.getValueTspan2(id1).lastIndexOf("-")).trim();
+        String busLeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).lastIndexOf("-") + 1, cartogram.getValueTspan2(id1).indexOf("(")).trim();
+        String sumPELeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).indexOf("(") + 1, cartogram.getValueTspan2(id1).indexOf(")")).trim();
 
-        String carDownforward = cartogram.getValue(id2).substring(0, cartogram.getValue(id2).indexOf("-")).trim();
-        String truckDownforward = cartogram.getValue(id2).substring(cartogram.getValue(id2).indexOf("-") + 1, cartogram.getValue(id2).lastIndexOf("-")).trim();
-        String busDownforward = cartogram.getValue(id2).substring(cartogram.getValue(id2).lastIndexOf("-") + 1, cartogram.getValue(id2).indexOf("(")).trim();
-        String sumPEDownforward = cartogram.getValue(id2).substring(cartogram.getValue(id2).indexOf("(") + 1, cartogram.getValue(id2).indexOf(")")).trim();
+        String carDownforward = cartogram.getValueTspan2(id2).substring(0, cartogram.getValueTspan2(id2).indexOf("-")).trim();
+        String truckDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).indexOf("-") + 1, cartogram.getValueTspan2(id2).lastIndexOf("-")).trim();
+        String busDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).lastIndexOf("-") + 1, cartogram.getValueTspan2(id2).indexOf("(")).trim();
+        String sumPEDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).indexOf("(") + 1, cartogram.getValueTspan2(id2).indexOf(")")).trim();
 
-        String carRightright = cartogram.getValue(id3).substring(0, cartogram.getValue(id3).indexOf("-")).trim();
-        String truckRightright = cartogram.getValue(id3).substring(cartogram.getValue(id3).indexOf("-") + 1, cartogram.getValue(id3).lastIndexOf("-")).trim();
-        String busRightright = cartogram.getValue(id3).substring(cartogram.getValue(id3).lastIndexOf("-") + 1, cartogram.getValue(id3).indexOf("(")).trim();
-        String sumPERightright = cartogram.getValue(id3).substring(cartogram.getValue(id3).indexOf("(") + 1, cartogram.getValue(id3).indexOf(")")).trim();
+        String carRightright = cartogram.getValueTspan2(id3).substring(0, cartogram.getValueTspan2(id3).indexOf("-")).trim();
+        String truckRightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).indexOf("-") + 1, cartogram.getValueTspan2(id3).lastIndexOf("-")).trim();
+        String busRightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).lastIndexOf("-") + 1, cartogram.getValueTspan2(id3).indexOf("(")).trim();
+        String sumPERightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).indexOf("(") + 1, cartogram.getValueTspan2(id3).indexOf(")")).trim();
 
         int carSum = Integer.valueOf(carUparound) + Integer.valueOf(carLeftleft) + Integer.valueOf(carDownforward) + Integer.valueOf(carRightright);
         int truckSum = Integer.valueOf(truckUparound) + Integer.valueOf(truckLeftleft) + Integer.valueOf(truckDownforward) + Integer.valueOf(truckRightright);
@@ -166,33 +182,6 @@ public class OneDirection {
         cartogram.changeValueWithoutSave("TotalSum_outside_" + id0AlsoID.substring(0, id0AlsoID.lastIndexOf("_")),
                 String.valueOf(sumFE),
                 " (" + String.valueOf(fmt(sumPE)) + ")");
-
-//        // Вправо
-//        cartogram.getValue("Up_left");
-//        cartogram.getValue("Left_forward");
-//        cartogram.getValue("Down_right");
-//        // Вниз
-//        cartogram.getValue("Right_left");
-//        cartogram.getValue("Up_forward");
-//        cartogram.getValue("Left_right");
-//        // Влево
-//        cartogram.getValue("Down_left");
-//        cartogram.getValue("Right_forward");
-//        cartogram.getValue("Up_right");
-//        Object CarObj = model.getValueAt(rowCar, columnFE); // получаем данные из ячейки
-//        int CarFE = Integer.valueOf(String.valueOf(CarObj)); // переводим значение из текста в числовой формат
-//        double CarPE = Double.valueOf(String.valueOf(CarObj));
-//
-//        int TruckSumFE = TotalFE(model, rowTruckNow, columnFE);
-//        double TruckSumPE = TotalPE(model, rowTruckNow, columnPE);
-//
-//        int BusSumFE = TotalFE(model, rowBusNow, columnFE);
-//        double BusSumPE = TotalPE(model, rowBusNow, columnPE);
-//
-//        double AutoSumPE = CarPE + TruckSumPE + BusSumPE;
-//        cartogram.changeValue(idName + "_" + smallDirection,
-//                String.valueOf(CarFE) + "-" + String.valueOf(TruckSumFE) + "-" + String.valueOf(BusSumFE),
-//                " (" + String.valueOf(fmt(AutoSumPE)) + ")");
     }
 
     // Округление до одного числа после запятой
@@ -231,6 +220,12 @@ public class OneDirection {
             }
             if (rowValue.equalsIgnoreCase("Микроавтобус")) { // находим строку,
                 rowBus3 = rowBusNow[2] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Троллейбусы")) { // находим строку,
+                rowTrolleyBus = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Трамвай")) { // находим строку,
+                rowTram = i; // сохраняем номер этой строки
             }
         }
     }

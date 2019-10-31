@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="53.22493362426758 22.586999893188477 972.8701171875 937.4930419921875" width="549px" height="530px" >
-    <rect id="svgEditorBackground" x="326.6813531551721" y="640.70849609375" width="486.43506895821054" height="468.74652099609375" style="fill:none; stroke: none;"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="53.01384273519957 22.586999893188477 973.2922989656361 937.4930419921875" width="549px" height="530px" >
+    <rect id="svgEditorBackground" x="326.6813531551721" y="640.70849609375" width="486.43506895821054" height="468.74652099609375" style="fill: none; stroke: none;"/>
     <defs id="svgEditorDefs">
         <polygon id="svgEditorShapeDefs" style="fill:rosybrown;stroke:black;vector-effect:non-scaling-stroke;stroke-width:1px;"/>
     </defs>
@@ -42,31 +42,15 @@
                     <use xlink:href="#b5OxVNm4Y" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
                 </g>
             </g>
-            <g transform="matrix(1 0 0 1 49.167 60.8119)">
-                <g>
-                    <use xlink:href="#g77ZzNZA1" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
-            <g transform="matrix(1 0 0 1 0 60.8119)">
-                <g>
-                    <use xlink:href="#f23XxzPdA" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
-            <g transform="matrix(1 0 0 1 49.167 60.8119)">
-                <g>
-                    <use xlink:href="#dkQXXSdND" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
+            
+            
+            
             <g>
                 <g>
                     <use xlink:href="#bz9rRvdM" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
                 </g>
             </g>
-            <g transform="matrix(1 0 0 1 49.167 60.8119)">
-                <g>
-                    <use xlink:href="#afaO7SXaT" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
+            
             <g transform="matrix(1 0 0 1 49.167 0)">
                 <g>
                     <use xlink:href="#cvbV071s0" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
@@ -82,21 +66,13 @@
                     <use xlink:href="#a2ZFH71Etu" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
                 </g>
             </g>
-            <g transform="matrix(1 0 0 1 0 60.8119)">
-                <g>
-                    <use xlink:href="#b1oZZ1esgB" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
+            
             <g>
                 <g>
                     <use xlink:href="#b27HAQObv" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
                 </g>
             </g>
-            <g transform="matrix(1 0 0 1 0 60.8119)">
-                <g>
-                    <use xlink:href="#a81I8t4SQv" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
-                </g>
-            </g>
+            
         </g>
     </g>
     <path d="M3.2804971134340315,0.12408909115598024v-1.9999999999999991l3.158420390304358,3.999999999999999l-3.158420390304359,4.0000000000000036v-2.0000000000000036h-4.841579609695643v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Right_Arrow" transform="matrix(10.7734 0 0 3.71202 924.512 560.544)"/>
@@ -105,16 +81,16 @@
     <path d="M70.41569819493577,-45.938119186940924v-2l3.158420390304343,4l-3.158420390304343,4v-2h-4.841579609695543v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Left_Arrow" transform="matrix(-10.7734 -0.0302691 0.0104293 -3.71201 885.97 257.813)"/>
     <path d="M-38.59541278669259,-86.4606283929405v-2l3.158420390304329,4l-3.158420390304329,4v-2h-4.841579609695671v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Up_Arrow" transform="matrix(-0.012489 10.7734 -3.71202 -0.00430312 135.955 541.563)"/>
     <path d="M36.73079421646982,53.922593146664866v-2l3.1584203903043715,4l-3.1584203903043715,4v-1.9962106732048142h-4.841579609695643v-4.003789326795186Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Up_Arrow" transform="matrix(0.042758 -10.7734 3.712 0.0147324 434.675 503.372)"/>
-    <path d="M31.37458479419651,-84.71182243840553v-2l3.158420390304361,4l-3.1584203903043573,4v-2h-4.841579609695646v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Down_Arrow" transform="matrix(-0.012489 10.7734 -3.71202 -0.00430312 131.899 541.563)"/>
-    <path d="M-33.074169779571235,55.45756108844132v-2l3.1584203903043786,4l-3.1584203903043786,4.000000000000028v-2.0000000000000497h-4.841579609695657v-3.9999999999999787Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Down_Arrow" transform="matrix(0.042758 -10.7734 3.712 0.0147324 434.675 503.372)"/>
+    
+    
     <path d="M-5.057908815428137,-0.9736549489891752a1.8,1.8,0,1,0,0,-3.600000000000003h-2v1.0000000000000009l-1.2500000000000018,-1.6250000000000009l1.2500000000000018,-1.625v1h2a2.25,2.25,0,0,1,0,6.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_around_Arrow" transform="matrix(-5.91968 -0.0231282 0.0231282 -5.91968 711.879 549.504)"/>
     <path d="M-5.5904965875377215,4.209206374772762l1.2499999999999982,-1.5625000000000009v1.2500000000000018a8,8,0,0,1,5.861064138597744,5.513821449903333a149.210846,149.210846,0,0,0,-2.6874364113161278,-0.05564137445023043a4.17042,4.17042,0,0,0,-3.173627727281616,-4.7081800754531v1.2500000000000027Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_left_Arrow" transform="matrix(-0.0000480079 -5.48499 5.48499 -0.0000480079 710.721 492.634)"/>
     <path d="M9.12442528146012,-52.54063661925329v-2l3.1584203903043644,4l-3.1584203903043644,4v-2h-4.841579609695637v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_forward_Arrow" transform="matrix(-6.86449 -0.0192866 0.00664524 -2.36518 801.511 334.252)"/>
     <path d="M8.508076789721116,2.1928994792330485l-1.2499999999999964,-1.5625000000000004v1.2500000000000004a8,8,0,0,0,-5.9543058429192,5.621660721341286a37.569937,37.569937,0,0,1,2.7523917764229546,0.041253092613914966a4.304151,4.304151,0,0,1,3.201914066496247,-4.9129138139552v1.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_right_Arrow" transform="matrix(-0.110469 -5.55234 5.55234 -0.110469 722.79 427.256)"/>
-    <path d="M30.71668619538748,-22.92064745656299a1.8,1.8,0,1,0,0,-3.6000000000000014h-2v1l-1.25,-1.625l1.25,-1.625v1h2a2.25,2.25,0,0,1,0,6.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Down_around_Arrow" transform="matrix(0.00918477 -5.91972 5.91972 0.00918477 608.432 841.395)"/>
-    <path d="M-29.125619277892618,-34.49330518845662l1.25,-1.5625v1.25a8,8,0,0,1,5.86106413859774,5.5138214499033325a149.210846,149.210846,0,0,0,-2.6874364113161278,-0.05564137445023576a4.17042,4.17042,0,0,0,-3.1736277272816125,-4.708180075453097v1.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Down_left_Arrow" transform="matrix(5.48497 -0.0129675 0.0129675 5.48497 665.299 840.103)"/>
-    <path d="M39.99596930904489,-107.37248010484991v-2l3.1584203903043715,4l-3.1584203903043715,4v-2h-4.8415796096956285v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Down_forward_Arrow" transform="matrix(0.00311775 -6.86452 2.36519 0.00107421 823.895 930.519)"/>
-    <path d="M-13.972322664322888,-36.487216614015054l-1.25,-1.562500000000007v1.250000000000007a8,8,0,0,0,-5.954305842919197,5.621660721341279a37.569937,37.569937,0,0,1,2.7523917764229537,0.04125309261392118a4.304151,4.304151,0,0,1,3.201914066496249,-4.912913813955207v1.250000000000007Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="e25" transform="matrix(5.55206 -0.123547 0.123547 5.55206 730.705 852.018)"/>
+    
+    
+    
+    
     <path d="M28.340072653439712,15.112531165363066a1.8,1.8,0,1,0,0,-3.599999999999998h-2v1l-1.25,-1.6250000000000036l1.25,-1.6249999999999964v1h2a2.25,2.25,0,0,1,0,6.2499999999999964Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_around_Arrow" transform="matrix(-0.0203657 5.91969 -5.91969 -0.0203657 704.572 134.067)"/>
     <path d="M11.911675019520667,-31.7676111925067l1.2499999999999982,-1.562500000000007v1.25a8,8,0,0,1,5.86106413859774,5.513821449903343a149.210846,149.210846,0,0,0,-2.6874364113161278,-0.055641374450232206a4.17042,4.17042,0,0,0,-3.1736277272816125,-4.708180075453104v1.2500000000000036Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_left_Arrow" transform="matrix(-5.48499 0.00260761 -0.00260761 -5.48499 647.703 135.251)"/>
     <path d="M37.91046661289534,-12.18754477593329v-2l3.1584203903043644,4l-3.1584203903043644,4v-2h-4.841579609695643v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_forward_Arrow" transform="matrix(-0.0160832 6.8645 -2.36518 -0.00554151 489.279 44.5352)"/>
@@ -134,9 +110,7 @@
     <text style="fill:black;font-family:Arial;font-size:20px;" x="1289.3831787109375" y="-48.15892028808594" id="Total_inside_Right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="1289.3831787109375" id="Total_inside_Right" style="font-size:18px;">0-0-0</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:20px;" x="458.1480712890625" y="314.2958679199219" id="Total_inside_Down" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 316.503 1345.76)">
-        <tspan x="433.48187255859375" id="Total_inside_Down" style="font-size:18px;">0-0-0</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:20px;" x="475.50469970703125" y="116.74330139160156" id="Total_inside_Left" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">     
         <tspan x="475.50494384765625" style="font-size:18px;" id="e4_span">0-0-0</tspan>
     </text>
@@ -147,9 +121,7 @@
     <text style="fill:black;font-family:Arial;font-size:20px;" x="1244.122314453125" y="106.35125732421875" id="Total_outside_Right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="1294.122314453125" id="Total_outside_Right" style="font-size:18px;">0-0-0</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:20px;" x="460.02685546875" y="105.14507293701172" id="Total_outside_Down" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 316.503 1345.76)">
-        <tspan x="435.2645568847656" id="Total_outside_Down" style="font-size:18px;">0-0-0</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:18px;" x="476.730712890625" y="-39.01933288574219" id="Total_outside_Left" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="476.730712890625" id="e5_tspan">0-0-0</tspan>
     </text>
@@ -163,10 +135,7 @@
         <tspan x="1173.5272216796875" id="Right_around_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Right_around_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:16px;" x="-193.37477111816406" y="147.59042358398438" id="Down_around" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
-        <tspan x="-193.37477111816406" id="Down_around_tspan1">0-0-0 </tspan>
-        <tspan dx="0" id="Down_around_tspan2" fill="red">(0)</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:16px;" x="665.51513671875" y="-17.708627700805664" id="Left_around" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="599.4157104492188" id="Left_around_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Left_around_tspan2" fill="red">(0)</tspan>
@@ -180,10 +149,7 @@
         <tspan x="1171.4639892578125" id="Right_right_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Right_right_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:16px;" x="-196.5288848876953" y="318.4224853515625" id="Down_right" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
-        <tspan x="-196.5288848876953" id="Down_right_tspan1">0-0-0 </tspan>
-        <tspan dx="0" id="Down_right_tspan2" fill="red">(0)</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:16px;" x="601.5765380859375" y="140.11639404296875" id="Left_right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="601.5765380859375" id="Left_right_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Left_right_tspan2" fill="red">(0)</tspan>
@@ -197,10 +163,7 @@
         <tspan x="1172.9896240234375" id="Right_forward_tspan2">0-0-0 </tspan>
         <tspan dx="0" id="Right_forward_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:16px;" x="-167.5584259033203" y="264.9530944824219" id="Down_forward" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
-        <tspan x="-195.34738159179688" id="Down_forward_tspan1">0-0-0 </tspan>
-        <tspan dx="0" id="Down_forward_tspan2" fill="red">(0)</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:16px;" x="600.5570068359375" y="86.69664001464844" id="Left_forward" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="600.5570068359375" id="Left_forward_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Left_forward_tspan2" fill="red">(0)</tspan>
@@ -214,10 +177,7 @@
         <tspan x="1172.4710693359375" id="Right_Left_tspan2">0-0-0 </tspan>
         <tspan dx="0" id="Right_Left_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:16px;" x="-194.6118927001953" y="207.76852416992188" id="Down_left" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
-        <tspan x="-194.6118927001953" id="Down_Left_tspan1">0-0-0 </tspan>
-        <tspan dx="0" id="Down_Left_tspan2" fill="red">(0)</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:16px;" x="599.8862915039062" y="34.674861907958984" id="Left_left" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
         <tspan x="599.8862915039062" id="Left_Left_tspan1">0-0-0 </tspan>
         <tspan dx="0" id="Left_Left_tspan2" fill="red">(0)</tspan>
@@ -232,10 +192,7 @@
         <tspan x="1307.4407958984375" id="TotalSum_inside_Right_tspan1">0 </tspan>
         <tspan dx="0" id="TotalSum_inside_Right_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="-239.96420288085938" y="282.0859375" id="TotalSum_inside_Down" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
-        <tspan x="-239.96420288085938" id="TotalSum_inside_Down_tspan1">0 </tspan>
-        <tspan dx="0" id="TotalSum_inside_Down_tspan2" fill="red">(0)</tspan>
-    </text>  
+      
     <text style="fill:black;font-family:Arial;font-size:18px;" x="496.4501647949219" y="-13.290427207946777" id="TotalSum_inside_Left" transform="matrix(0.999922 0.0125281 -0.0125281 0.999922 -407.109 616.955)">
         <tspan x="496.4501647949219" id="TotalSum_inside_Left_tspan1">0 </tspan>
         <tspan dx="0" id="TotalSum_inside_Left_tspan2" fill="red">(0)</tspan>
@@ -249,10 +206,7 @@
         <tspan x="1309.0408935546875" id="TotalSum_outside_Right_tspan1">0 </tspan>
         <tspan dx="0" id="TotalSum_outside_Right_tspan2" fill="red">(0)</tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="-240.3098907470703" y="75.96041870117188" id="TotalSum_outside_Down" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
-        <tspan x="-240.3098907470703" id="TotalSum_outside_Down_tspan1">0 </tspan>
-        <tspan dx="0" id="TotalSum_outside_Down_tspan2" fill="red">(0)</tspan>
-    </text>
+    
     <text style="fill:black;font-family:Arial;font-size:18px;" x="499.6361083984375" y="-165.5202178955078" id="TotalSum_outside_Left" transform="matrix(0.999922 0.0125281 -0.0125281 0.999922 -407.109 616.955)">
         <tspan x="499.6361083984375" id="TotalSum_outside_Left_tspan1">0 </tspan>
         <tspan dx="0" id="TotalSum_outside_Left_tspan2" fill="red">(0)</tspan>
@@ -260,32 +214,27 @@
     <!-- Названия направлений  -->
     <text style="fill:black;font-family:Arial;font-size:18px;" x="290.0" y="618.9735717773438" id="StreetName_Up" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Направление 1</text>
     <text style="fill:black;font-family:Arial;font-size:18px;" x="226.0" y="1008.0" id="StreetName_Right" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Направление 2</text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="290.0" y="1515.5980224609375" id="StreetName_Down" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Направление 3</text>
+    
     <text style="fill:black;font-family:Arial;font-size:18px;" x="226.0" y="57.78267288208008" id="StreetName_Left" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Направление 4</text>
     <!-- Пересекаемые улицы  -->
     <text style="fill:black;font-family:Arial;font-size:18px;" x="547.9804077148438" y="352.5737609863281" id="StreetName_Vertical1" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Улица вертикальная</text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="-100.34910583496094" y="713.3931274414062" id="StreetName_Vertical2" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Улица вертикальная</text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="-41.89319610595703" y="1223.0010986328125" id="StreetName_Horizontal1" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
-    <text style="fill:black;font-family:Arial;font-size:18px;" x="642.6860961914062" y="1226.1728515625" id="StreetName_Horizontal2" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="337.352" y="1224.92" id="StreetName_Horizontal1" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
+    <!-- Дополнительная информация  -->
+    <text style="fill:black;font-family:Arial;font-size:14px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
+        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Участок/перекресток: </tspan>
+        <tspan dx="0" id="SectionOrIntersection_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.88630676269531" y="906.0911254882812" id="Date">
+        <tspan x="52.88630676269531" id="Date_tspan1" style="font-weight: bold;">Дата: </tspan>
+        <tspan dx="0" id="Date_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
+        <tspan x="52.36008071899414" id="DayOfWeek_tspan1" style="font-weight: bold;">День недели: </tspan>
+        <tspan dx="0" id="DayOfWeek_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.22282028198242" y="947.8796997070312" id="Time">
+        <tspan x="52.22282028198242" id="Time_tspan1" style="font-weight: bold;">Время: </tspan>
+        <tspan dx="0" id="Time_tspan2"> </tspan>
+    </text>
+    <line id="e1_line" x1="46.85" y1="620.379" x2="1040.36" y2="616.813" style="stroke:black;fill:none;stroke-width:2px;"/>
 </svg>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

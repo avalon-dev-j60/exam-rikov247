@@ -8,7 +8,7 @@ import ru.cartogram.CreateCartogram;
 import ru.jtable.modelListener.SumInAllDirectionInRow;
 import ru.jtable.modelListener.TotalSumLastColumns;
 import ru.jtable.modelListener.TotalSumLastRow;
-import ru.jtable.modelListener.cartograma.OneDirection;
+import ru.jtable.modelListener.cartograma.CountingOneDirection;
 
 /**
  * Слушатель изменения данных в таблице. Здесь реализуем формулы как в Excel
@@ -51,7 +51,7 @@ public class ModelListener implements TableModelListener {
 
     private TotalSumLastRow totalSumRow = new TotalSumLastRow(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
     private TotalSumLastColumns totalSumColumns = new TotalSumLastColumns(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
-    private OneDirection oneDirection = new OneDirection();
+    private CountingOneDirection countingOneDirection = new CountingOneDirection();
 
     public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, CreateCartogram cartogram) {
         this.table = table;
@@ -81,14 +81,14 @@ public class ModelListener implements TableModelListener {
             cars[i].sumInAllDirectionInRow(table, row, column, kindOfTransport[i], typeOfStatement);
         }
 
-        totalSumRow.getSum(table, row, column); // Подсчет суммы по всем транспортным средствам в данном направлении в данном варианте движения (налево, направо и т.п)
+        totalSumRow.getSum(table, column); // Подсчет суммы по всем транспортным средствам в данном направлении в данном варианте движения (налево, направо и т.п)
         totalSumColumns.getSum(table, row, column, typeOfStatement); // Подсчет суммы по конкретному транспортному средству по всем столбцам в данной строке
 
         // Изменяем картограмму, в соответствии с изменениями в Таблице по всем 4 направлениям
-        oneDirection.counting(table, row, column, "Направление 1", cartogram);
-        oneDirection.counting(table, row, column, "Направление 2", cartogram);
-        oneDirection.counting(table, row, column, "Направление 3", cartogram);
-        oneDirection.counting(table, row, column, "Направление 4", cartogram);
+        countingOneDirection.counting(table, row, column, "Направление 1", cartogram);
+        countingOneDirection.counting(table, row, column, "Направление 2", cartogram);
+        countingOneDirection.counting(table, row, column, "Направление 3", cartogram);
+        countingOneDirection.counting(table, row, column, "Направление 4", cartogram);
     }
 
 }

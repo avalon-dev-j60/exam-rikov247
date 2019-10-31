@@ -65,6 +65,7 @@ public class TestSVGGen {
     }
 
     public static void main(String[] args) throws IOException {
+        System.out.println("d");
         // Get a DOMImplementation.
 //        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
 //

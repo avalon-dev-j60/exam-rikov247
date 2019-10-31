@@ -62,13 +62,13 @@ public class CreateCartogram {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4.svg").toURI().toString();
         }
         if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
-            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4.svg").toURI().toString();
+            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4circle.svg").toURI().toString();
         }
         if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
-            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4.svg").toURI().toString();
+            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3right.svg").toURI().toString();
         }
         if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
-            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4.svg").toURI().toString();
+            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3up.svg").toURI().toString();
         }
         // Парсим его (читаем) и сохраняем в новый файл - который в дальнейшем будет использоваться
         doc = f.createDocument(uriPattern); // парсим передаваемый файл и создаем из него документ (то есть таким образом его выводим)
@@ -100,7 +100,7 @@ public class CreateCartogram {
         svgCanvas.setDocumentState(svgCanvas.ALWAYS_DYNAMIC);
         svgCanvas.setURI(file.toURI().toString());
 
-        panel.add(svgCanvas, BorderLayout.CENTER);
+        panel.add(svgCanvas);
 
         return panel;
     }
@@ -108,7 +108,7 @@ public class CreateCartogram {
     // Меняем значение элемента, найденного по ID. Меняем текст для одного его tspan, если он есть.
     public void changeValueWithoutSave(String ID, String text) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
-        if (ID != null) {
+        if (ID != null && svg != null) {
             // Если у объекта есть текст, то для него и меняем текст
             if (svg.getElementsByTagName("tspan").item(0) == null) {
                 svg.setTextContent(text);
@@ -120,14 +120,36 @@ public class CreateCartogram {
         }
     }
 
+    // Меняем значение элемента, найденного по ID. Меняем текст для его tspan1, если он есть.
+    public void changeValueWithoutSaveTspan1(String ID, String text) {
+        Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
+        if (ID != null && svg != null) {
+            if (svg.getElementsByTagName("tspan").item(0) != null) {
+                svg.getElementsByTagName("tspan").item(0).setTextContent(text); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+            }
+        }
+    }
+
+    // Меняем значение элемента, найденного по ID. Меняем текст для его tspan2, если он есть.
+    public void changeValueWithoutSaveTspan2(String ID, String text) {
+        Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
+        if (ID != null && svg != null) {
+            if (svg.getElementsByTagName("tspan").item(1) != null) {
+                svg.getElementsByTagName("tspan").item(1).setTextContent(text); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+            }
+        }
+    }
+
     // Меняем значение элемента, найденного по ID. Меняем текст для двух его tspan, если они есть.
     public void changeValueWithoutSave(String ID, String text1, String text2) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
 
         // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
-        if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
-            svg.getElementsByTagName("tspan").item(0).setTextContent(text1); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
-            svg.getElementsByTagName("tspan").item(1).setTextContent(text2); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+        if (ID != null && svg != null) {
+            if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
+                svg.getElementsByTagName("tspan").item(0).setTextContent(text1); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                svg.getElementsByTagName("tspan").item(1).setTextContent(text2); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+            }
         }
     }
 
@@ -142,19 +164,52 @@ public class CreateCartogram {
     }
 
     // Получаем текст по ID 
-    public String getValue(String ID) {
+    public String getFullValue(String ID) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
+        String text = "";
         String text1 = "";
         String text2 = "";
-        // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
-        if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
-            text1 = svg.getElementsByTagName("tspan").item(0).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
-            text2 = svg.getElementsByTagName("tspan").item(1).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
-            return (text1 + text2);
+        if (ID != null && svg != null) {
+            // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
+            if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
+                text1 = svg.getElementsByTagName("tspan").item(0).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                text2 = svg.getElementsByTagName("tspan").item(1).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                return (text1 + text2);
+            }
+            if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) == null) {
+                text1 = svg.getElementsByTagName("tspan").item(0).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                return text1;
+            }
+            if (svg.getElementsByTagName("tspan").item(0) == null && svg.getElementsByTagName("tspan").item(1) == null) {
+                text = svg.getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                return text;
+            }
         }
-        if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) == null) {
-            text1 = svg.getElementsByTagName("tspan").item(0).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
-            return text1;
+        return "";
+    }
+
+    public String getValueTspan1(String ID) {
+        Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
+        String text = "";
+        // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
+        if (ID != null && svg != null) {
+            if (svg.getElementsByTagName("tspan").item(0) != null) {
+                text = svg.getElementsByTagName("tspan").item(0).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                return text;
+            }
+        }
+        return "";
+    }
+
+    public String getValueTspan2(String ID) {
+        Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
+        String text = "";
+        // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
+        if (ID != null && svg != null) {
+            if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
+                text = svg.getElementsByTagName("tspan").item(1).getTextContent(); // записываем новое значение для элемента с выбранным ID. Изменения записываются в структуру файла
+                return text;
+            }
         }
         return "";
     }

@@ -319,16 +319,16 @@ public class CreateConfigurationPanel {
         public void actionPerformed(ActionEvent e) {
             try {
                 if (((JButton) e.getSource()).getText().equalsIgnoreCase(save15.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 12);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 12, cartogram);
                 }
                 if (((JButton) e.getSource()).getText().equalsIgnoreCase(save30.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 33);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 33, cartogram);
                 }
                 if (((JButton) e.getSource()).getText().equalsIgnoreCase(save45.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 54);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 54, cartogram);
                 }
                 if (((JButton) e.getSource()).getText().equalsIgnoreCase(save60.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 84);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 84, cartogram);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -693,6 +693,9 @@ public class CreateConfigurationPanel {
         });
     }
 
+    // НУЖНО УБРАТЬ КУЧУ РАЗНЫХ ШАБЛОНОВ И ОСТАВИТЬ ТОЛЬКО ОДИН - ДЛЯ 4 НАПРАВЛЕНИЙ. ПРОСТО ПРОПИСАТЬ,
+    // что нужно удалить все из ячейки ИСХОДЯ ИЗ ТИПА ВЕДОМОСТИ
+    //___________________________________________________________
     // Клик по кнопке принятия всех параметров конфигурации и инициализации нового проекта
     // Создаем Excel файл, в котором далее сохраним результат подсчета. Нужно копировать excel файл и далее просто для него выбрать имя и место.
     // В зависимости от выбранных параметров (в общем то только количества подсчитываемых направлений и их тип - Т-левый, Т-правый и т.п.)
@@ -755,7 +758,7 @@ public class CreateConfigurationPanel {
                     fullFileName = fileSaveWithPattern.getFullFileName();
                     if (fullFileName != null) {
                         kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "3 вверх";
+                        typeOfDirection = "3 вправо";
                         createTable((new TUpRoadModel()).getModel(), "Now", typeOfDirection);
                     }
                 } catch (IOException ex) {
@@ -824,13 +827,11 @@ public class CreateConfigurationPanel {
 
     public void onSaveButtonClick(ActionEvent e) {
         // Если вид таблицы СТАРЫЙ, то:
-
         if (kindOfStatement.equalsIgnoreCase("старая")) {
-
             // Если выбрано 4 направления, то:
             if (typeOfDirection.equalsIgnoreCase("4")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -838,7 +839,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 4 направления кольцо, то:
             if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -846,7 +847,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 3 направления вверх, то:
             if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -854,7 +855,7 @@ public class CreateConfigurationPanel {
             // Если выбрано 3 направления вправо, то:
             if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх", page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -866,7 +867,7 @@ public class CreateConfigurationPanel {
 
             if (typeOfDirection.equalsIgnoreCase("4")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -874,21 +875,21 @@ public class CreateConfigurationPanel {
             // Если выбрано 4 направления кольцо, то:
             if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
                 try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, "3 вверх", page);
+                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
                 } catch (IOException ex) {
                     Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -902,7 +903,6 @@ public class CreateConfigurationPanel {
         cartogram = new CreateCartogram(fullFileName, typeOfDirection);
         try {
             this.cartogramPanel = cartogram.initialize();
-            this.kindOfStatement = kindOfStatement;
             table = tableModel.doTable(modelGroup, kindOfStatement, typeOfDirection, cartogram);
         } catch (Exception ex) {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);

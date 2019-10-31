@@ -36,23 +36,20 @@ public class TotalSumLastRow {
 
     private double sum; // переменная для хранения суммы расчета внутри одного направления
 
-    public void getSum(JBroTable table, int row, int column) {
+    public void getSum(JBroTable table, int column) {
         TableModel model = table.getModel();
-        int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
+        // column - передаваемый столбец для подсчета
 
-        // Определяем столбец для подсчета
-        for (int j = unAccountedColumns; j < table.getData().getFields().length; j++) {
-            // Перебираем строки не считая последнюю
-            for (int i = 0; i < table.getModel().getData().getRows().length - 1; i++) {
-                Object data = model.getValueAt(i, j); // получаем данные из ячейки
-                values[i] = Double.valueOf(String.valueOf(data)); // переводим значение из текста в числовой формат
-                sum = 0;
-                for (int k = 0; k < values.length; k++) {
-                    sum += values[k]; // суммируем все значения (по всем строкам) в выбранном столбце
-                }
+        // Перебираем строки не считая последнюю
+        for (int i = 0; i < table.getModel().getData().getRows().length - 1; i++) {
+            Object data = model.getValueAt(i, column); // получаем данные из ячейки
+            values[i] = Double.valueOf(String.valueOf(data)); // переводим значение из текста в числовой формат
+            sum = 0;
+            for (int k = 0; k < values.length; k++) {
+                sum += values[k]; // суммируем все значения (по всем строкам) в выбранном столбце
             }
-            table.getModel().getData().getRows()[table.getModel().getData().getRows().length - 1].setValue(j, fmt(sum));
         }
+        table.getModel().getData().getRows()[table.getModel().getData().getRows().length - 1].setValue(column, fmt(sum)); // записываем значение в ячейку в переданном столбце, в последней строке
     }
 
     // Форматирование значения. Если можно представить как целое число - представляем, если нет, то округляем до двух значящих чисел после запятой

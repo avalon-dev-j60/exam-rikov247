@@ -48,7 +48,7 @@ public class TrafficClicker extends AbstractFrame {
     private JBroTable table = new JBroTable(); // создание таблицы
     private Canvas canvas = new Canvas(); // подоснова для видео
     private CreateConfigurationPanel configurationPanel; // инициализация панели для конфигурации таблицы подсчета
-    private CreateConfigurationPanelMap congigPanelMap;
+    private CreateConfigurationPanelMap configPanelMap;
 
     private String filePath; // переменная для хранения полного пути к Видео
 
@@ -754,7 +754,7 @@ public class TrafficClicker extends AbstractFrame {
         // на вкладку таблицы добавляем левую панель с настройками и правую панель 
         configurationPanel = new CreateConfigurationPanel();
         videoTabs.addTab("Таблица результатов подсчета", createWorkSplitTablePanel(configurationPanel.CreateLeftConfigurationPanel(), addTablePanel.AddTable(), configurationPanel.CreateRightConfigurationPanel()));
-        
+
 //        JPanel panel = new JPanel();
 //        panel.setBackground(Color.white);
         // Вкладка 3 (index = 2). Картограмма
@@ -774,6 +774,10 @@ public class TrafficClicker extends AbstractFrame {
                     splitMain2Tab2.getLeftComponent().requestFocus(); // переключаем фокус на canvas
                 }
                 if (videoTabs.getSelectedIndex() == 2) {
+                    // обновляем SVGCanvas
+                    if (configurationPanel.getCartogram() != null) {
+                        configurationPanel.getCartogram().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
+                    }
                     splitMain2Tab3.getLeftComponent().requestFocus(); // переключаем фокус на canvas
                 }
             }
@@ -917,10 +921,10 @@ public class TrafficClicker extends AbstractFrame {
             overlay.dispose();
         }
         table = configurationPanel.getTable(); // получаем таблицу (до этого она перестраиваетя, в другом слушателе - слушателе кнопки)
-        String typeOfStatement = configurationPanel.getKindOfStatement(); // получаем вид таблицы - старая или новая
+        String kinfOfStatement = configurationPanel.getKindOfStatement(); // получаем вид таблицы - старая или новая
         String typeOfDirection = configurationPanel.getTypeOfDirection(); // получаем количество направлений движения
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
-        overlay = new Overlay(this, table, typeOfStatement, typeOfDirection, paths); // создаем новый overlay слой кнопок
+        overlay = new Overlay(this, table, kinfOfStatement, typeOfDirection, paths); // создаем новый overlay слой кнопок
 
         // Слушатели ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
         for (JLabel label : overlay.getLabelsUp()) {
@@ -947,10 +951,12 @@ public class TrafficClicker extends AbstractFrame {
         splitMain2Tab2.setLeftComponent(table.getScrollPane()); // добавляем таблицу во вкладку Таблицы приложения
         splitMain2Tab2.setRightComponent(rightPanel);
 
-        congigPanelMap = new CreateConfigurationPanelMap(configurationPanel.getCartogram());
-        splitMain1Tab3.setLeftComponent(congigPanelMap.CreateConfigurationPanel());
-
-        splitMain2Tab3.setLeftComponent(configurationPanel.getCartogramPanel());
+        // Вкладка картограммы
+        // Внутри configurationPanel создается картограмма
+        // Инициализация панели конфигурации картограммы
+        configPanelMap = new CreateConfigurationPanelMap(configurationPanel.getCartogram(), typeOfDirection);
+        splitMain1Tab3.setLeftComponent(configPanelMap.CreateConfigurationPanel()); // Добавляем Панель конфигурации на панель
+        splitMain2Tab3.setLeftComponent(configurationPanel.getCartogramPanel()); // добавляем картограмму на панель
         
         jBar.getFileItem4().setEnabled(true); // Делаем кнопку "Сохранить" активной
     }

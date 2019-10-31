@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="53.22493362426758 22.586999893188477 972.8701171875 937.4930419921875" width="549px" height="530px" >
-    <rect id="svgEditorBackground" x="326.6813531551721" y="640.70849609375" width="486.43506895821054" height="468.74652099609375" style="fill:none; stroke: none;"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="53.22492218017578 22.586999893188477 972.8701171875 937.4930419921875" width="549px" height="530px" >
+    <rect id="svgEditorBackground" x="393.74776948173087" y="-276.63543701171875" width="972.8701379164211" height="937.4930419921875" style="fill: none; stroke: none;"/>
     <defs id="svgEditorDefs">
         <polygon id="svgEditorShapeDefs" style="fill:rosybrown;stroke:black;vector-effect:non-scaling-stroke;stroke-width:1px;"/>
     </defs>
@@ -267,25 +267,21 @@
     <text style="fill:black;font-family:Arial;font-size:18px;" x="-100.34910583496094" y="713.3931274414062" id="StreetName_Vertical2" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Улица вертикальная</text>
     <text style="fill:black;font-family:Arial;font-size:18px;" x="-41.89319610595703" y="1223.0010986328125" id="StreetName_Horizontal1" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
     <text style="fill:black;font-family:Arial;font-size:18px;" x="642.6860961914062" y="1226.1728515625" id="StreetName_Horizontal2" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
+    <!-- Дополнительная информация  -->
+    <text style="fill:black;font-family:Arial;font-size:14px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
+        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Участок/перекресток: </tspan>
+        <tspan dx="0" id="SectionOrIntersection_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.88630676269531" y="906.0911254882812" id="Date">
+        <tspan x="52.88630676269531" id="Date_tspan1" style="font-weight: bold;">Дата: </tspan>
+        <tspan dx="0" id="Date_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
+        <tspan x="52.36008071899414" id="DayOfWeek_tspan1" style="font-weight: bold;">День недели: </tspan>
+        <tspan dx="0" id="DayOfWeek_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.22282028198242" y="947.8796997070312" id="Time">
+        <tspan x="52.22282028198242" id="Time_tspan1" style="font-weight: bold;">Время: </tspan>
+        <tspan dx="0" id="Time_tspan2"> </tspan>
+    </text>
 </svg>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
