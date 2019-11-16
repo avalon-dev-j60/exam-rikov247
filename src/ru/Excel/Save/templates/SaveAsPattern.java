@@ -62,9 +62,8 @@ public class SaveAsPattern extends JPanel {
                             fullFileName = fullFileName.replaceAll(extension, "") + extension;
                             new AsHSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             this.fullFileName = fullFileName;
-//                            new AsHSSFwithPattern(table, fullFileName.replaceAll(extension, "") + extension);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             // всплывающая подсказка о сохранении файла
-                            optionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "' сохранен");
+                            optionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "\" сохранен");
                             break; // выходим из цикла отображения окна сохранения файлов
                         } else if (result == JOptionPane.NO_OPTION) {
                             continue again;// возвращение обратно в меню сохранения файлов
@@ -75,12 +74,11 @@ public class SaveAsPattern extends JPanel {
                                 equalsIgnoreCase(fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|\\|\"", ""))) {
                             new AsHSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls";
                             this.fullFileName = fullFileName;
-//                            new AsHSSFwithPattern(table, fullFileName);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls";
                         } else {
                             continue again;// возвращение обратно в меню сохранения файлов
                         }
                         // всплывающая подсказка о сохранении файла
-                        optionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "' сохранен");
+                        optionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "\" сохранен");
                         break; // выходим из цикла отображения окна сохранения файлов
                     }
                 }
@@ -106,7 +104,6 @@ public class SaveAsPattern extends JPanel {
                             fullFileName = fullFileName.replaceAll(extension, "") + extension;
                             new AsXSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             this.fullFileName = fullFileName;
-//                            new AsXSSFwithPattern(table, fullFileName.replaceAll(extension, "") + extension);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             // всплывающая подсказка о сохранении файла
                             optionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "' сохранен");
                             break; // выходим из цикла отображения окна сохранения файлов
@@ -118,7 +115,6 @@ public class SaveAsPattern extends JPanel {
                                 equalsIgnoreCase(fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|\\|\"", ""))) {
                             new AsXSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xlsx";
                             this.fullFileName = fullFileName;
-//                            new AsXSSFwithPattern(table, fullFileName);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xlsx";
                         } else {
                             continue again;// возвращение обратно в меню сохранения файлов
                         }
@@ -139,5 +135,5 @@ public class SaveAsPattern extends JPanel {
     public String getFullFileName() {
         return fullFileName;
     }
-    
+
 }

@@ -8,7 +8,8 @@ import ru.cartogram.CreateCartogram;
 import ru.jtable.modelListener.SumInAllDirectionInRow;
 import ru.jtable.modelListener.TotalSumLastColumns;
 import ru.jtable.modelListener.TotalSumLastRow;
-import ru.jtable.modelListener.cartograma.CountingOneDirection;
+import ru.jtable.modelListener.cartogram.CountingOneDirectionFuture;
+import ru.jtable.modelListener.cartogram.CountingOneDirectionNow;
 
 /**
  * Слушатель изменения данных в таблице. Здесь реализуем формулы как в Excel
@@ -16,9 +17,17 @@ import ru.jtable.modelListener.cartograma.CountingOneDirection;
 public class ModelListener implements TableModelListener {
 
     private JBroTable table;
-    private String[] kindOfTransport; // массив с названиями строк (для последующей идентификации строк
-    private String typeOfStatement;
+    private JBroTable totalTable;
+    private JBroTable[] arrayTable;
+    private String[] kindOfTransport; // массив с названиями строк (для последующей идентификации строк)
+    private String typeOfStatement; // тип ведомости (старый или новый)
     private CreateCartogram cartogram;
+
+    private int value1;
+    private int value2;
+    private int value3;
+    private int value4;
+    private int sum; // переменная для хранения суммы расчета внутри одного направления
 
     // Переменные для инициализации подсчета суммы по каждой строке отдельно
     private SumInAllDirectionInRow carNumber1 = new SumInAllDirectionInRow();
@@ -51,13 +60,28 @@ public class ModelListener implements TableModelListener {
 
     private TotalSumLastRow totalSumRow = new TotalSumLastRow(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
     private TotalSumLastColumns totalSumColumns = new TotalSumLastColumns(); // переменная для подсчета суммы по варианту движения в данном направлении (строка ИТОГО)
-    private CountingOneDirection countingOneDirection = new CountingOneDirection();
+    private CountingOneDirectionNow countingOneDirectionNow = new CountingOneDirectionNow();
+    private CountingOneDirectionFuture countingOneDirectionFuture = new CountingOneDirectionFuture();
+
+    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement) {
+        this.table = table;
+        this.kindOfTransport = kindOfTransport;
+        this.typeOfStatement = typeOfStatement;
+    }
 
     public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, CreateCartogram cartogram) {
         this.table = table;
         this.kindOfTransport = kindOfTransport;
         this.typeOfStatement = typeOfStatement;
         this.cartogram = cartogram;
+    }
+
+    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, JBroTable totalTable, JBroTable[] arrayTable) {
+        this.table = table;
+        this.kindOfTransport = kindOfTransport;
+        this.typeOfStatement = typeOfStatement;
+        this.totalTable = totalTable;
+        this.arrayTable = arrayTable;
     }
 
     // Слушатель изменения данных в таблице. Вызывается КАЖДЫЙ РАЗ, когда данные в таблице меняются (даже если ты меняешь одни данные, а они меняют другие, то метод вызовется снова   
@@ -69,10 +93,29 @@ public class ModelListener implements TableModelListener {
         TableModel model = table.getModel();
 
         // Если в ячейке удалить полностью текст, то запишется 0
-        Object dat = model.getValueAt(row, column);
-        if (String.valueOf(dat).isBlank()) {
-            dat = "0";
-            model.setValueAt(dat, row, column);
+        Object data = model.getValueAt(row, column);
+        if (String.valueOf(data).isBlank()) {
+            data = "0";
+            model.setValueAt(data, row, column);
+        }
+
+        // Сделано, чтобы оповещать Главную таблицу с Итогом об изменениях в мелких таблицах по 15 минут
+        // Получаем итоговую таблицу (totalTable), в которую нужно передать новое значение и
+        // Массив таблиц по 15 минут (arrayTable) из которых считываем значения для итоговой таблицы
+        if (totalTable != null && arrayTable != null) {
+            // Если столбец, в котором изменилась информация начинается с "ФЕ", то передаем информацию в главную таблицу
+            for (int i = 0; i < table.getModel().getData().getFieldsCount(); i++) {
+                if (table.getModel().getData().getFields()[i].getIdentifier().startsWith("ФЕ") && i == column) {
+                    // Считываем данные с ячейки, в которой изменилась информация, во всех таблицах и получаем суммарное значение для записи в эту же ячейку в таблице Итого
+                    value1 = Integer.valueOf(String.valueOf(arrayTable[0].getModel().getValueAt(row, column))); // переводим значение из текста в числовой формат
+                    value2 = Integer.valueOf(String.valueOf(arrayTable[1].getModel().getValueAt(row, column)));
+                    value3 = Integer.valueOf(String.valueOf(arrayTable[2].getModel().getValueAt(row, column)));
+                    value4 = Integer.valueOf(String.valueOf(arrayTable[3].getModel().getValueAt(row, column)));
+                    sum = value1 + value2 + value3 + value4; // рассчитываем значение суммы
+
+                    totalTable.getModel().setValueAt(sum, row, column); // записываем значение в Итоговую таблицу
+                }
+            }
         }
 
         // Считаем сумму для конкретной строки (kindOfTransport) по всем направления в этой строке. Строки перебираем. 
@@ -85,10 +128,20 @@ public class ModelListener implements TableModelListener {
         totalSumColumns.getSum(table, row, column, typeOfStatement); // Подсчет суммы по конкретному транспортному средству по всем столбцам в данной строке
 
         // Изменяем картограмму, в соответствии с изменениями в Таблице по всем 4 направлениям
-        countingOneDirection.counting(table, row, column, "Направление 1", cartogram);
-        countingOneDirection.counting(table, row, column, "Направление 2", cartogram);
-        countingOneDirection.counting(table, row, column, "Направление 3", cartogram);
-        countingOneDirection.counting(table, row, column, "Направление 4", cartogram);
+        if (cartogram != null) {
+            if (typeOfStatement.equalsIgnoreCase("Now")) {
+                countingOneDirectionNow.counting(table, row, column, "Направление 1", cartogram);
+                countingOneDirectionNow.counting(table, row, column, "Направление 2", cartogram);
+                countingOneDirectionNow.counting(table, row, column, "Направление 3", cartogram);
+                countingOneDirectionNow.counting(table, row, column, "Направление 4", cartogram);
+            }
+            if (typeOfStatement.equalsIgnoreCase("Future")) {
+                countingOneDirectionFuture.counting(table, row, column, "Направление 1", cartogram);
+                countingOneDirectionFuture.counting(table, row, column, "Направление 2", cartogram);
+                countingOneDirectionFuture.counting(table, row, column, "Направление 3", cartogram);
+                countingOneDirectionFuture.counting(table, row, column, "Направление 4", cartogram);
+            }
+        }
     }
 
 }

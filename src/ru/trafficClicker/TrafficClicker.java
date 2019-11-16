@@ -7,7 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,8 +15,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
+import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.tree.TreePath;
 import org.quinto.swing.table.view.JBroTable;
 import ru.AddVideoPanel;
@@ -25,12 +24,11 @@ import ru.CreateMenuBar;
 import ru.CreatePopupVideoMenu;
 import ru.CreateRightControlPanel;
 import ru.CreateVideoPlayerControlPanel;
-import ru.Excel.Save.FileSave;
 import ru.videoOpen;
 import ru.overlay.Overlay;
 import ru.AbstractFrame;
 import ru.cartogram.AddCartogramPanel;
-import ru.cartogram.CreateConfigurationPanelMap;
+import ru.cartogram.CreateConfigurationPanelCartogram;
 
 import uk.co.caprica.vlcj.player.base.MarqueePosition;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -44,11 +42,34 @@ public class TrafficClicker extends AbstractFrame {
     private Overlay overlay; // слой кнопок поверх видео
     private AddVideoPanel addVideoPanel = new AddVideoPanel(); // панель с кнопкой добавления видео
     private AddTablePanel addTablePanel = new AddTablePanel(); // панель с кнопкой добавления таблицы
-    private AddCartogramPanel addCartogramPanel = new AddCartogramPanel();
-    private JBroTable table = new JBroTable(); // создание таблицы
+    // ТАБЛИЦЫ
+    // Утро
+    private JBroTable table15Morning = new JBroTable();
+    private JBroTable table30Morning = new JBroTable();
+    private JBroTable table45Morning = new JBroTable();
+    private JBroTable table60Morning = new JBroTable();
+    private JBroTable tableSumMorning = new JBroTable();
+    // Обед
+    private JBroTable table15Day = new JBroTable();
+    private JBroTable table30Day = new JBroTable();
+    private JBroTable table45Day = new JBroTable();
+    private JBroTable table60Day = new JBroTable();
+    private JBroTable tableSumDay = new JBroTable();
+    // Вечер
+    private JBroTable table15Evening = new JBroTable();
+    private JBroTable table30Evening = new JBroTable();
+    private JBroTable table45Evening = new JBroTable();
+    private JBroTable table60Evening = new JBroTable();
+    private JBroTable tableSumEvening = new JBroTable();
+    // Ссылки на перемещатели панелей с кнопками
+    ComponentMover componentMoverUp;
+    ComponentMover componentMoverLeft;
+    ComponentMover componentMoverDown;
+    ComponentMover componentMoverRight;
+
     private Canvas canvas = new Canvas(); // подоснова для видео
     private CreateConfigurationPanel configurationPanel; // инициализация панели для конфигурации таблицы подсчета
-    private CreateConfigurationPanelMap configPanelMap;
+    private CreateConfigurationPanelCartogram configPanelCartogram;
 
     private String filePath; // переменная для хранения полного пути к Видео
 
@@ -66,22 +87,13 @@ public class TrafficClicker extends AbstractFrame {
     private CreateLeftControlPanel leftCPanel = new CreateLeftControlPanel(); // Left Control Panel (Левая Контрольная Панель)
     private CreateRightControlPanel rightCPanel = new CreateRightControlPanel(); // Right Control Panel (Правая Контрольная Панель)
 
-    // Переменная для активации overlay слоя "Добавления видео"
-    private boolean overlayAddVideoBoolean = true;
-
     // Что происходит при создании окна
     @Override
     protected void onCreate() {
         // Установка Windows Look and Feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
         setTitle("Traffic Clicker"); // установка названия окна
@@ -108,10 +120,19 @@ public class TrafficClicker extends AbstractFrame {
         // Добавление всплывающего меню
         emp.setComponentPopupMenu(popupMenu.createPopupMenu());
 
-        // Добавление панелей
+        // Добавление панелейю configurationPanel создается внутри createdTabbedPane()
         add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH); // Контрольная панель видеоплеера (снизу)
         try {
             add(createTabbedPane(), BorderLayout.CENTER); // панель вкладок, внутри которой есть панели с разделением на области (SplitPanel) - видео, таблица
+            // Подключаем слушателей радио кнопок выбора нужной таблицы для подсчета
+            configurationPanel.getMorningRadio().addActionListener(this::onRadioButtonClick);
+            configurationPanel.getDayRadio().addActionListener(this::onRadioButtonClick);
+            configurationPanel.getEveningRadio().addActionListener(this::onRadioButtonClick);
+
+            configurationPanel.getTable0_15Radio().addActionListener(this::onRadioButtonClick);
+            configurationPanel.getTable15_30Radio().addActionListener(this::onRadioButtonClick);
+            configurationPanel.getTable30_45Radio().addActionListener(this::onRadioButtonClick);
+            configurationPanel.getTable45_60Radio().addActionListener(this::onRadioButtonClick);
         } catch (IOException ex) {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -127,10 +148,18 @@ public class TrafficClicker extends AbstractFrame {
 
         canvas.addMouseWheelListener(wheelSound);  // Слушатель изменения звука
         // Слушатели КНОПОК В БАРЕ (MenuBar)
+        jBar.getFileItem3().addActionListener(configurationPanel::onButtonClick); // Слушатель Создание проекта
         jBar.getFileItem6().addActionListener(this::onAddVideoButtonClick); // Слушатель кнопки "Выбор видео" в Баре
         jBar.getViewItem3().addActionListener(this::onFullScreenButtonClick); // Слушатель кнопки "Полноэкранного режима" в Баре
         jBar.getFileItem4().addActionListener(configurationPanel::onSaveButtonClick); // Слушатель кнопки "Сохранить"
-        jBar.getFileItem5().addActionListener(this::onSaveAsButtonClick); // Слушатель кнопки "Сохранить как..."
+        jBar.getFileItem5().addActionListener(configurationPanel::onSaveAsButtonClick); // Слушатель кнопки "Сохранить как..."
+        jBar.getToolsItem1().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SettingsFrame settingsFrame = new SettingsFrame();
+                settingsFrame.makeNewWindow();
+            }
+        });
 
         // Слушатели КНОПОК ВО ВСПЛЫВАЮЩЕЙ ПАНЕЛИ НА ВИДЕО (MenuBar)
         popupMenu.getMenuItem4().addActionListener(this::onPlayPauseButtonClick);
@@ -180,9 +209,6 @@ public class TrafficClicker extends AbstractFrame {
 
         // Overlay слой добавления видео
         addVideoPanel.getButton().addActionListener(this::onAddVideoButtonClick);
-
-        // Overlay слой добавления Таблицы (сам слушатель берем из класса configurationPanel, метод называется onButtonClick
-        addTablePanel.getButton().addActionListener(configurationPanel::onButtonClick);
 
         // Слушатель изменения полного имени файла. На этом реализован слушатель того, что нужно сконфигурировать новую таблицу и слой overlay.
         // Все параметры для таблицы получаем из configurationPanel.
@@ -235,25 +261,6 @@ public class TrafficClicker extends AbstractFrame {
             canvas.requestFocus(); // установка фокуса на canvas (видео)
         }
         tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
-    }
-
-    // Нажатие на кнопку "Сохранить"
-//    private void onSaveButtonClick(ActionEvent e) {
-//        System.out.println(configurationPanel.getFullFileName());
-//        System.out.println(getFullName());
-//            try {
-//                new SaveInExistingFile(getFullName(), table);
-//            } catch (IOException ex) {
-//                Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-//            } 
-//    }
-    // Нажатие на кнопку "Сохранить как..."
-    private void onSaveAsButtonClick(ActionEvent e) {
-        try {
-            new FileSave(table);
-        } catch (IOException ex) {
-            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     // Нажатие кнопки "Полноэкранный режим" в Меню Баре (Alt+Shift+Enter)
@@ -323,13 +330,6 @@ public class TrafficClicker extends AbstractFrame {
             }
             // F11 - отображение кнопок на canvas (видео)
             if (e.getKeyCode() == e.VK_F11) {
-                // Если canvas отображается на экране (окно отображается), то устанавливаем расположение кнопок
-//                if (canvas.isShowing()) {
-//                    upButtonOnVideoLayout();
-//                    downButtonOnVideoLayout();
-//                    leftButtonOnVideoLayout();
-//                    rightButtonOnVideoLayout();
-//                }
                 // активация слоя overlay
                 emp.mediaPlayer().overlay().enable(!emp.mediaPlayer().overlay().enabled()); // если overlay неактивен, то активировать и наоборот
                 canvas.requestFocus(); // Установка фокуса на canvas
@@ -395,7 +395,7 @@ public class TrafficClicker extends AbstractFrame {
                 // Для предотвращения мигающего заднего фона overlay поверхности:
                 overlayReload(); // отключение и включение overlay
             }
-            // Чтобы при изменение размера окна фокус переходил на canvas (видео). Если этого не делать, то фокус переходит на overlay
+            // Чтобы при изменении размера окна фокус переходил на canvas (видео). Если этого не делать, то фокус переходит на overlay
             canvas.requestFocus(); // фокус на canvas (видео) 
         }
     };
@@ -518,7 +518,7 @@ public class TrafficClicker extends AbstractFrame {
 
     };
 
-    // РАЗМЕЩЕНИЕ КНОПОК НА ВИДЕО ПОВЕРХНОСТИ (на overlay) с присвязкой к canvas (видео)
+    // РАЗМЕЩЕНИЕ КНОПОК НА ВИДЕО ПОВЕРХНОСТИ (на overlay) с привязкой к canvas (видео)
 //    private void upButtonOnVideoLayout() {
 //        double indentFromTheMiddle = 1.75;
 //        double indentBetweenButtnos = 0.2; // отступ между кнопками
@@ -694,57 +694,17 @@ public class TrafficClicker extends AbstractFrame {
         splitMain2Tab2.setLeftComponent(centerComponent); // добавляем таблицу 
         splitMain2Tab2.setRightComponent(null); // правая конфигурационная панель (если не нужна, то удобно сделать её null
 
-        // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
-        leftPanel.addComponentListener(dividerChange);
-        rightPanel.addComponentListener(dividerChange);
-
         return splitMain1Tab2;
-    }
-
-    // ПАНЕЛЬ С КАРТОГРАММОЙ
-    JSplitPane splitMain1Tab3 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
-    JSplitPane splitMain2Tab3 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
-
-    private JSplitPane createWorkSplitMapPanel(JComponent leftComponent, JComponent centerComponent, JComponent rightComponent) {
-        splitMain1Tab3.setDividerSize(4); // ширина разделительной области
-        splitMain2Tab3.setDividerSize(4); // ширина разделительной области
-        splitMain1Tab3.setContinuousLayout(true); //  компоненты при перемещении разделительной полосы будут непрерывно обновляться (перерисовываться и, если это сложный компонент, проводить проверку корректности).
-        splitMain2Tab3.setContinuousLayout(true);
-        splitMain1Tab3.setResizeWeight(0); // установка приоритета для соотношения размеров панелей при изменении размеров = Правая половина (видео + правая панель) в приоритете
-        splitMain2Tab3.setResizeWeight(1); // установка приоритета для соотношения размеров панелей при изменении размеров = Левая половина (видео) в приоритете
-
-        // Размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
-        Dimension leftRightPanelMinimumSize = new Dimension(
-                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3),
-                (int) (canvas.getMinimumSize().getHeight()));
-
-        // Создание панели прокрутки для ЛЕВОЙ панели
-        JScrollPane leftPanel = new JScrollPane(leftComponent);
-        leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши (стандартно включена)
-//        leftPanel.setPreferredSize(new Dimension((int) (leftRightPanelMinimumSize.getWidth() * 3), (int) this.getHeight())); // Предпочтительный размер (при создании панели)
-//        leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
-
-        // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
-        JScrollPane rightPanel = new JScrollPane(rightComponent);
-        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
-//        rightPanel.setPreferredSize(leftRightPanelMinimumSize); // Предпочтительный размер (при создании панели)
-//        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
-
-        // Добавление компонент в разделяющуюся панель
-        splitMain1Tab3.setLeftComponent(null); // левая конфигурационная панель
-        splitMain1Tab3.setRightComponent(splitMain2Tab3);
-        splitMain2Tab3.setLeftComponent(centerComponent); // добавляем таблицу 
-        splitMain2Tab3.setRightComponent(null); // правая конфигурационная панель (если не нужна, то удобно сделать её null
-
-        // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
-        leftPanel.addComponentListener(dividerChange);
-//        rightPanel.addComponentListener(dividerChange);
-
-        return splitMain1Tab3;
     }
 
     // ПАНЕЛЬ ВКЛАДОК
     private JTabbedPane videoTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // создание панели вкладок с размещением выбора вкладок вверху панели и размещением новых вкладок (если им мало места) в скролящуюся горизонтальную панель
+
+    // Панель вкладок с картограммами
+    private TabbedPaneCartogram cartogramPaneLink = new TabbedPaneCartogram();
+    private JTabbedPane cartogramPane;
+    // Разделенные панели с картограмми и панелями управления ими
+    private SplitCartogramPanel cartogramPanel = new SplitCartogramPanel();
 
     private JTabbedPane createTabbedPane() throws IOException {
         // Вкладка 1 (index = 0). Видео с панелями настроек
@@ -755,10 +715,12 @@ public class TrafficClicker extends AbstractFrame {
         configurationPanel = new CreateConfigurationPanel();
         videoTabs.addTab("Таблица результатов подсчета", createWorkSplitTablePanel(configurationPanel.CreateLeftConfigurationPanel(), addTablePanel.AddTable(), configurationPanel.CreateRightConfigurationPanel()));
 
-//        JPanel panel = new JPanel();
-//        panel.setBackground(Color.white);
         // Вкладка 3 (index = 2). Картограмма
-        videoTabs.addTab("Картограмма", createWorkSplitMapPanel(new JLabel("Панель"), addCartogramPanel.AddMap(), new JLabel("Панель")));
+        cartogramPane = cartogramPaneLink.createTabbedPane(
+                new AddCartogramPanel().AddMap(),
+                new AddCartogramPanel().AddMap(),
+                new AddCartogramPanel().AddMap()); // инициализируем панель вкладок, на которую помещаем разделенную панель с картограммой и панелбю управления ею
+        videoTabs.addTab("Картограмма", cartogramPanel.createCartogramSplitPanel(new JLabel("Панель"), cartogramPane, new JLabel("Панель")));
 
         // Подключение слушателя мыши
         videoTabs.setFocusable(false);
@@ -775,83 +737,40 @@ public class TrafficClicker extends AbstractFrame {
                 }
                 if (videoTabs.getSelectedIndex() == 2) {
                     // обновляем SVGCanvas
-                    if (configurationPanel.getCartogram() != null) {
-                        configurationPanel.getCartogram().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
+                    if (configurationPanel.getCartogramMorning() != null) {
+                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        configurationPanel.getCartogramMorning().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
-                    splitMain2Tab3.getLeftComponent().requestFocus(); // переключаем фокус на canvas
+                    if (configurationPanel.getCartogramDay() != null) {
+                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        configurationPanel.getCartogramDay().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
+                    }
+                    if (configurationPanel.getCartogramEvening() != null) {
+                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        configurationPanel.getCartogramEvening().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
+                    }
+                    cartogramPane.getSelectedComponent().requestFocus(); // переключаем фокус на canvas
                 }
             }
         });
 
         return videoTabs;
     }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Старый вариант. Не используется
-    private JComponent createConfigurationTable() {
-
-        // Таблица
-        ArrayList<TableCellEditor> editors = new ArrayList<TableCellEditor>();
-
-        // Создаем редакторов для каждой строки свой
-        String[] items1 = {"1", "2", "3", "4", "5", "6"};
-        JComboBox comboBox1 = new JComboBox(items1);
-        DefaultCellEditor dce1 = new DefaultCellEditor(comboBox1);
-
-        editors.add(dce1);
-
-        String[] items2 = {"Circle", "Square", "Triangle"};
-        JComboBox comboBox2 = new JComboBox(items2);
-        DefaultCellEditor dce2 = new DefaultCellEditor(comboBox2);
-        editors.add(dce2);
-
-        ////////////////////////////////////////////
-//        CheckableItem[] m = {
-//            new CheckableItem("Легковые", false),
-//            new CheckableItem("Автобусы", true),
-//            new CheckableItem("Автопоезда < 8т.", false),
-//            new CheckableItem("Автопоезда > 8т.", true),
-//            new CheckableItem("Грузовые < 2т.", true),
-//            new CheckableItem("Грузовые 2 - 5т.", false),
-//            new CheckableItem("Грузовые 5 - 8т.", true),
-//            new CheckableItem("Грузовые > 8т.", true),
-//            new CheckableItem("Все", false)
-//        };
-//
-//        JComboBox cBox = new CheckedComboBox<>(new DefaultComboBoxModel<>(m));
-//        DefaultCellEditor dce3 = new DefaultCellEditor(cBox);
-//        editors.add(dce3);
-        ////////////////////////////////////////////
-        //  СОЗДАНИЕ ТАБЛИЦЫ со стандартными данными
-        Object[][] data
-                = {
-                    {"Количество направлений подсчета:", "4"},
-                    {"Shape", "Square"},
-                    {"Тип автомобилей", "Все"}
-                };
-        String[] columnNames = {"Наименование", "Параметр"}; // Название столбцов
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-
-// Создание таблицы на основании МОДЕЛИ данных, созданной ранее. 
-        // Здесь же добавляются comboBox для каждой строки свой
-        JTable tableda = new JTable(model) {
-            //  Determine editor to be used by row
-            @Override
-            public TableCellEditor getCellEditor(int row, int column) {
-                int modelColumn = convertColumnIndexToModel(column);
-
-                if (modelColumn == 1 && row < 3) {
-                    return editors.get(row);
-                } else {
-                    return super.getCellEditor(row, column);
-                }
-            }
-        };
-        /////////////////////////////////////////////////////////////////
-
-        return tableda;
-    }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ВСПЛЫВАЮЩЯЯ ПАНЕЛЬ. Метод включения и конфигурации с текстом = путь к файлу (реализовать отображение только названия)
     private void setMarqueeStart(String filePath) {
@@ -908,6 +827,18 @@ public class TrafficClicker extends AbstractFrame {
                         canvas.requestFocus();
                     }
                 });
+                // Изменение позиции (времени) видео по клику на линию времени
+                vPCPanel.getJs().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        JSlider sourceSlider = (JSlider) e.getSource(); // получаем Слайдер
+                        BasicSliderUI ui = (BasicSliderUI) sourceSlider.getUI(); // получаем UI слайдера
+                        int value = ui.valueForXPosition(e.getX()); // получаем значение слайдера по клику
+                        vPCPanel.getJs().setValue(value); // устанавливаем новое значение для слайдера
+                        emp.mediaPlayer().controls().setPosition((float) value / (duration));
+                        canvas.requestFocus();
+                    }
+                });
             }
         });
         timer.start(); // запуск таймера
@@ -916,49 +847,200 @@ public class TrafficClicker extends AbstractFrame {
     // Во вкладке Таблицы отображаем новую сконфигурированную таблицу (для этого ее сначала получаем и создаем - в другом слушателе). 
     // Добавляем слушатели перемещения панелей кнопок. 
     public void doOverlayAndGetTable() throws IOException {
-        // Уничтожаем предыдущий overlay, если он существовал (для правильного освобождения ресурсов и отображегния нового overlay)
+        // УДАЛЕНИЕ СТАРОГО
+        // Уничтожаем предыдущий overlay, если он существовал (для правильного освобождения ресурсов и отображения нового overlay)
         if (overlay != null) {
             overlay.dispose();
+            // Удаляем старые слушатели перемещения панелей с кноками
+            deregisterOldListenerMovePanel();
         }
-        table = configurationPanel.getTable(); // получаем таблицу (до этого она перестраиваетя, в другом слушателе - слушателе кнопки)
+
+        // СЧИТЫВАНИЕ ПАРАМЕТРОВ НОВОГО. Считываем идентификаторы выбранного режима подсчета
         String kinfOfStatement = configurationPanel.getKindOfStatement(); // получаем вид таблицы - старая или новая
         String typeOfDirection = configurationPanel.getTypeOfDirection(); // получаем количество направлений движения
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
-        overlay = new Overlay(this, table, kinfOfStatement, typeOfDirection, paths); // создаем новый overlay слой кнопок
+        overlay = new Overlay(this, kinfOfStatement, typeOfDirection, paths, emp); // создаем новый overlay слой кнопок
 
-        // Слушатели ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
-        for (JLabel label : overlay.getLabelsUp()) {
-            new ComponentMover(overlay.getPanelUp(), label); // добавление слушателя (что перемещать, на что для этого нажимать)
-        }
-        for (JLabel label : overlay.getLabelsLeft()) {
-            new ComponentMover(overlay.getPanelLeft(), label);
-        }
-        for (JLabel label : overlay.getLabelsDown()) {
-            new ComponentMover(overlay.getPanelDown(), label);
-        }
-        for (JLabel label : overlay.getLabelsRight()) {
-            new ComponentMover(overlay.getPanelRight(), label);
-        }
-
+        // OVERLAY (кнопки)
         // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
         if (emp.mediaPlayer().media().isValid()) {
             emp.mediaPlayer().overlay().set(overlay);
             emp.mediaPlayer().overlay().enable(false);
         }
+        // Добавление слушателей ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
+        regiterNewListenerMovePanel();
 
-        table.repaint(); // перерисовываем панель 
-        table.revalidate(); // переобъявляем таблицу?)
-        splitMain2Tab2.setLeftComponent(table.getScrollPane()); // добавляем таблицу во вкладку Таблицы приложения
+        // ТАБЛИЦЫ (получение сконфигурированных таблиц)
+        getTable();
+        // Первоначальная установка радио кнопок при создании таблиц (создании нового проекта подсчета). Для УТРА - общий и первая 15минутка
+        configurationPanel.getMorningRadio().doClick();
+        configurationPanel.getTable0_15Radio().doClick();
+        // Вкладка "таблицы"
+        // Добавляем панель со вкладками (каждая из них со своими вкладками) во вкладку "Таблицы" приложения
+        splitMain2Tab2.setLeftComponent(getTablePaneAllDay());
         splitMain2Tab2.setRightComponent(rightPanel);
 
-        // Вкладка картограммы
-        // Внутри configurationPanel создается картограмма
+        // КАРТОГРАММЫ. 
+        // Вкладка "картограммы"
+        // Внутри configurationPanel создаются картограммы
         // Инициализация панели конфигурации картограммы
-        configPanelMap = new CreateConfigurationPanelMap(configurationPanel.getCartogram(), typeOfDirection);
-        splitMain1Tab3.setLeftComponent(configPanelMap.CreateConfigurationPanel()); // Добавляем Панель конфигурации на панель
-        splitMain2Tab3.setLeftComponent(configurationPanel.getCartogramPanel()); // добавляем картограмму на панель
-        
-        jBar.getFileItem4().setEnabled(true); // Делаем кнопку "Сохранить" активной
+        configPanelCartogram = new CreateConfigurationPanelCartogram(
+                configurationPanel.getCartogramMorning(),
+                configurationPanel.getCartogramDay(),
+                configurationPanel.getCartogramEvening(),
+                typeOfDirection);
+        cartogramPanel.getSplitTab1().setLeftComponent(configPanelCartogram.CreateConfigurationPanel()); // Добавляем Панель конфигурации на панель
+        cartogramPane.removeAll(); // удаляем ранее добавленные вкладки
+        cartogramPane = cartogramPaneLink.createTabbedPane(
+                configurationPanel.getCartogramPanelMorning(),
+                configurationPanel.getCartogramPanelDay(),
+                configurationPanel.getCartogramPanelEvening()
+        ); // Добавляем нужные вкладки с картограммами
+
+        // ПРОЧЕЕ
+        if (!jBar.getFileItem4().isEnabled()) {
+            jBar.getFileItem4().setEnabled(true); // Делаем кнопку "Сохранить" активной
+        }
+        if (!jBar.getFileItem5().isEnabled()) {
+            jBar.getFileItem5().setEnabled(true); // Делаем кнопку "Сохранить" активной
+        }
+    }
+
+    // Выбор для кнопок, в какую таблицу сохранять данные
+    // Возвращает текст выбранной кнопки из группы кнопок
+    public String getSelectedButtonText(ButtonGroup buttonGroup) {
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+        return "";
+    }
+
+    private void onRadioButtonClick(ActionEvent e) {
+        // Слушатель выбора времени Дня (утро, день, вечер)
+        if (getSelectedButtonText(configurationPanel.getGroupPeriodOfDay()).equalsIgnoreCase(configurationPanel.getMorningRadio().getText())) {
+            // Выбираем 15минутку в выбранном времени дня
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable0_15Radio().getText())) {
+                overlay.chooseTable(table15Morning);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable15_30Radio().getText())) {
+                overlay.chooseTable(table30Morning);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable30_45Radio().getText())) {
+                overlay.chooseTable(table45Morning);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable45_60Radio().getText())) {
+                overlay.chooseTable(table60Morning);
+            }
+        }
+        if (getSelectedButtonText(configurationPanel.getGroupPeriodOfDay()).equalsIgnoreCase(configurationPanel.getDayRadio().getText())) {
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable0_15Radio().getText())) {
+                overlay.chooseTable(table15Day);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable15_30Radio().getText())) {
+                overlay.chooseTable(table30Day);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable30_45Radio().getText())) {
+                overlay.chooseTable(table45Day);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable45_60Radio().getText())) {
+                overlay.chooseTable(table60Day);
+            }
+        }
+        if (getSelectedButtonText(configurationPanel.getGroupPeriodOfDay()).equalsIgnoreCase(configurationPanel.getEveningRadio().getText())) {
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable0_15Radio().getText())) {
+                overlay.chooseTable(table15Evening);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable15_30Radio().getText())) {
+                overlay.chooseTable(table30Evening);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable30_45Radio().getText())) {
+                overlay.chooseTable(table45Evening);
+            }
+            if (getSelectedButtonText(configurationPanel.getGroup15MinuteTable()).equalsIgnoreCase(configurationPanel.getTable45_60Radio().getText())) {
+                overlay.chooseTable(table60Evening);
+            }
+        }
+    }
+
+    // Получаем таблицы из конфигурационной панели (в которой они создаются)
+    private void getTable() {
+        // Утро
+        tableSumMorning = configurationPanel.getTableSumMorning(); // получаем таблицу (до этого она перестраиваетя в другом слушателе)
+        table15Morning = configurationPanel.getTable15Morning();
+        table30Morning = configurationPanel.getTable30Morning();
+        table45Morning = configurationPanel.getTable45Morning();
+        table60Morning = configurationPanel.getTable60Morning();
+        // День
+        tableSumDay = configurationPanel.getTableSumDay(); // получаем таблицу (до этого она перестраиваетя в другом слушателе)
+        table15Day = configurationPanel.getTable15Day();
+        table30Day = configurationPanel.getTable30Day();
+        table45Day = configurationPanel.getTable45Day();
+        table60Day = configurationPanel.getTable60Day();
+        // Вечер
+        tableSumEvening = configurationPanel.getTableSumEvening(); // получаем таблицу (до этого она перестраиваетя в другом слушателе)
+        table15Evening = configurationPanel.getTable15Evening();
+        table30Evening = configurationPanel.getTable30Evening();
+        table45Evening = configurationPanel.getTable45Evening();
+        table60Evening = configurationPanel.getTable60Evening();
+    }
+
+    // Формирование и наполнение вкладок Таблиц
+    private JTabbedPane getTablePaneAllDay() throws IOException {
+        // Утро
+        TabbedPaneTableOnePartOfDay tablePaneLinkMorning = new TabbedPaneTableOnePartOfDay(); // Панель вкладок для одного времени дня
+        JTabbedPane tablePaneMorning = tablePaneLinkMorning.createTabbedPane(
+                table15Morning.getScrollPane(), table30Morning.getScrollPane(), table45Morning.getScrollPane(), table60Morning.getScrollPane(), tableSumMorning.getScrollPane());
+        // День
+        TabbedPaneTableOnePartOfDay tablePaneLinkDay = new TabbedPaneTableOnePartOfDay(); // Панель вкладок для одного времени дня
+        JTabbedPane tablePaneDay = tablePaneLinkDay.createTabbedPane(
+                table15Day.getScrollPane(), table30Day.getScrollPane(), table45Day.getScrollPane(), table60Day.getScrollPane(), tableSumDay.getScrollPane());
+        // Вечер
+        TabbedPaneTableOnePartOfDay tablePaneLinkEvening = new TabbedPaneTableOnePartOfDay(); // Панель вкладок для одного времени дня
+        JTabbedPane tablePaneEvening = tablePaneLinkEvening.createTabbedPane(
+                table15Evening.getScrollPane(), table30Evening.getScrollPane(), table45Evening.getScrollPane(), table60Evening.getScrollPane(), tableSumEvening.getScrollPane());
+        // Весь день
+        TabbedPaneTableAllDay tablePaneAllDayLink = new TabbedPaneTableAllDay(); // Панель вкладок для всего дня
+        JTabbedPane tablePaneAllDay = tablePaneAllDayLink.createTabbedPane(
+                tablePaneMorning, tablePaneDay, tablePaneEvening);
+
+        return tablePaneAllDay;
+    }
+
+    // Удаляем старые слушатели перемещения панелей с кноками
+    private void deregisterOldListenerMovePanel() {
+        if (componentMoverUp != null || componentMoverRight != null || componentMoverDown != null || componentMoverLeft != null) {
+            for (JLabel label : overlay.getLabelsUp()) {
+                componentMoverUp.deregisterComponent(label);
+            }
+            for (JLabel label : overlay.getLabelsLeft()) {
+                componentMoverLeft.deregisterComponent(label);
+            }
+            for (JLabel label : overlay.getLabelsDown()) {
+                componentMoverDown.deregisterComponent(label);
+            }
+            for (JLabel label : overlay.getLabelsRight()) {
+                componentMoverRight.deregisterComponent(label);
+            }
+        }
+    }
+
+    // Добавление слушателей ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
+    private void regiterNewListenerMovePanel() {
+        for (JLabel label : overlay.getLabelsUp()) {
+            componentMoverUp = new ComponentMover(overlay.getPanelUp(), label); // добавление слушателя (что перемещать, на что для этого нажимать)
+        }
+        for (JLabel label : overlay.getLabelsLeft()) {
+            componentMoverLeft = new ComponentMover(overlay.getPanelLeft(), label);
+        }
+        for (JLabel label : overlay.getLabelsDown()) {
+            componentMoverDown = new ComponentMover(overlay.getPanelDown(), label);
+        }
+        for (JLabel label : overlay.getLabelsRight()) {
+            componentMoverRight = new ComponentMover(overlay.getPanelRight(), label);
+        }
     }
 
     // Округление до двух чисел после запятой

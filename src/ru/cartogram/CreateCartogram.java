@@ -28,12 +28,13 @@ import org.w3c.dom.Element;
 
 public class CreateCartogram {
 
-    private String fullFileName;
-    private String typeOfDirection;
-    private String uriPattern;
+    private String fullFileName; // полный путь (включая имя и расширение файла) к таблице
+    private String fileName; // новое указываемое имя для SVG файла
+    private String typeOfDirection; // тип направления (3, 4, кольцо и т.п.)
+    private String uriPattern; // путь к шаблону картограммы
 
     private JSVGCanvas svgCanvas = new JSVGCanvas();
-    private File file;
+    private File file; // файл новой создаваемой картограммы
 
     private Document doc = (SVGDOMImplementation.getDOMImplementation()).
             createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
@@ -52,6 +53,14 @@ public class CreateCartogram {
         this.typeOfDirection = typeOfDirection;
     }
 
+    // fileName - индивидуальная добавка к имени каждой картограммы
+    // Из fullFileName получаем путь к месту хранения excel
+    public CreateCartogram(String fullFileName, String typeOfDirection, String fileName) {
+        this.fullFileName = fullFileName;
+        this.typeOfDirection = typeOfDirection;
+        this.fileName = fileName;
+    }
+
     public JPanel initialize() throws IOException, URISyntaxException {
 
         // Получаем файл шаблон
@@ -61,22 +70,30 @@ public class CreateCartogram {
         if (typeOfDirection.equalsIgnoreCase("4")) {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4.svg").toURI().toString();
         }
-        if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+        if (typeOfDirection.equalsIgnoreCase("4Circle")) {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram4circle.svg").toURI().toString();
         }
-        if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+        if (typeOfDirection.equalsIgnoreCase("3Right")) {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3right.svg").toURI().toString();
         }
-        if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+        if (typeOfDirection.equalsIgnoreCase("3Up")) {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3up.svg").toURI().toString();
         }
         // Парсим его (читаем) и сохраняем в новый файл - который в дальнейшем будет использоваться
         doc = f.createDocument(uriPattern); // парсим передаваемый файл и создаем из него документ (то есть таким образом его выводим)
         svgGenerator = new SVGGraphics2D(doc);
-        file = new File(fullFileName.substring(0, fullFileName.lastIndexOf("\\"))
-                + "/"
-                + fullFileName.substring(fullFileName.lastIndexOf("\\"), fullFileName.lastIndexOf("."))
-                + ".svg");
+        // Если приписка к файлу есть, то дописываем ее
+        if (fileName != null) {
+            file = new File(fullFileName.substring(0, fullFileName.lastIndexOf("."))
+                    + "_"
+                    + fileName
+                    + ".svg");
+        } else {
+            file = new File(fullFileName.substring(0, fullFileName.lastIndexOf("\\"))
+                    + "/"
+                    + fullFileName.substring(fullFileName.lastIndexOf("\\"), fullFileName.lastIndexOf("."))
+                    + ".svg");
+        }
         // создаем файл в той же директории, что и таблица и с тем же именем
         saveSvgDocumentToFile(doc, file);
 
@@ -166,9 +183,7 @@ public class CreateCartogram {
     // Получаем текст по ID 
     public String getFullValue(String ID) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
-        String text = "";
-        String text1 = "";
-        String text2 = "";
+        String text, text1, text2;
         if (ID != null && svg != null) {
             // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
             if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {
@@ -190,7 +205,7 @@ public class CreateCartogram {
 
     public String getValueTspan1(String ID) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
-        String text = "";
+        String text;
         // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
         if (ID != null && svg != null) {
             if (svg.getElementsByTagName("tspan").item(0) != null) {
@@ -203,7 +218,7 @@ public class CreateCartogram {
 
     public String getValueTspan2(String ID) {
         Element svg = doc.getElementById(ID); // получаем элемент из svg документа по ID
-        String text = "";
+        String text;
         // Если у объекта есть свойство span, и для него есть текст, то для него и меняем текст
         if (ID != null && svg != null) {
             if (svg.getElementsByTagName("tspan").item(0) != null && svg.getElementsByTagName("tspan").item(1) != null) {

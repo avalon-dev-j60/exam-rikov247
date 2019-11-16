@@ -14,7 +14,7 @@ class DigitFilter extends DocumentFilter {
     // текстовое поле, в котором будет проверятся количество символов
     private JTextField field = new JTextField();
     private String fullText = "";
-    private int limit = 4;
+    private int limit = 5;
 
     // конструктор данного класса, для получения текстового поля на проверку
     public DigitFilter(JTextField field) {

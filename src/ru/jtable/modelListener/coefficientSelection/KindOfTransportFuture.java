@@ -9,6 +9,7 @@ public class KindOfTransportFuture {
         "2-осные", "3-осные", "4-осные", "4-осные (2 оси+прицеп)", "5-осные (3 оси+прицеп)",
         "3 осные (2 оси+полуприцеп)", "4 осные (2 оси+полуприцеп)", "5 осные (2 оси+полуприцеп)", "5 осные (3 оси+полуприцеп)", "6 осные", "7 осные и более",
         "Особо малого класса", "Малого класса", "Среднего класса", "Большого класса", "Особо большого класса",
+        "Троллейбусы",
         "Трамвай",
         "ИТОГО"};
 
@@ -69,8 +70,12 @@ public class KindOfTransportFuture {
         if (rowValue.equalsIgnoreCase(kindOfTransportFuture[16])) {
             coefficient = 3.2;
         }
-        // Трамвай
+        // Троллейбусы
         if (rowValue.equalsIgnoreCase(kindOfTransportFuture[17])) {
+            coefficient = 3.2;
+        }
+        // Трамвай
+        if (rowValue.equalsIgnoreCase(kindOfTransportFuture[18])) {
             coefficient = 3.2;
         }
 

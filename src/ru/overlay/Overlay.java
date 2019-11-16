@@ -10,26 +10,52 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.basic.BasicButtonListener;
 import javax.swing.tree.TreePath;
 import org.quinto.swing.table.view.JBroTable;
 import ru.trafficClicker.OnButtonClick;
 import ru.trafficClicker.imageBackground.SimpleBackground;
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 public class Overlay extends JWindow {
 
-    private JBroTable table;
+    private EmbeddedMediaPlayerComponent emp;
     private TreePath[] paths; // массив путей к узлам (видам транспорта), которые были выбраны для подсчета
     private int row; // количество строк на панели кнопок (количество видов транспорта для подсчета, не считая labels направлений)
+    private String kindOfStatement;
+    private CreatePopupButtonMenu popupMenuAround11; // Создаем объект в котором создается меню и его дети
+    private CreatePopupButtonMenu popupMenuLeft12;
+    private CreatePopupButtonMenu popupMenuForward1;
+    private CreatePopupButtonMenu popupMenuRight14;
+
+    private CreatePopupButtonMenu popupMenuAround44;
+    private CreatePopupButtonMenu popupMenuLeft41;
+    private CreatePopupButtonMenu popupMenuForward4;
+    private CreatePopupButtonMenu popupMenuRight43;
+
+    private CreatePopupButtonMenu popupMenuAround33;
+    private CreatePopupButtonMenu popupMenuLeft34;
+    private CreatePopupButtonMenu popupMenuForward3;
+    private CreatePopupButtonMenu popupMenuRight32;
+
+    private CreatePopupButtonMenu popupMenuAround22;
+    private CreatePopupButtonMenu popupMenuLeft23;
+    private CreatePopupButtonMenu popupMenuForward2;
+    private CreatePopupButtonMenu popupMenuRight21;
 
     private SimpleBackground panelUp;
     private SimpleBackground panelLeft;
@@ -406,10 +432,11 @@ public class Overlay extends JWindow {
     // Основная overlay панель, на которую помещаются кнопки. LayoutManager = null
     private JPanel overlayPanel = new JPanel(null);
 
-    public Overlay(Window owner, JBroTable table, String typeOfStatement, String typeOfDirection, TreePath[] paths) throws IOException {
+    public Overlay(Window owner, String kindOfStatement, String typeOfDirection, TreePath[] paths, EmbeddedMediaPlayerComponent emp) throws IOException {
         super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
-        this.table = table;
         this.paths = paths;
+        this.kindOfStatement = kindOfStatement;
+        this.emp = emp;
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
         overlayPanel.setOpaque(false); // прозрачность панели включена. На этой панели размещаем панели с кнопками
@@ -421,385 +448,453 @@ public class Overlay extends JWindow {
         createButtonsWithIcon(buttonsDown);
         createButtonsWithIcon(buttonsRight);
 
+        // Создаем объект в котором создается меню и его дети
+        popupMenuAround11 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuLeft12 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuForward1 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuRight14 = new CreatePopupButtonMenu(kindOfStatement);
+
+        popupMenuAround44 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuLeft41 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuForward4 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuRight43 = new CreatePopupButtonMenu(kindOfStatement);
+
+        popupMenuAround33 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuLeft34 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuForward3 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuRight32 = new CreatePopupButtonMenu(kindOfStatement);
+
+        popupMenuAround22 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuLeft23 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuForward2 = new CreatePopupButtonMenu(kindOfStatement);
+        popupMenuRight21 = new CreatePopupButtonMenu(kindOfStatement);
         // Добавление исходных компонентов 
-        if (typeOfStatement.equalsIgnoreCase("Now")) {
+        if (kindOfStatement.equalsIgnoreCase("Now")) {
             // Если выбрано 4 направления, то:
-            if (typeOfDirection.equalsIgnoreCase("4") || typeOfDirection.equalsIgnoreCase("4 кольцо")) {
-                int numOfDir = Integer.valueOf(typeOfDirection.substring(0, 1));
-                // Конфигурируем 4 столбца и сколько нужно строк
-                panelUp = new SimpleBackground(numOfDir);
-                panelLeft = new SimpleBackground(numOfDir);
-                panelDown = new SimpleBackground(numOfDir);
-                panelRight = new SimpleBackground(numOfDir);
-
-                // Устанавливаем картинку на фон панели с кнопками
-                panelUp.setBackground(ImageIO.read(new File(background1)));
-                panelLeft.setBackground(ImageIO.read(new File(background4)));
-                panelDown.setBackground(ImageIO.read(new File(background3)));
-                panelRight.setBackground(ImageIO.read(new File(background2)));
-
-                // Конфигурируем и наполняем панели
-                ChooseComponentsNow4 compUpNow4 = new ChooseComponentsNow4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
-                componentsUp = compUpNow4.chooseComponentsNow4();
-                row = compUpNow4.getRow();
-                createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
-                panelUp.setLocation(200, 0); // установка изначального местоположения панели
-
-                ChooseComponentsNow4 compLeftNow4 = new ChooseComponentsNow4(paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrolleybus, bLeftTram);
-                componentsLeft = compLeftNow4.chooseComponentsNow4();
-                createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
-                panelLeft.setLocation(0, 100); // установка изначального местоположения панели
-
-                ChooseComponentsNow4 compDownNow4 = new ChooseComponentsNow4(paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrolleybus, bDownTram);
-                componentsDown = compDownNow4.chooseComponentsNow4();
-                createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
-                panelDown.setLocation(500, 400); // установка изначального местоположения панели
-
-                ChooseComponentsNow4 compRightNow4 = new ChooseComponentsNow4(paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrolleybus, bRightTram);
-                componentsRight = compRightNow4.chooseComponentsNow4();
-                createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
-                panelRight.setLocation(650, 0); // установка изначального местоположения панели
-
-                overlayPanel.add(panelUp);
-                overlayPanel.add(panelLeft);
-                overlayPanel.add(panelDown);
-                overlayPanel.add(panelRight);
+            if (typeOfDirection.equalsIgnoreCase("4") || typeOfDirection.equalsIgnoreCase("4Circle")) {
+                config4DirectionNow();
             }
-
-            // Если выбрано 3 направления вверх (пока что реализовано только оно, так что вызываем его в любом случае), то:
-            if (typeOfDirection.equalsIgnoreCase("3 вверх") || typeOfDirection.equalsIgnoreCase("3 вправо")) {
-                int numOfDir = Integer.valueOf(typeOfDirection.substring(0, 1));
-                // Конфигурируем 3 столбца и сколько нужно строк
-                panelLeft = new SimpleBackground(numOfDir);
-                panelDown = new SimpleBackground(numOfDir);
-                panelRight = new SimpleBackground(numOfDir);
-
-                // Устанавливаем картинку на фон панели с кнопками
-                panelLeft.setBackground(ImageIO.read(new File(background4)));
-                panelDown.setBackground(ImageIO.read(new File(background3)));
-                panelRight.setBackground(ImageIO.read(new File(background2)));
-
-                // Конфигурируем и наполняем панели
-                // Левая (4)
-                ChooseComponentsNow3Up compLeftNow3 = new ChooseComponentsNow3Up("4", paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrolleybus, bLeftTram);
-                componentsLeft = compLeftNow3.chooseCompNow3withoutForward();
-                row = compLeftNow3.getRow();
-                createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
-                panelLeft.setLocation(0, 100); // установка изначального местоположения панели
-                // Нижняя (3)
-                ChooseComponentsNow3Up compDownNow3 = new ChooseComponentsNow3Up("3", paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrolleybus, bDownTram);
-                componentsDown = compDownNow3.chooseCompNow3withoutForward();
-                createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
-                panelDown.setLocation(500, 400); // установка изначального местоположения панели
-                // Правая (2)
-                ChooseComponentsNow3Up compRightNow3 = new ChooseComponentsNow3Up("2", paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrolleybus, bRightTram);
-                componentsRight = compRightNow3.chooseCompNow3withoutForward();
-                createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
-                panelRight.setLocation(650, 0); // установка изначального местоположения панели
-
-                overlayPanel.add(panelLeft);
-                overlayPanel.add(panelDown);
-                overlayPanel.add(panelRight);
+            // Если выбрано 3 Направления вверх, то Конфигурируем нужные панели с кнопками и наполняем их чем нужно:
+            if (typeOfDirection.equalsIgnoreCase("3Up")) {
+                config3DirectionNow("WithoutForward", "WithoutLeft", "", "WithoutRight");
+            }
+            // 3 Направления вправо
+            if (typeOfDirection.equalsIgnoreCase("3Right")) {
+                config3DirectionNow("WithoutRight", "WithoutForward", "WithoutLeft", "");
+            }
+            // 3 Направления вниз
+            if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                config3DirectionNow("", "WithoutRight", "WithoutForward", "WithoutLeft");
+            }
+            // 3 Направления влево
+            if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                config3DirectionNow("WithoutLeft", "", "WithoutRight", "WithoutForward");
             }
 
         }
 
-        if (typeOfStatement.equalsIgnoreCase("Future")) {
+        if (kindOfStatement.equalsIgnoreCase("Future")) {
             // Если выбрано 4 направления, то:
-            if (typeOfDirection.equalsIgnoreCase("4") || typeOfDirection.equalsIgnoreCase("4 кольцо")) {
-                int numOfDir = Integer.valueOf(typeOfDirection.substring(0, 1));
-                // Конфигурируем 4 столбца и сколько нужно строк
-                panelUp = new SimpleBackground(numOfDir);
-                panelLeft = new SimpleBackground(numOfDir);
-                panelDown = new SimpleBackground(numOfDir);
-                panelRight = new SimpleBackground(numOfDir);
-
-                // Устанавливаем картинку на фон панели с кнопками
-                panelUp.setBackground(ImageIO.read(new File(background1)));
-                panelLeft.setBackground(ImageIO.read(new File(background4)));
-                panelDown.setBackground(ImageIO.read(new File(background3)));
-                panelRight.setBackground(ImageIO.read(new File(background2)));
-
-                // Конфигурируем и наполняем панели
-                ChooseComponentsFuture4 compUpFuture4 = new ChooseComponentsFuture4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
-                componentsUp = compUpFuture4.chooseComponentsFuture4();
-                row = compUpFuture4.getRow();
-                createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
-                panelUp.setLocation(200, 0); // установка изначального местоположения панели
-
-                ChooseComponentsFuture4 compLeftFuture4 = new ChooseComponentsFuture4(paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
-                componentsLeft = compLeftFuture4.chooseComponentsFuture4();
-                createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
-                panelLeft.setLocation(0, 100); // установка изначального местоположения панели
-
-                ChooseComponentsFuture4 compDownFuture4 = new ChooseComponentsFuture4(paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
-                componentsDown = compDownFuture4.chooseComponentsFuture4();
-                createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
-                panelDown.setLocation(500, 400); // установка изначального местоположения панели
-
-                ChooseComponentsFuture4 compRightFuture4 = new ChooseComponentsFuture4(paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
-                componentsRight = compRightFuture4.chooseComponentsFuture4();
-                createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
-                panelRight.setLocation(650, 0); // установка изначального местоположения панели
-
-                overlayPanel.add(panelUp);
-                overlayPanel.add(panelLeft);
-                overlayPanel.add(panelDown);
-                overlayPanel.add(panelRight);
+            if (typeOfDirection.equalsIgnoreCase("4") || typeOfDirection.equalsIgnoreCase("4Circle")) {
+                config4DirectionFuture();
             }
-
-            // Если выбрано 3 направления вверх (пока что реализовано только оно, так что вызываем его в любом случае), то:
-            if (typeOfDirection.equalsIgnoreCase("3 вправо") || typeOfDirection.equalsIgnoreCase("3 вверх")) {
-                int numOfDir = Integer.valueOf(typeOfDirection.substring(0, 1));
-                // Конфигурируем 3 столбца и сколько нужно строк
-                panelUp = new SimpleBackground(numOfDir);
-                panelLeft = new SimpleBackground(numOfDir);
-                panelDown = new SimpleBackground(numOfDir);
-
-                // Устанавливаем картинку на фон панели с кнопками
-                panelUp.setBackground(ImageIO.read(new File(background1)));
-                panelLeft.setBackground(ImageIO.read(new File(background4)));
-                panelDown.setBackground(ImageIO.read(new File(background3)));
-
-                // Конфигурируем и наполняем панели
-                ChooseComponentsFuture3Right compUpNow3 = new ChooseComponentsFuture3Right("1", paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
-                componentsUp = compUpNow3.chooseComponentsFuture3();
-                row = compUpNow3.getRow();
-                createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
-                panelUp.setLocation(200, 0); // установка изначального местоположения панели
-
-                ChooseComponentsFuture3Right compLeftNow3 = new ChooseComponentsFuture3Right("4", paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
-                componentsLeft = compLeftNow3.chooseComponentsFuture3();
-                createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
-                panelLeft.setLocation(0, 100); // установка изначального местоположения панели
-
-                ChooseComponentsFuture3Right compDownNow3 = new ChooseComponentsFuture3Right("3", paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
-                componentsDown = compDownNow3.chooseComponentsFuture3();
-                createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
-                panelDown.setLocation(500, 400); // установка изначального местоположения панели
-
-                overlayPanel.add(panelUp);
-                overlayPanel.add(panelLeft);
-                overlayPanel.add(panelDown);
+            // Если выбрано 3 направления вверх, то:
+            if (typeOfDirection.equalsIgnoreCase("3Up")) {
+                config3DirectionFuture("WithoutForward", "WithoutLeft", "", "WithoutRight");
+            }
+            // Если выбрано 3 направления, то:
+            if (typeOfDirection.equalsIgnoreCase("3Right")) {
+                config3DirectionFuture("WithoutRight", "WithoutForward", "WithoutLeft", "");
+            }
+            // 3 Направления вниз
+            if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                config3DirectionFuture("", "WithoutRight", "WithoutForward", "WithoutLeft");
+            }
+            // 3 Направления влево
+            if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                config3DirectionFuture("WithoutLeft", "", "WithoutRight", "WithoutForward");
             }
         }
+    }
 
+    // Удаляем всех Action слушателей кнопок в таблицу
+    public void removeAllActionListenerFromButtons() {
+        for (int i = 0; i < buttonsUp.length; i++) {
+            // Удаляем слушатели кликов по кнопкам
+            for (int j = 0; j < buttonsUp[i].getActionListeners().length; j++) {
+                buttonsUp[i].removeActionListener(buttonsUp[i].getActionListeners()[j]);
+            }
+            // Если у кнопки есть всплывающее меню (popupMenu)
+            if (buttonsUp[i].getComponentPopupMenu() != null) {
+                // Удаляем слушателей с компонентов popupmenu, если он есть
+                for (int q = 0; q < buttonsUp[i].getComponentPopupMenu().getComponentCount(); q++) {
+                    JMenuItem item = (JMenuItem) buttonsUp[i].getComponentPopupMenu().getComponent(q);
+                    for (int r = 0; r < item.getActionListeners().length; r++) {
+                        item.removeActionListener(item.getActionListeners()[r]);
+                    }
+                }
+                // Удаляем слушателя отображения popupMenu
+                for (int t = 0; t < buttonsUp[i].getMouseListeners().length; t++) {
+                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[t]);
+                }
+            }
+        }
+        for (int i = 0; i < buttonsRight.length; i++) {
+            for (int j = 0; j < buttonsRight[i].getActionListeners().length; j++) {
+                buttonsRight[i].removeActionListener(buttonsRight[i].getActionListeners()[j]);
+            }
+            if (buttonsRight[i].getComponentPopupMenu() != null) {
+                // Удаляем слушателей с компонентов popupmenu, если он есть
+                for (int q = 0; q < buttonsRight[i].getComponentPopupMenu().getComponentCount(); q++) {
+                    JMenuItem item = (JMenuItem) buttonsRight[i].getComponentPopupMenu().getComponent(q);
+                    for (int r = 0; r < item.getActionListeners().length; r++) {
+                        item.removeActionListener(item.getActionListeners()[r]);
+                    }
+                }
+                // Удаляем слушателя отображения popupMenu
+                for (int t = 0; t < buttonsRight[i].getMouseListeners().length; t++) {
+                    buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[t]);
+                }
+            }
+        }
+        for (int i = 0; i < buttonsDown.length; i++) {
+            for (int j = 0; j < buttonsDown[i].getActionListeners().length; j++) {
+                buttonsDown[i].removeActionListener(buttonsDown[i].getActionListeners()[j]);
+            }
+            if (buttonsDown[i].getComponentPopupMenu() != null) {
+                // Удаляем слушателей с компонентов popupmenu, если он есть
+                for (int q = 0; q < buttonsDown[i].getComponentPopupMenu().getComponentCount(); q++) {
+                    JMenuItem item = (JMenuItem) buttonsDown[i].getComponentPopupMenu().getComponent(q);
+                    for (int r = 0; r < item.getActionListeners().length; r++) {
+                        item.removeActionListener(item.getActionListeners()[r]);
+                    }
+                }
+                // Удаляем слушателя отображения popupMenu
+                for (int t = 0; t < buttonsDown[i].getMouseListeners().length; t++) {
+                    buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[t]);
+                }
+            }
+        }
+        for (int i = 0; i < buttonsLeft.length; i++) {
+            for (int j = 0; j < buttonsLeft[i].getActionListeners().length; j++) {
+                buttonsLeft[i].removeActionListener(buttonsLeft[i].getActionListeners()[j]);
+            }
+            if (buttonsLeft[i].getComponentPopupMenu() != null) {
+                // Удаляем слушателей с компонентов popupmenu, если он есть
+                for (int q = 0; q < buttonsLeft[i].getComponentPopupMenu().getComponentCount(); q++) {
+                    JMenuItem item = (JMenuItem) buttonsLeft[i].getComponentPopupMenu().getComponent(q);
+                    for (int r = 0; r < item.getActionListeners().length; r++) {
+                        item.removeActionListener(item.getActionListeners()[r]);
+                    }
+                }
+                // Удаляем слушателя отображения popupMenu
+                for (int t = 0; t < buttonsLeft[i].getMouseListeners().length; t++) {
+                    buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[t]);
+                }
+            }
+        }
+    }
+
+    // Удаляем все Mouse слушатели с кнопок, оставляя базовый слушатель, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+    public void removeAllMouseListenerFromButtons() {
+        for (int i = 0; i < buttonsUp.length; i++) {
+            // Удаляем слушатели кликов по кнопкам
+            MouseListener mTemp = buttonsUp[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+            for (int j = 0; j < buttonsUp[i].getMouseListeners().length; j++) {
+                buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+            }
+            buttonsUp[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
+            // Если у кнопки есть всплывающее меню (popupMenu)
+            if (buttonsUp[i].getComponentPopupMenu() != null) {
+                // Удаляем слушателей с компонентов popupmenu, если он есть
+                for (int q = 0; q < buttonsUp[i].getComponentPopupMenu().getComponentCount(); q++) {
+                    JMenuItem item = (JMenuItem) buttonsUp[i].getComponentPopupMenu().getComponent(q);
+
+                }
+                // Удаляем слушателя отображения popupMenu
+                for (int t = 0; t < buttonsUp[i].getMouseListeners().length; t++) {
+                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[t]);
+                }
+            }
+        }
+//        for (int i = 0; i < buttonsRight.length; i++) {
+//            for (int j = 0; j < buttonsRight[i].getMouseListeners().length; j++) {
+//                buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[j]);
+//            }
+//            if (buttonsRight[i].getComponentPopupMenu() != null) {
+//                // Удаляем слушателей с компонентов popupmenu, если он есть
+//                for (int q = 0; q < buttonsRight[i].getComponentPopupMenu().getComponentCount(); q++) {
+//                    JMenuItem item = (JMenuItem) buttonsRight[i].getComponentPopupMenu().getComponent(q);
+//
+//                }
+//                // Удаляем слушателя отображения popupMenu
+//                for (int t = 0; t < buttonsRight[i].getMouseListeners().length; t++) {
+//                    buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[t]);
+//                }
+//            }
+//        }
+//        for (int i = 0; i < buttonsDown.length; i++) {
+//            for (int j = 0; j < buttonsDown[i].getMouseListeners().length; j++) {
+//                buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[j]);
+//            }
+//            if (buttonsDown[i].getComponentPopupMenu() != null) {
+//                // Удаляем слушателей с компонентов popupmenu, если он есть
+//                for (int q = 0; q < buttonsDown[i].getComponentPopupMenu().getComponentCount(); q++) {
+//                    JMenuItem item = (JMenuItem) buttonsDown[i].getComponentPopupMenu().getComponent(q);
+//
+//                }
+//                // Удаляем слушателя отображения popupMenu
+//                for (int t = 0; t < buttonsDown[i].getMouseListeners().length; t++) {
+//                    buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[t]);
+//                }
+//            }
+//        }
+//        for (int i = 0; i < buttonsLeft.length; i++) {
+//            for (int j = 0; j < buttonsLeft[i].getMouseListeners().length; j++) {
+//                buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[j]);
+//            }
+//            if (buttonsLeft[i].getComponentPopupMenu() != null) {
+//                // Удаляем слушателей с компонентов popupmenu, если он есть
+//                for (int q = 0; q < buttonsLeft[i].getComponentPopupMenu().getComponentCount(); q++) {
+//                    JMenuItem item = (JMenuItem) buttonsLeft[i].getComponentPopupMenu().getComponent(q);
+//
+//                }
+//                // Удаляем слушателя отображения popupMenu
+//                for (int t = 0; t < buttonsLeft[i].getMouseListeners().length; t++) {
+//                    buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[t]);
+//                }
+//            }
+//        }
+    }
+
+    // Выбор для кнопок, в какую таблицу сохранять данные
+    // НУЖНО ДВА РАЗА УДАЛЯТЬ ВСЕ ЛИСТЕНЕРЫ, ЧТОБЫ ОНИ УДАЛИЛИЛИСЬ (иначе почему то самый первый добавленный листенер не удаляется)
+    public void chooseTable(JBroTable table) {
+        removeAllActionListenerFromButtons(); // удаляем всех слушателей с кнопок
+        table.repaint(); // перерисовываем панель 
+        table.revalidate(); // переобъявляем таблицу?)
+        removeAllActionListenerFromButtons();
+        listenerToTable(table); // добавляем слушателей к кнопкам в указанную таблицу
+    }
+    
+// Добавляем слушателей кликов кнопок в указанную таблицу
+    public void listenerToTable(JBroTable table) {
         // Слушатель кликов по кнопке и занесение информации в таблицу
-        if (typeOfStatement.equalsIgnoreCase("Now")) {
+        if (kindOfStatement.equalsIgnoreCase("Now")) {
             // Создаем экземпляр popupMenu для Truck направления Up (1)
             bAroundUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundUpBus, table, typeOfStatement, "ФЕ Разворот 11", "Bus");
-            new popupButtonToTable(bAroundUpTruck, table, typeOfStatement, "ФЕ Разворот 11", "Truck");
+            new popupButtonToTable(bAroundUpBus, table, kindOfStatement, popupMenuAround11, "ФЕ Разворот 11", "Bus");
+            new popupButtonToTable(bAroundUpTruck, table, kindOfStatement, popupMenuAround11, "ФЕ Разворот 11", "Truck");
             bAroundUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bAroundUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
 
             bLeftUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftUpTruck, table, typeOfStatement, "ФЕ Налево 12", "Truck");
-            new popupButtonToTable(bLeftUpBus, table, typeOfStatement, "ФЕ Налево 12", "Bus");
+            new popupButtonToTable(bLeftUpTruck, table, kindOfStatement, popupMenuLeft12, "ФЕ Налево 12", "Truck");
+            new popupButtonToTable(bLeftUpBus, table, kindOfStatement, popupMenuLeft12, "ФЕ Налево 12", "Bus");
             bLeftUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bLeftUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
 
             bForwardUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardUpTruck, table, typeOfStatement, "ФЕ Прямо 1", "Truck");
-            new popupButtonToTable(bForwardUpBus, table, typeOfStatement, "ФЕ Прямо 1", "Bus");
+            new popupButtonToTable(bForwardUpTruck, table, kindOfStatement, popupMenuForward1, "ФЕ Прямо 1", "Truck");
+            new popupButtonToTable(bForwardUpBus, table, kindOfStatement, popupMenuForward1, "ФЕ Прямо 1", "Bus");
             bForwardUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bForwardUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
 
             bRightUpCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightUpTruck, table, typeOfStatement, "ФЕ Направо 14", "Truck");
-            new popupButtonToTable(bRightUpBus, table, typeOfStatement, "ФЕ Направо 14", "Bus");
+            new popupButtonToTable(bRightUpTruck, table, kindOfStatement, popupMenuRight14, "ФЕ Направо 14", "Truck");
+            new popupButtonToTable(bRightUpBus, table, kindOfStatement, popupMenuRight14, "ФЕ Направо 14", "Bus");
             bRightUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bRightUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
 
             // Создаем экземпляр popupMenu для Truck направления Left (4)
             bAroundLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundLeftBus, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
-            new popupButtonToTable(bAroundLeftTruck, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
+            new popupButtonToTable(bAroundLeftBus, table, kindOfStatement, popupMenuAround44, "ФЕ Разворот 44", "Bus");
+            new popupButtonToTable(bAroundLeftTruck, table, kindOfStatement, popupMenuAround44, "ФЕ Разворот 44", "Truck");
             bAroundLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 44")::onButtonClick);
             bAroundLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 44")::onButtonClick);
 
             bLeftLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftLeftTruck, table, typeOfStatement, "ФЕ Налево 41", "Truck");
-            new popupButtonToTable(bLeftLeftBus, table, typeOfStatement, "ФЕ Налево 41", "Bus");
+            new popupButtonToTable(bLeftLeftTruck, table, kindOfStatement, popupMenuLeft41, "ФЕ Налево 41", "Truck");
+            new popupButtonToTable(bLeftLeftBus, table, kindOfStatement, popupMenuLeft41, "ФЕ Налево 41", "Bus");
             bLeftLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 41")::onButtonClick);
             bLeftLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 41")::onButtonClick);
 
             bForwardLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardLeftTruck, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
-            new popupButtonToTable(bForwardLeftBus, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
+            new popupButtonToTable(bForwardLeftTruck, table, kindOfStatement, popupMenuForward4, "ФЕ Прямо 4", "Truck");
+            new popupButtonToTable(bForwardLeftBus, table, kindOfStatement, popupMenuForward4, "ФЕ Прямо 4", "Bus");
             bForwardLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 4")::onButtonClick);
             bForwardLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 4")::onButtonClick);
 
             bRightLeftCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightLeftTruck, table, typeOfStatement, "ФЕ Направо 43", "Truck");
-            new popupButtonToTable(bRightLeftBus, table, typeOfStatement, "ФЕ Направо 43", "Bus");
+            new popupButtonToTable(bRightLeftTruck, table, kindOfStatement, popupMenuRight43, "ФЕ Направо 43", "Truck");
+            new popupButtonToTable(bRightLeftBus, table, kindOfStatement, popupMenuRight43, "ФЕ Направо 43", "Bus");
             bRightLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 43")::onButtonClick);
             bRightLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 43")::onButtonClick);
 
             // Инициализируем слушателей кнопок. Также создаем экземпляр popupMenu для Truck направления Down (3)
             bAroundDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundDownBus, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
-            new popupButtonToTable(bAroundDownTruck, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
+            new popupButtonToTable(bAroundDownBus, table, kindOfStatement, popupMenuAround33, "ФЕ Разворот 33", "Bus");
+            new popupButtonToTable(bAroundDownTruck, table, kindOfStatement, popupMenuAround33, "ФЕ Разворот 33", "Truck");
             bAroundDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 33")::onButtonClick);
             bAroundDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 33")::onButtonClick);
 
             bLeftDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftDownTruck, table, typeOfStatement, "ФЕ Налево 34", "Truck");
-            new popupButtonToTable(bLeftDownBus, table, typeOfStatement, "ФЕ Налево 34", "Bus");
+            new popupButtonToTable(bLeftDownTruck, table, kindOfStatement, popupMenuLeft34, "ФЕ Налево 34", "Truck");
+            new popupButtonToTable(bLeftDownBus, table, kindOfStatement, popupMenuLeft34, "ФЕ Налево 34", "Bus");
             bLeftDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 34")::onButtonClick);
             bLeftDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 34")::onButtonClick);
 
             bForwardDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardDownTruck, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
-            new popupButtonToTable(bForwardDownBus, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
+            new popupButtonToTable(bForwardDownTruck, table, kindOfStatement, popupMenuForward3, "ФЕ Прямо 3", "Truck");
+            new popupButtonToTable(bForwardDownBus, table, kindOfStatement, popupMenuForward3, "ФЕ Прямо 3", "Bus");
             bForwardDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 3")::onButtonClick);
             bForwardDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 3")::onButtonClick);
 
             bRightDownCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightDownTruck, table, typeOfStatement, "ФЕ Направо 32", "Truck");
-            new popupButtonToTable(bRightDownBus, table, typeOfStatement, "ФЕ Направо 32", "Bus");
+            new popupButtonToTable(bRightDownTruck, table, kindOfStatement, popupMenuRight32, "ФЕ Направо 32", "Truck");
+            new popupButtonToTable(bRightDownBus, table, kindOfStatement, popupMenuRight32, "ФЕ Направо 32", "Bus");
             bRightDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 32")::onButtonClick);
             bRightDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 32")::onButtonClick);
 
             // Создаем экземпляр popupMenu для Truck направления Right (2)
             bAroundRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundRightBus, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
-            new popupButtonToTable(bAroundRightTruck, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
+            new popupButtonToTable(bAroundRightBus, table, kindOfStatement, popupMenuAround22, "ФЕ Разворот 22", "Bus");
+            new popupButtonToTable(bAroundRightTruck, table, kindOfStatement, popupMenuAround22, "ФЕ Разворот 22", "Truck");
             bAroundRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 22")::onButtonClick);
             bAroundRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 22")::onButtonClick);
 
             bLeftRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftRightBus, table, typeOfStatement, "ФЕ Налево 23", "Bus");
-            new popupButtonToTable(bLeftRightTruck, table, typeOfStatement, "ФЕ Налево 23", "Truck");
+            new popupButtonToTable(bLeftRightBus, table, kindOfStatement, popupMenuLeft23, "ФЕ Налево 23", "Bus");
+            new popupButtonToTable(bLeftRightTruck, table, kindOfStatement, popupMenuLeft23, "ФЕ Налево 23", "Truck");
             bLeftRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 23")::onButtonClick);
             bLeftRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 23")::onButtonClick);
 
             bForwardRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardRightBus, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
-            new popupButtonToTable(bForwardRightTruck, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
+            new popupButtonToTable(bForwardRightBus, table, kindOfStatement, popupMenuForward2, "ФЕ Прямо 2", "Bus");
+            new popupButtonToTable(bForwardRightTruck, table, kindOfStatement, popupMenuForward2, "ФЕ Прямо 2", "Truck");
             bForwardRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 2")::onButtonClick);
             bForwardRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 2")::onButtonClick);
 
             bRightRightCar.addActionListener(new OnButtonClick(table, "Легковой транспорт", "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightRightBus, table, typeOfStatement, "ФЕ Направо 21", "Bus");
-            new popupButtonToTable(bRightRightTruck, table, typeOfStatement, "ФЕ Направо 21", "Truck");
+            new popupButtonToTable(bRightRightBus, table, kindOfStatement, popupMenuRight21, "ФЕ Направо 21", "Bus");
+            new popupButtonToTable(bRightRightTruck, table, kindOfStatement, popupMenuRight21, "ФЕ Направо 21", "Truck");
             bRightRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 21")::onButtonClick);
             bRightRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 21")::onButtonClick);
         }
-        if (typeOfStatement.equalsIgnoreCase("Future")) {
+        if (kindOfStatement.equalsIgnoreCase("Future")) {
             // Создаем экземпляр popupMenu для Truck направления Up (1)
             bAroundUpCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 11")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundUpBus, table, typeOfStatement, "ФЕ Разворот 11", "Bus");
-            new popupButtonToTable(bAroundUpTruck, table, typeOfStatement, "ФЕ Разворот 11", "Truck");
-            new popupButtonToTable(bAroundUpTrainBus, table, typeOfStatement, "ФЕ Разворот 11", "TrainBus");
+            new popupButtonToTable(bAroundUpBus, table, kindOfStatement, popupMenuAround11, "ФЕ Разворот 11", "Bus");
+            new popupButtonToTable(bAroundUpTruck, table, kindOfStatement, popupMenuAround11, "ФЕ Разворот 11", "Truck");
+            new popupButtonToTable(bAroundUpTrainBus, table, kindOfStatement, popupMenuAround11, "ФЕ Разворот 11", "TrainBus");
             bAroundUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 11")::onButtonClick);
             bAroundUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 11")::onButtonClick);
 
             bLeftUpCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftUpTruck, table, typeOfStatement, "ФЕ Налево 12", "Truck");
-            new popupButtonToTable(bLeftUpBus, table, typeOfStatement, "ФЕ Налево 12", "Bus");
-            new popupButtonToTable(bLeftUpTrainBus, table, typeOfStatement, "ФЕ Налево 12", "TrainBus");
+            new popupButtonToTable(bLeftUpTruck, table, kindOfStatement, popupMenuLeft12, "ФЕ Налево 12", "Truck");
+            new popupButtonToTable(bLeftUpBus, table, kindOfStatement, popupMenuLeft12, "ФЕ Налево 12", "Bus");
+            new popupButtonToTable(bLeftUpTrainBus, table, kindOfStatement, popupMenuLeft12, "ФЕ Налево 12", "TrainBus");
             bLeftUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 12")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bLeftUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 12")::onButtonClick);
 
             bForwardUpCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardUpTruck, table, typeOfStatement, "ФЕ Прямо 1", "Truck");
-            new popupButtonToTable(bForwardUpBus, table, typeOfStatement, "ФЕ Прямо 1", "Bus");
-            new popupButtonToTable(bForwardUpTrainBus, table, typeOfStatement, "ФЕ Прямо 1", "TrainBus");
+            new popupButtonToTable(bForwardUpTruck, table, kindOfStatement, popupMenuForward1, "ФЕ Прямо 1", "Truck");
+            new popupButtonToTable(bForwardUpBus, table, kindOfStatement, popupMenuForward1, "ФЕ Прямо 1", "Bus");
+            new popupButtonToTable(bForwardUpTrainBus, table, kindOfStatement, popupMenuForward1, "ФЕ Прямо 1", "TrainBus");
             bForwardUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 1")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bForwardUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 1")::onButtonClick);
 
             bRightUpCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightUpTruck, table, typeOfStatement, "ФЕ Направо 14", "Truck");
-            new popupButtonToTable(bRightUpBus, table, typeOfStatement, "ФЕ Направо 14", "Bus");
-            new popupButtonToTable(bRightUpTrainBus, table, typeOfStatement, "ФЕ Направо 14", "TrainBus");
+            new popupButtonToTable(bRightUpTruck, table, kindOfStatement, popupMenuRight14, "ФЕ Направо 14", "Truck");
+            new popupButtonToTable(bRightUpBus, table, kindOfStatement, popupMenuRight14, "ФЕ Направо 14", "Bus");
+            new popupButtonToTable(bRightUpTrainBus, table, kindOfStatement, popupMenuRight14, "ФЕ Направо 14", "TrainBus");
             bRightUpTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 14")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
             bRightUpTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 14")::onButtonClick);
 
             // Создаем экземпляр popupMenu для Truck направления Left (4)
             bAroundLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 44")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundLeftBus, table, typeOfStatement, "ФЕ Разворот 44", "Bus");
-            new popupButtonToTable(bAroundLeftTruck, table, typeOfStatement, "ФЕ Разворот 44", "Truck");
-            new popupButtonToTable(bAroundLeftTrainBus, table, typeOfStatement, "ФЕ Разворот 44", "TrainBus");
+            new popupButtonToTable(bAroundLeftBus, table, kindOfStatement, popupMenuAround44, "ФЕ Разворот 44", "Bus");
+            new popupButtonToTable(bAroundLeftTruck, table, kindOfStatement, popupMenuAround44, "ФЕ Разворот 44", "Truck");
+            new popupButtonToTable(bAroundLeftTrainBus, table, kindOfStatement, popupMenuAround44, "ФЕ Разворот 44", "TrainBus");
             bAroundLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 44")::onButtonClick);
             bAroundLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 44")::onButtonClick);
 
             bLeftLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 41")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftLeftTruck, table, typeOfStatement, "ФЕ Налево 41", "Truck");
-            new popupButtonToTable(bLeftLeftBus, table, typeOfStatement, "ФЕ Налево 41", "Bus");
-            new popupButtonToTable(bLeftLeftTrainBus, table, typeOfStatement, "ФЕ Налево 41", "TrainBus");
+            new popupButtonToTable(bLeftLeftTruck, table, kindOfStatement, popupMenuLeft41, "ФЕ Налево 41", "Truck");
+            new popupButtonToTable(bLeftLeftBus, table, kindOfStatement, popupMenuLeft41, "ФЕ Налево 41", "Bus");
+            new popupButtonToTable(bLeftLeftTrainBus, table, kindOfStatement, popupMenuLeft41, "ФЕ Налево 41", "TrainBus");
             bLeftLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 41")::onButtonClick);
             bLeftLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 41")::onButtonClick);
 
             bForwardLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 4")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardLeftTruck, table, typeOfStatement, "ФЕ Прямо 4", "Truck");
-            new popupButtonToTable(bForwardLeftBus, table, typeOfStatement, "ФЕ Прямо 4", "Bus");
-            new popupButtonToTable(bForwardLeftTrainBus, table, typeOfStatement, "ФЕ Прямо 4", "TrainBus");
+            new popupButtonToTable(bForwardLeftTruck, table, kindOfStatement, popupMenuForward4, "ФЕ Прямо 4", "Truck");
+            new popupButtonToTable(bForwardLeftBus, table, kindOfStatement, popupMenuForward4, "ФЕ Прямо 4", "Bus");
+            new popupButtonToTable(bForwardLeftTrainBus, table, kindOfStatement, popupMenuForward4, "ФЕ Прямо 4", "TrainBus");
             bForwardLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 4")::onButtonClick);
             bForwardLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 4")::onButtonClick);
 
             bRightLeftCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 43")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightLeftTruck, table, typeOfStatement, "ФЕ Направо 43", "Truck");
-            new popupButtonToTable(bRightLeftBus, table, typeOfStatement, "ФЕ Направо 43", "Bus");
-            new popupButtonToTable(bRightLeftTrainBus, table, typeOfStatement, "ФЕ Направо 43", "TrainBus");
+            new popupButtonToTable(bRightLeftTruck, table, kindOfStatement, popupMenuRight43, "ФЕ Направо 43", "Truck");
+            new popupButtonToTable(bRightLeftBus, table, kindOfStatement, popupMenuRight43, "ФЕ Направо 43", "Bus");
+            new popupButtonToTable(bRightLeftTrainBus, table, kindOfStatement, popupMenuRight43, "ФЕ Направо 43", "TrainBus");
             bRightLeftTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 43")::onButtonClick);
             bRightLeftTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 43")::onButtonClick);
 
             // Инициализируем слушателей кнопок. Также создаем экземпляр popupMenu для Truck направления Down (3)
             bAroundDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 33")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundDownBus, table, typeOfStatement, "ФЕ Разворот 33", "Bus");
-            new popupButtonToTable(bAroundDownTruck, table, typeOfStatement, "ФЕ Разворот 33", "Truck");
-            new popupButtonToTable(bAroundDownTrainBus, table, typeOfStatement, "ФЕ Разворот 33", "TrainBus");
+            new popupButtonToTable(bAroundDownBus, table, kindOfStatement, popupMenuAround33, "ФЕ Разворот 33", "Bus");
+            new popupButtonToTable(bAroundDownTruck, table, kindOfStatement, popupMenuAround33, "ФЕ Разворот 33", "Truck");
+            new popupButtonToTable(bAroundDownTrainBus, table, kindOfStatement, popupMenuAround33, "ФЕ Разворот 33", "TrainBus");
             bAroundDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 33")::onButtonClick);
             bAroundDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 33")::onButtonClick);
 
             bLeftDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 34")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftDownTruck, table, typeOfStatement, "ФЕ Налево 34", "Truck");
-            new popupButtonToTable(bLeftDownBus, table, typeOfStatement, "ФЕ Налево 34", "Bus");
-            new popupButtonToTable(bLeftDownTrainBus, table, typeOfStatement, "ФЕ Налево 34", "TrainBus");
+            new popupButtonToTable(bLeftDownTruck, table, kindOfStatement, popupMenuLeft34, "ФЕ Налево 34", "Truck");
+            new popupButtonToTable(bLeftDownBus, table, kindOfStatement, popupMenuLeft34, "ФЕ Налево 34", "Bus");
+            new popupButtonToTable(bLeftDownTrainBus, table, kindOfStatement, popupMenuLeft34, "ФЕ Налево 34", "TrainBus");
             bLeftDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 34")::onButtonClick);
             bLeftDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 34")::onButtonClick);
 
             bForwardDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 3")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardDownTruck, table, typeOfStatement, "ФЕ Прямо 3", "Truck");
-            new popupButtonToTable(bForwardDownBus, table, typeOfStatement, "ФЕ Прямо 3", "Bus");
-            new popupButtonToTable(bForwardDownTrainBus, table, typeOfStatement, "ФЕ Прямо 3", "TrainBus");
+            new popupButtonToTable(bForwardDownTruck, table, kindOfStatement, popupMenuForward3, "ФЕ Прямо 3", "Truck");
+            new popupButtonToTable(bForwardDownBus, table, kindOfStatement, popupMenuForward3, "ФЕ Прямо 3", "Bus");
+            new popupButtonToTable(bForwardDownTrainBus, table, kindOfStatement, popupMenuForward3, "ФЕ Прямо 3", "TrainBus");
             bForwardDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 3")::onButtonClick);
             bForwardDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 3")::onButtonClick);
 
             bRightDownCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 32")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightDownTruck, table, typeOfStatement, "ФЕ Направо 32", "Truck");
-            new popupButtonToTable(bRightDownBus, table, typeOfStatement, "ФЕ Направо 32", "Bus");
-            new popupButtonToTable(bRightDownTrainBus, table, typeOfStatement, "ФЕ Направо 32", "TrainBus");
+            new popupButtonToTable(bRightDownTruck, table, kindOfStatement, popupMenuRight32, "ФЕ Направо 32", "Truck");
+            new popupButtonToTable(bRightDownBus, table, kindOfStatement, popupMenuRight32, "ФЕ Направо 32", "Bus");
+            new popupButtonToTable(bRightDownTrainBus, table, kindOfStatement, popupMenuRight32, "ФЕ Направо 32", "TrainBus");
             bRightDownTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 32")::onButtonClick);
             bRightDownTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 32")::onButtonClick);
 
             // Создаем экземпляр popupMenu для Truck направления Right (2)
             bAroundRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Разворот 22")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bAroundRightBus, table, typeOfStatement, "ФЕ Разворот 22", "Bus");
-            new popupButtonToTable(bAroundRightTruck, table, typeOfStatement, "ФЕ Разворот 22", "Truck");
-            new popupButtonToTable(bAroundRightTrainBus, table, typeOfStatement, "ФЕ Разворот 22", "TrainBus");
+            new popupButtonToTable(bAroundRightBus, table, kindOfStatement, popupMenuAround22, "ФЕ Разворот 22", "Bus");
+            new popupButtonToTable(bAroundRightTruck, table, kindOfStatement, popupMenuAround22, "ФЕ Разворот 22", "Truck");
+            new popupButtonToTable(bAroundRightTrainBus, table, kindOfStatement, popupMenuAround22, "ФЕ Разворот 22", "TrainBus");
             bAroundRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Разворот 22")::onButtonClick);
             bAroundRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Разворот 22")::onButtonClick);
 
             bLeftRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Налево 23")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bLeftRightBus, table, typeOfStatement, "ФЕ Налево 23", "Bus");
-            new popupButtonToTable(bLeftRightTruck, table, typeOfStatement, "ФЕ Налево 23", "Truck");
-            new popupButtonToTable(bLeftRightTrainBus, table, typeOfStatement, "ФЕ Налево 23", "TrainBus");
+            new popupButtonToTable(bLeftRightBus, table, kindOfStatement, popupMenuLeft23, "ФЕ Налево 23", "Bus");
+            new popupButtonToTable(bLeftRightTruck, table, kindOfStatement, popupMenuLeft23, "ФЕ Налево 23", "Truck");
+            new popupButtonToTable(bLeftRightTrainBus, table, kindOfStatement, popupMenuLeft23, "ФЕ Налево 23", "TrainBus");
             bLeftRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Налево 23")::onButtonClick);
             bLeftRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Налево 23")::onButtonClick);
 
             bForwardRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Прямо 2")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bForwardRightBus, table, typeOfStatement, "ФЕ Прямо 2", "Bus");
-            new popupButtonToTable(bForwardRightTruck, table, typeOfStatement, "ФЕ Прямо 2", "Truck");
-            new popupButtonToTable(bForwardRightTrainBus, table, typeOfStatement, "ФЕ Прямо 2", "TrainBus");
+            new popupButtonToTable(bForwardRightBus, table, kindOfStatement, popupMenuForward2, "ФЕ Прямо 2", "Bus");
+            new popupButtonToTable(bForwardRightTruck, table, kindOfStatement, popupMenuForward2, "ФЕ Прямо 2", "Truck");
+            new popupButtonToTable(bForwardRightTrainBus, table, kindOfStatement, popupMenuForward2, "ФЕ Прямо 2", "TrainBus");
             bForwardRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Прямо 2")::onButtonClick);
             bForwardRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Прямо 2")::onButtonClick);
 
             bRightRightCar.addActionListener(new OnButtonClick(table, "Легковые, фургоны", "ФЕ Направо 21")::onButtonClick); // Добавляем к кнопке Листенер. Ищем листенер в переменной bClick в её методе onButtonClick 
-            new popupButtonToTable(bRightRightBus, table, typeOfStatement, "ФЕ Направо 21", "Bus");
-            new popupButtonToTable(bRightRightTruck, table, typeOfStatement, "ФЕ Направо 21", "Truck");
-            new popupButtonToTable(bRightRightTrainBus, table, typeOfStatement, "ФЕ Направо 21", "TrainBus");
+            new popupButtonToTable(bRightRightBus, table, kindOfStatement, popupMenuRight21, "ФЕ Направо 21", "Bus");
+            new popupButtonToTable(bRightRightTruck, table, kindOfStatement, popupMenuRight21, "ФЕ Направо 21", "Truck");
+            new popupButtonToTable(bRightRightTrainBus, table, kindOfStatement, popupMenuRight21, "ФЕ Направо 21", "TrainBus");
             bRightRightTrolleyBus.addActionListener(new OnButtonClick(table, "Троллейбусы", "ФЕ Направо 21")::onButtonClick);
             bRightRightTram.addActionListener(new OnButtonClick(table, "Трамвай", "ФЕ Направо 21")::onButtonClick);
         }
@@ -860,9 +955,154 @@ public class Overlay extends JWindow {
             }
         }
         return panel; // возвращаем панель с добавленными элементами
+
     }
 
-    // Для абстрактной кнопки устанавливается размер и убирается отображение стандартных качеств кнопки
+    // Слушатель мыши для кнопок с действиями с видео (динамическая установка паузы и плея)
+    private class ClickOnButtonWithEMP extends MouseAdapter {
+
+        private JButton button;
+
+        public ClickOnButtonWithEMP(JButton button) {
+            this.button = button;
+        }
+
+        boolean switchBoolean = false; // логическая единица, чтобы уведомлять, что при отпускании кнопки нужно включить видео
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                button.setContentAreaFilled(true); // включение закраски кнопки в нажатом состоянии
+                // Если видео включено, то:
+                if (emp.mediaPlayer().status().isPlaying() == true) {
+                    emp.mediaPlayer().controls().pause(); // ставим на паузу видео
+                    switchBoolean = true; // переключаем логическую единицу, чтобы уведомить, что при отпускании кнопки нужно включить видео
+                }
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                button.setContentAreaFilled(false); // отключение закраски кнопки в нажатом состоянии
+                // Если при отпускании кнопки нужно включить видео, то включаем его
+                if (switchBoolean) {
+                    emp.mediaPlayer().controls().start();
+                    switchBoolean = false;
+                }
+            }
+        }
+
+        // Оба метода: для обновления цвета и прозрачности (отрисовки в общем) фона кнопки!
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            super.mouseEntered(e);
+            overlayPanel.repaint();
+            repaint();
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            super.mouseExited(e);
+            overlayPanel.repaint();
+            repaint();
+        }
+    }
+
+// Слушатель мыши для кнопок без действий с видео
+    private class ClickOnButtonWithoutEMP extends MouseAdapter {
+
+        private JButton button;
+
+        public ClickOnButtonWithoutEMP(JButton button) {
+            this.button = button;
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                button.setContentAreaFilled(true); // включение закраски кнопки в нажатом состоянии
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                button.setContentAreaFilled(false); // отключение закраски кнопки в нажатом состоянии
+            }
+        }
+
+        // Оба метода: для обновления цвета и прозрачности (отрисовки в общем) фона кнопки!
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            super.mouseEntered(e);
+            overlayPanel.repaint();
+            repaint();
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            super.mouseExited(e);
+            overlayPanel.repaint();
+            repaint();
+        }
+    }
+
+    // Добавляем слушателя мыши для кнопок без действий с видео
+    public void addMouseListenerWithoutEMP() {
+        // Удаляем лишние слушатели мыши
+        removeAllMouseListenerFromButtons();
+        // Добавляем слушателей мыши
+        for (int i = 0; i < buttonsUp.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithoutEMP clickWithoutEMP = new ClickOnButtonWithoutEMP(buttonsUp[i]);
+            buttonsUp[i].addMouseListener(clickWithoutEMP);
+        }
+        for (int i = 0; i < buttonsRight.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithoutEMP clickWithoutEMP = new ClickOnButtonWithoutEMP(buttonsRight[i]);
+            buttonsRight[i].addMouseListener(clickWithoutEMP);
+        }
+        for (int i = 0; i < buttonsDown.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithoutEMP clickWithoutEMP = new ClickOnButtonWithoutEMP(buttonsDown[i]);
+            buttonsDown[i].addMouseListener(clickWithoutEMP);
+        }
+        for (int i = 0; i < buttonsLeft.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithoutEMP clickWithoutEMP = new ClickOnButtonWithoutEMP(buttonsLeft[i]);
+            buttonsLeft[i].addMouseListener(clickWithoutEMP);
+        }
+    }
+    
+    // Добавляем слушателя мыши для кнопок с действиями с видео (динамическая установка паузы и плея)
+    public void addMouseListenerWithEMP() {
+        // Удаляем лишние слушатели мыши
+        removeAllMouseListenerFromButtons();
+        // Добавляем слушателей мыши
+        for (int i = 0; i < buttonsUp.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsUp[i]);
+            buttonsUp[i].addMouseListener(clickWithEMP);
+        }
+        for (int i = 0; i < buttonsRight.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsRight[i]);
+            buttonsRight[i].addMouseListener(clickWithEMP);
+        }
+        for (int i = 0; i < buttonsDown.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsDown[i]);
+            buttonsDown[i].addMouseListener(clickWithEMP);
+        }
+        for (int i = 0; i < buttonsLeft.length; i++) {
+            // Устанавливаем слушатель мыши на кнопки
+            ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsLeft[i]);
+            buttonsLeft[i].addMouseListener(clickWithEMP);
+        }
+    }
+
+// Для абстрактной кнопки устанавливается размер и убирается отображение стандартных качеств кнопки
     private JButton createButtonWithIcon(JButton button) {
         button.setBorderPainted(false); // отключение прорисовки рамки
         button.setFocusPainted(false); // отключение прорисовки специального контура, проявляющегося, если кнопка обладает фокусом ввода
@@ -870,36 +1110,9 @@ public class Overlay extends JWindow {
 
         button.setBackground(new Color(130, 130, 130, 130)); // устанавливаем цвет фона кнопки
 
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    button.setContentAreaFilled(true); // включение закраски кнопки в нажатом состоянии
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    button.setContentAreaFilled(false); // отключение закраски кнопки в нажатом состоянии
-                }
-            }
-
-            // Оба метода: для обновления цвета и прозрачности (отрисовки в общем) фона кнопки!
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                super.mouseEntered(e);
-                overlayPanel.repaint();
-                repaint();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                super.mouseExited(e);
-                overlayPanel.repaint();
-                repaint();
-            }
-        });
+        // Устанавливаем слушатель мыши на кнопки (стандартно не используем установку паузы для нажатия)
+        ClickOnButtonWithoutEMP clickWithoutEMP = new ClickOnButtonWithoutEMP(button);
+        button.addMouseListener(clickWithoutEMP);
 
         button.setPreferredSize(new Dimension(button.getIcon().getIconWidth() + 2, button.getIcon().getIconHeight() + 2)); // setPreferredSize - если в панели; setSize - если в окне сразу
         button.setMinimumSize(new Dimension(button.getIcon().getIconWidth() + 2, button.getIcon().getIconHeight() + 2)); // setPreferredSize - если в панели; setSize - если в окне сразу
@@ -914,6 +1127,212 @@ public class Overlay extends JWindow {
         for (JButton button : buttons) {
             createButtonWithIcon(button);
         }
+    }
+
+    // Конфигурируем панель кнопок для 3 направлений, указывая для какого направление 
+    // какие малые (налево, прямо, направо) направления не учитывать. Указываем это фразой "Without.." ("WithoutForward" например)
+    // Если этого большого направления нет вообще, то в качестве ID пишем пустую строку ""
+    private void config3DirectionNow(String UpID, String RightID, String DownID, String LeftID) {
+        int numOfDir = 3;
+        // Конфигурируем столбцы и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+
+        try {
+            // Устанавливаем картинку на фон панели с кнопками
+            panelUp.setBackground(ImageIO.read(new File(background1)));
+            panelRight.setBackground(ImageIO.read(new File(background2)));
+            panelDown.setBackground(ImageIO.read(new File(background3)));
+            panelLeft.setBackground(ImageIO.read(new File(background4)));
+        } catch (IOException ex) {
+            Logger.getLogger(Overlay.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
+        // Конфигурируем и наполняем панели. Затем добавляем панель на overlay
+        if (!UpID.isEmpty()) {
+            overlayPanel.add(panelUp);
+            ChooseComponentsNow3 compUpNow3 = new ChooseComponentsNow3(UpID, paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            componentsUp = compUpNow3.chooseCompNow3();
+            row = compUpNow3.getRow();
+            createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
+            panelUp.setLocation(200, 0); // установка изначального местоположения панели
+        }
+
+        if (!RightID.isEmpty()) {
+            overlayPanel.add(panelRight);
+            ChooseComponentsNow3 compRightNow3 = new ChooseComponentsNow3(RightID, paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrolleybus, bRightTram);
+            componentsRight = compRightNow3.chooseCompNow3();
+            createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+            panelRight.setLocation(650, 0); // установка изначального местоположения панели
+        }
+
+        if (!DownID.isEmpty()) {
+            overlayPanel.add(panelDown);
+            ChooseComponentsNow3 compDownNow3 = new ChooseComponentsNow3(DownID, paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrolleybus, bDownTram);
+            componentsDown = compDownNow3.chooseCompNow3();
+            createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
+            panelDown.setLocation(500, 400); // установка изначального местоположения панели
+        }
+
+        if (!LeftID.isEmpty()) {
+            overlayPanel.add(panelLeft);
+            ChooseComponentsNow3 compLeftNow3 = new ChooseComponentsNow3(LeftID, paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrolleybus, bLeftTram);
+            componentsLeft = compLeftNow3.chooseCompNow3();
+            createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+            panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+        }
+
+    }
+
+    private void config4DirectionNow() {
+        int numOfDir = 4;
+        // Конфигурируем 4 столбца и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        try {
+            panelUp.setBackground(ImageIO.read(new File(background1)));
+            panelLeft.setBackground(ImageIO.read(new File(background4)));
+            panelDown.setBackground(ImageIO.read(new File(background3)));
+            panelRight.setBackground(ImageIO.read(new File(background2)));
+        } catch (IOException ex) {
+            Logger.getLogger(Overlay.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Конфигурируем и наполняем панели
+        ChooseComponentsNow4 compUpNow4 = new ChooseComponentsNow4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+        componentsUp = compUpNow4.chooseComponentsNow4();
+        row = compUpNow4.getRow();
+        createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
+        panelUp.setLocation(200, 0); // установка изначального местоположения панели
+
+        ChooseComponentsNow4 compLeftNow4 = new ChooseComponentsNow4(paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrolleybus, bLeftTram);
+        componentsLeft = compLeftNow4.chooseComponentsNow4();
+        createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+        panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+
+        ChooseComponentsNow4 compDownNow4 = new ChooseComponentsNow4(paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrolleybus, bDownTram);
+        componentsDown = compDownNow4.chooseComponentsNow4();
+        createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
+        panelDown.setLocation(500, 400); // установка изначального местоположения панели
+
+        ChooseComponentsNow4 compRightNow4 = new ChooseComponentsNow4(paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrolleybus, bRightTram);
+        componentsRight = compRightNow4.chooseComponentsNow4();
+        createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+        panelRight.setLocation(650, 0); // установка изначального местоположения панели
+
+        overlayPanel.add(panelUp);
+        overlayPanel.add(panelLeft);
+        overlayPanel.add(panelDown);
+        overlayPanel.add(panelRight);
+    }
+
+    private void config4DirectionFuture() {
+        int numOfDir = 4;
+        // Конфигурируем 4 столбца и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        try {
+            panelUp.setBackground(ImageIO.read(new File(background1)));
+            panelLeft.setBackground(ImageIO.read(new File(background4)));
+            panelDown.setBackground(ImageIO.read(new File(background3)));
+            panelRight.setBackground(ImageIO.read(new File(background2)));
+        } catch (IOException ex) {
+            Logger.getLogger(Overlay.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Конфигурируем и наполняем панели
+        ChooseComponentsFuture4 compUpFuture4 = new ChooseComponentsFuture4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+        componentsUp = compUpFuture4.chooseComponentsFuture4();
+        row = compUpFuture4.getRow();
+        createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
+        panelUp.setLocation(200, 0); // установка изначального местоположения панели
+
+        ChooseComponentsFuture4 compLeftFuture4 = new ChooseComponentsFuture4(paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
+        componentsLeft = compLeftFuture4.chooseComponentsFuture4();
+        createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+        panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+
+        ChooseComponentsFuture4 compDownFuture4 = new ChooseComponentsFuture4(paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
+        componentsDown = compDownFuture4.chooseComponentsFuture4();
+        createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
+        panelDown.setLocation(500, 400); // установка изначального местоположения панели
+
+        ChooseComponentsFuture4 compRightFuture4 = new ChooseComponentsFuture4(paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
+        componentsRight = compRightFuture4.chooseComponentsFuture4();
+        createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+        panelRight.setLocation(650, 0); // установка изначального местоположения панели
+
+        overlayPanel.add(panelUp);
+        overlayPanel.add(panelLeft);
+        overlayPanel.add(panelDown);
+        overlayPanel.add(panelRight);
+    }
+
+    private void config3DirectionFuture(String UpID, String RightID, String DownID, String LeftID) {
+        int numOfDir = 3;
+        // Конфигурируем столбцы и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        try {
+            panelUp.setBackground(ImageIO.read(new File(background1)));
+            panelLeft.setBackground(ImageIO.read(new File(background4)));
+            panelDown.setBackground(ImageIO.read(new File(background3)));
+            panelRight.setBackground(ImageIO.read(new File(background2)));
+        } catch (IOException ex) {
+            Logger.getLogger(Overlay.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
+        // Конфигурируем и наполняем панели. Затем добавляем панель на overlay
+        if (!UpID.isEmpty()) {
+            ChooseComponentsFuture3 compUpFuture3 = new ChooseComponentsFuture3(UpID, paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            componentsUp = compUpFuture3.chooseComponentsFuture3();
+            row = compUpFuture3.getRow();
+            createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
+            panelUp.setLocation(200, 0); // установка изначального местоположения панели
+            overlayPanel.add(panelUp);
+        }
+        if (!RightID.isEmpty()) {
+            ChooseComponentsFuture3 compRightFuture3 = new ChooseComponentsFuture3(RightID, paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
+            componentsRight = compRightFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+            panelRight.setLocation(650, 0); // установка изначального местоположения панели
+            overlayPanel.add(panelRight);
+        }
+        if (!DownID.isEmpty()) {
+            ChooseComponentsFuture3 compDownFuture3 = new ChooseComponentsFuture3(DownID, paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
+            componentsDown = compDownFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
+            panelDown.setLocation(500, 400); // установка изначального местоположения панели
+            overlayPanel.add(panelDown);
+        }
+        if (!LeftID.isEmpty()) {
+            ChooseComponentsFuture3 compLeftFuture3 = new ChooseComponentsFuture3(LeftID, paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
+            componentsLeft = compLeftFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+            panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+            overlayPanel.add(panelLeft);
+        }
+
     }
 
     public JLabel[] getLabelsUp() {
@@ -948,10 +1367,6 @@ public class Overlay extends JWindow {
         return buttonsRight;
     }
 
-    public JButton getbLeftUp() {
-        return bLeftUpCar;
-    }
-
     public JPanel getPanelUp() {
         return panelUp;
     }
@@ -975,4 +1390,5 @@ public class Overlay extends JWindow {
     public JButton getbLeftUpCar() {
         return bLeftUpCar;
     }
+
 }

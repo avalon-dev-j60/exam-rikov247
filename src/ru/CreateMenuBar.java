@@ -19,13 +19,14 @@ public class CreateMenuBar {
     private JMenu fileMenu = new JMenu("Файл");
     private JMenu editMenu = new JMenu("Правка");
     private JMenu viewMenu = new JMenu("Вид");
+    private JMenu toolsMenu = new JMenu("Инструменты");
     private JMenu helpMenu = new JMenu("Помощь");
 
     public JMenuBar CreateBar() {
-
         mbar.add(createFileMenu());
 //        mbar.add(createEditMenu());
         mbar.add(createViewMenu());
+        mbar.add(createToolsMenu());
         mbar.add(createHelpMenu());
 
         return mbar;
@@ -33,17 +34,20 @@ public class CreateMenuBar {
 
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
     private ImageIcon fileItem2Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Open16.gif"));
+    private JMenuItem fileItem3 = new JMenuItem("Создать проект");
+    private ImageIcon fileItem3Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Add16.gif"));
     private JMenuItem fileItem4 = new JMenuItem("Сохранить");
     private ImageIcon fileItem4Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
     private JMenuItem fileItem5 = new JMenuItem("Сохранить как..");
     private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/SaveAs16.gif"));
     private JMenuItem fileItem6 = new JMenuItem("Открыть видео");
     private ImageIcon fileItem6Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
-    private JMenuItem fileItem7 = new JMenuItem("Выход");
 
     private JMenu createFileMenu() {
         fileMenu.add(fileItem2);
         fileItem2.setIcon(fileItem2Icon); // устанавливаем иконку
+        fileMenu.add(fileItem3);
+        fileItem3.setIcon(fileItem3Icon); // устанавливаем иконку
         fileMenu.add(fileItem4);
         fileItem4.setIcon(fileItem4Icon); // устанавливаем иконку
         fileItem4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK)); // установка клавишного сочетания
@@ -55,8 +59,6 @@ public class CreateMenuBar {
         fileMenu.add(fileItem6);
         fileItem6.setIcon(fileItem6Icon); // устанавливаем иконку
         fileItem6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        fileMenu.addSeparator(); // разделитель
-        fileMenu.add(fileItem7);
 
         return fileMenu;
     }
@@ -95,6 +97,18 @@ public class CreateMenuBar {
         viewMenu.add(viewItem3);
 
         return viewMenu;
+    }
+    
+    private JMenuItem toolsItem1 = new JMenuItem("Настройки...");
+    
+    private JMenu createToolsMenu() {
+//        viewMenu1.add(viewItem1);
+//        viewMenu1.add(viewItem2);
+//        viewMenu.add(viewMenu1);
+//        viewMenu.addSeparator(); // разделитель
+        toolsMenu.add(toolsItem1);
+
+        return toolsMenu;
     }
 
     private JMenuItem helpItem1 = new JMenuItem("Горячие клавиши");
@@ -151,7 +165,7 @@ public class CreateMenuBar {
                             "Тестовая версия приложения.",
                             "По возникающим проблемам, вопросам или пожеланиям просьба писать по адресу:",
                             "rikov247@gmail.com"
-                            },
+                        },
                         "О нас", INFORMATION_MESSAGE);
             }
         });
@@ -182,6 +196,10 @@ public class CreateMenuBar {
     public JMenuItem getFileItem2() {
         return fileItem2;
     }
+    
+    public JMenuItem getFileItem3() {
+        return fileItem3;
+    }
 
     public JMenuItem getFileItem4() {
         return fileItem4;
@@ -193,10 +211,6 @@ public class CreateMenuBar {
 
     public JMenuItem getFileItem6() {
         return fileItem6;
-    }
-
-    public JMenuItem getFileItem7() {
-        return fileItem7;
     }
 
     public JMenuItem getEditItem1() {
@@ -237,6 +251,10 @@ public class CreateMenuBar {
 
     public JMenuItem getHelpItem1() {
         return helpItem1;
+    }
+
+    public JMenuItem getToolsItem1() {
+        return toolsItem1;
     }
 
 }

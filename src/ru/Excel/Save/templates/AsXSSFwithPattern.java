@@ -17,15 +17,15 @@ public class AsXSSFwithPattern {
         String patternPath = AsHSSFwithPattern.class.getResource("/resources/patterns/" + pattern + ".xlsx").getPath();
         FileInputStream inputStream = new FileInputStream(new File(patternPath));
 
-        // Создание файла (книги) для всех новых (xlsx, docx, pptx) файлов Microsoft Office
-        XSSFWorkbook workBook = new XSSFWorkbook(inputStream);
-
         // Создаем файл и открываем выходной поток в этот файл
-        File file = new File(filename);
-        FileOutputStream out = new FileOutputStream(file);
-        workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
-        // закрываем поток и книгу
-        out.close();
-        workBook.close();
+        // Создание файла (книги) для всех новых (xlsx, docx, pptx) файлов Microsoft Office
+        // Try с ресурсами автоматически закрывает поток и книгу
+        try (XSSFWorkbook workBook = new XSSFWorkbook(inputStream)) {
+            // Создаем файл и открываем выходной поток в этот файл
+            File file = new File(filename);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
+            }
+        }
     }
 }

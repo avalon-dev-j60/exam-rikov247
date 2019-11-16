@@ -1,5 +1,7 @@
-package ru.jtable.modelListener.cartograma;
+package ru.jtable.modelListener.cartogram;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.TableModel;
 import org.quinto.swing.table.model.ModelField;
 import org.quinto.swing.table.view.JBroTable;
@@ -8,21 +10,23 @@ import ru.cartogram.CreateCartogram;
 /**
  * Подсчет суммы внутри одного направления по видам движения ФЕ. Графа ИТОГО.
  */
-public class CountingOneDirection {
+public class CountingOneDirectionFuture {
 
     // Переменные для хранения номера строки для конкретного вида транспорта
     private int rowCar;
     private int rowTruck1, rowTruck2, rowTruck3, rowTruck4, rowTruck5;
-    private int rowBus1, rowBus2, rowBus3;
-    private int[] rowTruckNow = {rowTruck1, rowTruck2, rowTruck3, rowTruck4, rowTruck5};
-    private int[] rowBusNow = {rowBus1, rowBus2, rowBus3};
+    private int rowBus1, rowBus2, rowBus3, rowBus4, rowBus5;
+    private int rowBusTrain1, rowBusTrain2, rowBusTrain3, rowBusTrain4, rowBusTrain5, rowBusTrain6;
     private int rowTrolleyBus;
     private int rowTram;
+    private int[] rowTruckFuture = {rowTruck1, rowTruck2, rowTruck3, rowTruck4, rowTruck5};
+    private int[] rowBusFuture = {rowBus1, rowBus2, rowBus3, rowBus4, rowBus5};
+    private int[] rowBusTrainFuture = {rowBusTrain1, rowBusTrain2, rowBusTrain3, rowBusTrain4, rowBusTrain5, rowBusTrain6};
 
     // ФЕ
-    private int columnAroundFE, columnLeftFE, columnForwardFE, columnRightFE, columnTotalFE;
+    private int columnAroundFE = -1, columnLeftFE = -1, columnForwardFE = -1, columnRightFE = -1, columnTotalFE = -1;
     // ПЕ
-    private int columnAroundPE, columnLeftPE, columnForwardPE, columnRightPE, columnTotalPE;
+    private int columnAroundPE = -1, columnLeftPE = -1, columnForwardPE = -1, columnRightPE = -1, columnTotalPE = -1;
 
     private String idName = ""; // ID переданного направления для подсчета
 
@@ -43,7 +47,7 @@ public class CountingOneDirection {
                 // Определяем idName исходя из переданного destinationName (для соответствия Направление 1 = Up)
                 IdentifierDestination(destinationName);
                 // Определяем нужные строки
-                identifierRow(table);
+                IdentifierRow(table);
                 // Определяем нужные столбцы
                 IdentifierColumn(table, destinationName);
                 // ВСЕ РАСЧЕТЫ ИДУТ БЕЗ СОХРАНЕНИЯ И ОБНОВЛЕНИЯ SVGCanvas. Поэтому в самом конце уже сохраняем все изменения в файл и его добавляем на SVGCanvas (таким образом обновляем картинку)
@@ -60,6 +64,11 @@ public class CountingOneDirection {
                 TotalOutside(cartogram, "Down_around", "Right_left", "Up_forward", "Left_right");
                 TotalOutside(cartogram, "Left_around", "Down_left", "Right_forward", "Up_right");
                 // сохраняем все изменения!
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 cartogram.saveChangeValue();
             }
         }
@@ -67,106 +76,122 @@ public class CountingOneDirection {
 
     // Считаем сумму ФЕ для вида транспорта (грузовики, автобусы и т.п.)
     private int TotalFE(TableModel model, int[] row, int columnTotal) {
-        int TotalTruckSum = 0;
+        int TotalSum = 0;
         for (int i = 0; i < row.length; i++) {
             Object TotalInsideObj = model.getValueAt(row[i], columnTotal);
             int TotalInside = Integer.valueOf(String.valueOf(TotalInsideObj));
-            TotalTruckSum = TotalTruckSum + TotalInside;
+            TotalSum = TotalSum + TotalInside;
         }
-        return TotalTruckSum;
+        return TotalSum;
     }
 
     // Считаем сумму ПЕ для вида транспорта (грузовики, автобусы и т.п.)
     private double TotalPE(TableModel model, int[] row, int columnTotal) {
-        double TotalTruckSum = 0;
+        double TotalSum = 0;
         for (int i = 0; i < row.length; i++) {
             Object TotalInsideObj = model.getValueAt(row[i], columnTotal);
             double TotalInside = Double.valueOf(String.valueOf(TotalInsideObj));
-            TotalTruckSum = TotalTruckSum + TotalInside;
+            TotalSum = TotalSum + TotalInside;
         }
-        return TotalTruckSum;
+        return TotalSum;
     }
 
     // Рассчет для стрелки ВНУТРЬ перекрестка. Цифры СНИЗУ
     private void TotalInside(TableModel model, CreateCartogram cartogram, String idName) {
-        // Легковые авто
-        Object TotalInsideCarObj = model.getValueAt(rowCar, columnTotalFE); // получаем данные из ячейки
-        int TotalInsideCarFE = Integer.valueOf(String.valueOf(TotalInsideCarObj)); // переводим значение из текста в числовой формат
-        double TotalInsideCarPE = Double.valueOf(String.valueOf(TotalInsideCarObj));
-        // Грузовые авто
-        int TotalTruckSumFE = TotalFE(model, rowTruckNow, columnTotalFE);
-        double TotalTruckSumPE = TotalPE(model, rowTruckNow, columnTotalPE);
-        // Автобусы
-        int TotalBusSumFE = TotalFE(model, rowBusNow, columnTotalFE);
-        double TotalBusSumPE = TotalPE(model, rowBusNow, columnTotalPE);
-        // Троллейбусы
-        int TotalInsideTrolleyBusFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalFE)));
-        double TotalInsideTrolleyBusPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalPE)));
-        // Трамваи
-        int TotalInsideTramFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalFE)));
-        double TotalInsideTramPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalPE)));
+        // Таким образом, если направлений меньше, чем 4, то такого столбца не будет в таблице и считать значит не нужно
+        if (columnTotalFE >= 0) {
+            // Легковые авто
+            Object TotalInsideCarObj = model.getValueAt(rowCar, columnTotalFE); // получаем данные из ячейки
+            int TotalInsideCarFE = Integer.valueOf(String.valueOf(TotalInsideCarObj)); // переводим значение из текста в числовой формат
+            double TotalInsideCarPE = Double.valueOf(String.valueOf(TotalInsideCarObj));
+            // Грузовые
+            int TotalInsideTruckSumFE = TotalFE(model, rowTruckFuture, columnTotalFE);
+            double TotalInsideTruckSumPE = TotalPE(model, rowTruckFuture, columnTotalPE);
+            // Автопоезда
+            int TotalInsideBusTrainSumFE = TotalFE(model, rowBusTrainFuture, columnTotalFE);
+            double TotalInsideBusTrainSumPE = TotalPE(model, rowBusTrainFuture, columnTotalFE);
+            // Автобусы
+            int TotalInsideBusSumFE = TotalFE(model, rowBusFuture, columnTotalFE);
+            double TotalInsideBusSumPE = TotalPE(model, rowBusFuture, columnTotalPE);
+            // Троллейбусы
+            int TotalInsideTrolleyBusFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalFE)));
+            double TotalInsideTrolleyBusPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnTotalPE)));
+            // Трамваи
+            int TotalInsideTramFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalFE)));
+            double TotalInsideTramPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnTotalPE)));
 
-        // Устанавливаем значение для стрелки "в перекресток" НАД ней
-        cartogram.changeValueWithoutSave("Total_inside_" + idName,
-                String.valueOf(TotalInsideCarFE) + "-"
-                + String.valueOf(TotalTruckSumFE) + "-"
-                + String.valueOf(TotalBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE));
+            // Устанавливаем значение для стрелки "в перекресток" НАД ней
+            cartogram.changeValueWithoutSave("Total_inside_" + idName,
+                    String.valueOf(TotalInsideCarFE) + "-"
+                    + String.valueOf(TotalInsideTruckSumFE + TotalInsideBusTrainSumFE) + "-"
+                    + String.valueOf(TotalInsideBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE));
 
-        int TotalAutoSumFE = TotalInsideCarFE + TotalTruckSumFE + TotalBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE;
-        double TotalAutoSumPE = TotalInsideCarPE + TotalTruckSumPE + TotalBusSumPE + TotalInsideTrolleyBusPE + TotalInsideTramPE;
-        // Устанавливаем значение для стрелки "в перекресток" ПОД ней
-        cartogram.changeValueWithoutSave("TotalSum_inside_" + idName,
-                String.valueOf(TotalAutoSumFE),
-                " (" + String.valueOf(fmt(TotalAutoSumPE)) + ")");
+            int TotalAutoSumFE = TotalInsideCarFE + TotalInsideTruckSumFE + TotalInsideBusTrainSumFE + TotalInsideBusSumFE + TotalInsideTrolleyBusFE + TotalInsideTramFE;
+            double TotalAutoSumPE = TotalInsideCarPE + TotalInsideTruckSumPE + TotalInsideBusTrainSumPE + TotalInsideBusSumPE + TotalInsideTrolleyBusPE + TotalInsideTramPE;
+            // Устанавливаем значение для стрелки "в перекресток" ПОД ней
+            cartogram.changeValueWithoutSave("TotalSum_inside_" + idName,
+                    String.valueOf(TotalAutoSumFE),
+                    " (" + String.valueOf(fmt(TotalAutoSumPE)) + ")");
+        }
     }
 
     // Рассчет для одной стрелки (разворот, налево, прямо, направо) в одном направлении. Определяется столбцами 
     private void TotalSmallArrow(TableModel model, CreateCartogram cartogram, int columnFE, int columnPE, String smallDirection) {
-        Object CarObj = model.getValueAt(rowCar, columnFE); // получаем данные из ячейки
-        int CarFE = Integer.valueOf(String.valueOf(CarObj)); // переводим значение из текста в числовой формат
-        double CarPE = Double.valueOf(String.valueOf(CarObj));
+        if (columnFE >= 0) {
+            // Легковые авто
+            Object CarObj = model.getValueAt(rowCar, columnFE); // получаем данные из ячейки
+            int CarFE = Integer.valueOf(String.valueOf(CarObj)); // переводим значение из текста в числовой формат
+            double CarPE = Double.valueOf(String.valueOf(CarObj));
+            // Грузовые авто
+            int TruckSumFE = TotalFE(model, rowTruckFuture, columnFE);
+            double TruckSumPE = TotalPE(model, rowTruckFuture, columnPE);
+            // Автопоезда
+            int BusTrainSumFE = TotalFE(model, rowBusTrainFuture, columnFE);
+            double BusTrainSumPE = TotalPE(model, rowBusTrainFuture, columnPE);
+            // Автобусы
+            int BusSumFE = TotalFE(model, rowBusFuture, columnFE);
+            double BusSumPE = TotalPE(model, rowBusFuture, columnPE);
+            // Троллейбусы
+            int TrolleyBusSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnFE)));
+            double TrolleyBusSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnPE)));
+            // Трамваи
+            int TramSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnFE)));
+            double TramSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnPE)));
 
-        int TruckSumFE = TotalFE(model, rowTruckNow, columnFE);
-        double TruckSumPE = TotalPE(model, rowTruckNow, columnPE);
-
-        int BusSumFE = TotalFE(model, rowBusNow, columnFE);
-        double BusSumPE = TotalPE(model, rowBusNow, columnPE);
-        // Троллейбусы
-        int TrolleyBusSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnFE)));
-        double TrolleyBusSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTrolleyBus, columnPE)));
-        // Трамваи
-        int TramSumFE = Integer.valueOf(String.valueOf(model.getValueAt(rowTram, columnFE)));
-        double TramSumPE = Double.valueOf(String.valueOf(model.getValueAt(rowTram, columnPE)));
-
-        double AutoSumPE = CarPE + TruckSumPE + BusSumPE + TrolleyBusSumPE + TramSumPE;
-        cartogram.changeValueWithoutSave(idName + "_" + smallDirection,
-                String.valueOf(CarFE) + "-" + String.valueOf(TruckSumFE) + "-" + String.valueOf(BusSumFE + TrolleyBusSumFE + TramSumFE),
-                " (" + String.valueOf(fmt(AutoSumPE)) + ")");
+            double AutoSumPE = CarPE + TruckSumPE + BusTrainSumPE + BusSumPE + TrolleyBusSumPE + TramSumPE;
+            cartogram.changeValueWithoutSave(idName + "_" + smallDirection,
+                    String.valueOf(CarFE) + "-" + String.valueOf(TruckSumFE + BusTrainSumFE) + "-" + String.valueOf(BusSumFE + TrolleyBusSumFE + TramSumFE),
+                    " (" + String.valueOf(fmt(AutoSumPE)) + ")");
+        }
     }
 
     // Рассчет для одной стрелки (разворот, налево, прямо, направо) в одном направлении. Определяется столбцами 
     private void TotalOutside(CreateCartogram cartogram, String id0AlsoID, String id1, String id2, String id3) {
         // Верх
         // Считываем значения с файла SVG
-        String carUparound = cartogram.getValueTspan2(id0AlsoID).substring(0, cartogram.getValueTspan2(id0AlsoID).indexOf("-")).trim();
-        String truckUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).indexOf("-") + 1, cartogram.getValueTspan2(id0AlsoID).lastIndexOf("-")).trim();
-        String busUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).lastIndexOf("-") + 1, cartogram.getValueTspan2(id0AlsoID).indexOf("(")).trim();
-        String sumPEUparound = cartogram.getValueTspan2(id0AlsoID).substring(cartogram.getValueTspan2(id0AlsoID).indexOf("(") + 1, cartogram.getValueTspan2(id0AlsoID).indexOf(")")).trim();
+        String id0Value = cartogram.getFullValue(id0AlsoID);
+        String carUparound = !id0Value.isBlank() ? id0Value.substring(0, id0Value.indexOf("-")).trim() : "0";
+        String truckUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.indexOf("-") + 1, id0Value.lastIndexOf("-")).trim() : "0";
+        String busUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.lastIndexOf("-") + 1, id0Value.indexOf("(")).trim() : "0";
+        String sumPEUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.indexOf("(") + 1, id0Value.indexOf(")")).trim() : "0";
 
-        String carLeftleft = cartogram.getValueTspan2(id1).substring(0, cartogram.getValueTspan2(id1).indexOf("-")).trim();
-        String truckLeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).indexOf("-") + 1, cartogram.getValueTspan2(id1).lastIndexOf("-")).trim();
-        String busLeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).lastIndexOf("-") + 1, cartogram.getValueTspan2(id1).indexOf("(")).trim();
-        String sumPELeftleft = cartogram.getValueTspan2(id1).substring(cartogram.getValueTspan2(id1).indexOf("(") + 1, cartogram.getValueTspan2(id1).indexOf(")")).trim();
+        String id1Value = cartogram.getFullValue(id1);
+        String carLeftleft = !id1Value.isBlank() ? id1Value.substring(0, id1Value.indexOf("-")).trim() : "0";
+        String truckLeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.indexOf("-") + 1, id1Value.lastIndexOf("-")).trim() : "0";
+        String busLeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.lastIndexOf("-") + 1, id1Value.indexOf("(")).trim() : "0";
+        String sumPELeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.indexOf("(") + 1, id1Value.indexOf(")")).trim() : "0";
 
-        String carDownforward = cartogram.getValueTspan2(id2).substring(0, cartogram.getValueTspan2(id2).indexOf("-")).trim();
-        String truckDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).indexOf("-") + 1, cartogram.getValueTspan2(id2).lastIndexOf("-")).trim();
-        String busDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).lastIndexOf("-") + 1, cartogram.getValueTspan2(id2).indexOf("(")).trim();
-        String sumPEDownforward = cartogram.getValueTspan2(id2).substring(cartogram.getValueTspan2(id2).indexOf("(") + 1, cartogram.getValueTspan2(id2).indexOf(")")).trim();
+        String id2Value = cartogram.getFullValue(id2);
+        String carDownforward = !id2Value.isBlank() ? id2Value.substring(0, id2Value.indexOf("-")).trim() : "0";
+        String truckDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.indexOf("-") + 1, id2Value.lastIndexOf("-")).trim() : "0";
+        String busDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.lastIndexOf("-") + 1, id2Value.indexOf("(")).trim() : "0";
+        String sumPEDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.indexOf("(") + 1, id2Value.indexOf(")")).trim() : "0";
 
-        String carRightright = cartogram.getValueTspan2(id3).substring(0, cartogram.getValueTspan2(id3).indexOf("-")).trim();
-        String truckRightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).indexOf("-") + 1, cartogram.getValueTspan2(id3).lastIndexOf("-")).trim();
-        String busRightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).lastIndexOf("-") + 1, cartogram.getValueTspan2(id3).indexOf("(")).trim();
-        String sumPERightright = cartogram.getValueTspan2(id3).substring(cartogram.getValueTspan2(id3).indexOf("(") + 1, cartogram.getValueTspan2(id3).indexOf(")")).trim();
+        String id3Value = cartogram.getFullValue(id3);
+        String carRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(0, cartogram.getFullValue(id3).indexOf("-")).trim() : "0";
+        String truckRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("-") + 1, cartogram.getFullValue(id3).lastIndexOf("-")).trim() : "0";
+        String busRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).lastIndexOf("-") + 1, cartogram.getFullValue(id3).indexOf("(")).trim() : "0";
+        String sumPERightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("(") + 1, cartogram.getFullValue(id3).indexOf(")")).trim() : "0";
 
         int carSum = Integer.valueOf(carUparound) + Integer.valueOf(carLeftleft) + Integer.valueOf(carDownforward) + Integer.valueOf(carRightright);
         int truckSum = Integer.valueOf(truckUparound) + Integer.valueOf(truckLeftleft) + Integer.valueOf(truckDownforward) + Integer.valueOf(truckRightright);
@@ -191,39 +216,68 @@ public class CountingOneDirection {
     }
 
     // Определяем положение нужных строк
-    private void identifierRow(JBroTable table) {
+    private void IdentifierRow(JBroTable table) {
         for (int i = 0; i < table.getModel().getData().getRows().length; i++) {
             String rowValue = (String.valueOf(table.getModel().getData().getRows()[i].getValue(1))); // значение во 2 столбце в проверяемой ячейке
-            if (rowValue.equalsIgnoreCase("Легковой транспорт")) { // находим строку,
+            if (rowValue.equalsIgnoreCase("Легковые, фургоны")) { // находим строку,
                 rowCar = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("До 2-х тонн")) { // находим строку,
-                rowTruck1 = rowTruckNow[0] = i; // сохраняем номер этой строки
+            // Грузовые
+            if (rowValue.equalsIgnoreCase("2-осные")) { // находим строку,
+                rowTruck1 = rowTruckFuture[0] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("От 2 до 6 тонн")) { // находим строку,
-                rowTruck2 = rowTruckNow[1] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("3-осные")) { // находим строку,
+                rowTruck2 = rowTruckFuture[1] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("От 6 до 12 тонн")) { // находим строку,
-                rowTruck3 = rowTruckNow[2] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("4-осные")) { // находим строку,
+                rowTruck3 = rowTruckFuture[2] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("От 12 до 20 тонн")) { // находим строку,
-                rowTruck4 = rowTruckNow[3] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("4-осные (2 оси+прицеп)")) { // находим строку,
+                rowTruck4 = rowTruckFuture[3] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("Более 20 тонн")) { // находим строку,
-                rowTruck5 = rowTruckNow[4] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("5-осные (3 оси+прицеп)")) { // находим строку,
+                rowTruck5 = rowTruckFuture[4] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("Большой автобус")) { // находим строку,
-                rowBus1 = rowBusNow[0] = i; // сохраняем номер этой строки
+            // Автопоезда 
+            if (rowValue.equalsIgnoreCase("3 осные (2 оси+полуприцеп)")) { // находим строку,
+                rowBusTrain1 = rowBusTrainFuture[0] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("Средний автобус")) { // находим строку,
-                rowBus2 = rowBusNow[1] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("4 осные (2 оси+полуприцеп)")) { // находим строку,
+                rowBusTrain2 = rowBusTrainFuture[1] = i; // сохраняем номер этой строки
             }
-            if (rowValue.equalsIgnoreCase("Микроавтобус")) { // находим строку,
-                rowBus3 = rowBusNow[2] = i; // сохраняем номер этой строки
+            if (rowValue.equalsIgnoreCase("5 осные (2 оси+полуприцеп)")) { // находим строку,
+                rowBusTrain3 = rowBusTrainFuture[2] = i; // сохраняем номер этой строки
             }
+            if (rowValue.equalsIgnoreCase("5 осные (3 оси+полуприцеп)")) { // находим строку,
+                rowBusTrain4 = rowBusTrainFuture[3] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("6 осные")) { // находим строку,
+                rowBusTrain5 = rowBusTrainFuture[4] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("7 осные и более")) { // находим строку,
+                rowBusTrain6 = rowBusTrainFuture[5] = i; // сохраняем номер этой строки
+            }
+            // Автобусы
+            if (rowValue.equalsIgnoreCase("Особо малого класса")) { // находим строку,
+                rowBus1 = rowBusFuture[0] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Малого класса")) { // находим строку,
+                rowBus2 = rowBusFuture[1] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Среднего класса")) { // находим строку,
+                rowBus3 = rowBusFuture[2] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Большого класса")) { // находим строку,
+                rowBus4 = rowBusFuture[3] = i; // сохраняем номер этой строки
+            }
+            if (rowValue.equalsIgnoreCase("Особо большого класса")) { // находим строку,
+                rowBus5 = rowBusFuture[4] = i; // сохраняем номер этой строки
+            }
+            // Троллейбус
             if (rowValue.equalsIgnoreCase("Троллейбусы")) { // находим строку,
                 rowTrolleyBus = i; // сохраняем номер этой строки
             }
+            // Трамвай
             if (rowValue.equalsIgnoreCase("Трамвай")) { // находим строку,
                 rowTram = i; // сохраняем номер этой строки
             }

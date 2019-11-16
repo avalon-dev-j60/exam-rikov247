@@ -17,15 +17,15 @@ public class AsHSSFwithPattern {
         String patternPath = AsHSSFwithPattern.class.getResource("/resources/patterns/" + pattern + ".xls").getPath();
         FileInputStream inputStream = new FileInputStream(new File(patternPath));
 
-        // Создание файла (книги) для всех старых (xls, doc, ppt) файлов Microsoft Office из уже существующего файла (шаблона)
-        HSSFWorkbook workBook = new HSSFWorkbook(inputStream);
-
         // Создаем файл и открываем выходной поток в этот файл
-        File file = new File(filename);
-        FileOutputStream out = new FileOutputStream(file);
-        workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
-        // закрываем поток и книгу
-        out.close();
-        workBook.close();
+        // Создание файла (книги) для всех старых (xls, doc, ppt) файлов Microsoft Office из уже существующего файла (шаблона)
+        try (HSSFWorkbook workBook = new HSSFWorkbook(inputStream)) {
+            // Создаем файл и открываем выходной поток в этот файл
+            File file = new File(filename);
+            FileOutputStream out = new FileOutputStream(file);
+            workBook.write(out); // записываем созданный файл (книгу) в выходной поток - конечный файл
+            // закрываем поток и книгу
+            out.close();
+        }
     }
 }

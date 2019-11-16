@@ -36,6 +36,7 @@ public class CreateVideoPlayerControlPanel {
         timePanel.add(timeLabel, BorderLayout.LINE_START);
         timePanel.add(js);
         js.setValue(0);
+        js.setFocusable(false);
         timePanel.add(durationLabel, BorderLayout.LINE_END);
         vPCPanel.add(timePanel);
 

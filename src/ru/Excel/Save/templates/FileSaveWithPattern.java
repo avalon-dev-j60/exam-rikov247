@@ -10,7 +10,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import org.quinto.swing.table.view.JBroTable;
 
 /**
  * Класс для клонирования существующего шаблона в директорию и с именем,

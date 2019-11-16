@@ -7,7 +7,7 @@ import javax.swing.tree.TreePath;
  * Класс для выбора того, что отображать на панелях кнопок. <n>
  * Сделано для варианта с 3 направлениями.
  */
-public class ChooseComponentsNow3Up {
+public class ChooseComponentsNow3 {
 
     private TreePath[] paths; // массив путей к узлам (видам транспорта), которые были выбраны для подсчета
     private int row; // количество строк на панели кнопок (количество видов транспорта для подсчета, не считая labels направлений)
@@ -20,7 +20,7 @@ public class ChooseComponentsNow3Up {
     private JComponent[] bTram;
     private String sideIdentifier;
 
-    public ChooseComponentsNow3Up(String sideIdentifier, TreePath[] paths, JComponent[] labels, JComponent[] bCar, JComponent[] bBus, JComponent[] bTruck, JComponent[] bTrolleybus, JComponent[] bTram) {
+    public ChooseComponentsNow3(String sideIdentifier, TreePath[] paths, JComponent[] labels, JComponent[] bCar, JComponent[] bBus, JComponent[] bTruck, JComponent[] bTrolleybus, JComponent[] bTram) {
         this.sideIdentifier = sideIdentifier;
         this.paths = paths;
         this.labels = labels;
@@ -31,7 +31,7 @@ public class ChooseComponentsNow3Up {
         this.bTram = bTram;
     }
 
-    public JComponent[] chooseCompNow3withoutForward() {
+    public JComponent[] chooseCompNow3() {
 
         row = 1;
         // Определяем, какие кнопки отображать и что будем считать
@@ -64,7 +64,7 @@ public class ChooseComponentsNow3Up {
             }
         }
 
-        if (sideIdentifier.equalsIgnoreCase("4")) {
+        if (sideIdentifier.equalsIgnoreCase("WithoutLeft")) {
             doComponents3 doComp3 = new doComponents3();
             JComponent[] components = doComp3.doComponentsWithoutLeft(labels);  // если пользователь не выберет ничего для подсчета - то появятся только labels направлений
             // 1. Есть все
@@ -208,7 +208,7 @@ public class ChooseComponentsNow3Up {
 
             return components;
         }
-        if (sideIdentifier.equalsIgnoreCase("3")) {
+        if (sideIdentifier.equalsIgnoreCase("WithoutForward")) {
             doComponents3 doComp3 = new doComponents3();
             JComponent[] components = doComp3.doComponentsWithoutForward(labels);  // если пользователь не выберет ничего для подсчета - то появятся только labels направлений
             // 1. Есть все
@@ -352,7 +352,7 @@ public class ChooseComponentsNow3Up {
 
             return components;
         }
-        if (sideIdentifier.equalsIgnoreCase("2")) {
+        if (sideIdentifier.equalsIgnoreCase("WithoutRight")) {
             doComponents3 doComp3 = new doComponents3();
             JComponent[] components = doComp3.doComponentsWithoutRight(labels);  // если пользователь не выберет ничего для подсчета - то появятся только labels направлений
             // 1. Есть все

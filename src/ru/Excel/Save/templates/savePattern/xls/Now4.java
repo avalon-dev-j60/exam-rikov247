@@ -10,12 +10,7 @@ import org.quinto.swing.table.view.JBroTable;
  */
 public class Now4 {
 
-    public Now4(JBroTable table, HSSFSheet sheet) {
-        this(table, sheet, 112);
-    }
-    
-    // Аналогичный конструктор, только можно указать строку начала записи информации в таблицу. Таким образом реализуется сохранение в отдельные таблицы по 15 минут.
-    public Now4(JBroTable table, HSSFSheet sheet, int rowStart) {
+    public Now4(JBroTable table, HSSFSheet sheet, int rowStart, int columnStart) {
         // Определяем столбцы, куда не переносим данные. 
         int[] columnTotal = new int[4]; // массив для хранения столбцов "Итого"
         int[] columnPE = new int[20]; // массив для хранения столбцов "ПЕ"
@@ -44,7 +39,7 @@ public class Now4 {
         // Перебираем строки таблицы (row - строка начала таблицы; column - столбец начала таблицы)
         int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
-            int column = 7;
+            int column = columnStart;
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ИТОГО (чтобы сохранить Excel формулы)
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ПЕ (чтобы сохранить Excel формулы)

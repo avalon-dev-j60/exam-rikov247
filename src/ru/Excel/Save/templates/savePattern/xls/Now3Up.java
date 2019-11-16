@@ -10,14 +10,10 @@ import org.quinto.swing.table.view.JBroTable;
  */
 public class Now3Up {
 
-    public Now3Up(JBroTable table, HSSFSheet sheet) {
-        this(table, sheet, 112);
-    }
-    
-    public Now3Up(JBroTable table, HSSFSheet sheet, int rowStart) {
+    public Now3Up(JBroTable table, HSSFSheet sheet, int rowStart, int columnStart) {
         // Определяем столбцы, куда не переносим данные (чтобы сохранить Excel формулы)
         int[] columnTotal = new int[3]; // массив для хранения столбцов "Итого"
-        int[] columnPE = new int[16]; // массив для хранения столбцов "ПЕ"
+        int[] columnPE = new int[12]; // массив для хранения столбцов "ПЕ"
         int myInt = 0; // переменная для выбора следующего элемента в массиве выше, если нашли новый столбец "Итого"
         int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
 
@@ -43,8 +39,8 @@ public class Now3Up {
         // ПЕРЕБОР СТРОКИ таблицы (row - строка начала таблицы; column - столбец начала таблицы)
         int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
-            int column = 17; // это столбец внутри Excel файла
             // ПЕРЕБОР СТОЛБЦОВ Java
+            int column = columnStart + 10; // это столбец внутри Excel файла
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ИТОГО (чтобы сохранить Excel формулы)
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ПЕ (чтобы сохранить Excel формулы)
@@ -52,8 +48,7 @@ public class Now3Up {
                         || i == columnPE[0] || i == columnPE[1] || i == columnPE[2]
                         || i == columnPE[3] || i == columnPE[4] || i == columnPE[5]
                         || i == columnPE[6] || i == columnPE[7] || i == columnPE[8]
-                        || i == columnPE[9] || i == columnPE[10] || i == columnPE[11]
-                        || i == columnPE[12] || i == columnPE[13] || i == columnPE[14]) {
+                        || i == columnPE[9] || i == columnPE[10] || i == columnPE[11]) {
                     // не записываем в таблицу ничего и просто идем дальше по порядку
                 } // Записываем значения
                 else {

@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
@@ -47,17 +49,38 @@ public class CreateConfigurationPanel {
 
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this); // переменная позволяющая добавить в этот слушатель изменения свойств 
 
-    private JPanel cartogramPanel;
-    private CreateCartogram cartogram;
+    private JPanel cartogramPanelMorning;
+    private JPanel cartogramPanelDay;
+    private JPanel cartogramPanelEvening;
+    private CreateCartogram cartogramMorning;
+    private CreateCartogram cartogramDay;
+    private CreateCartogram cartogramEvening;
 
+    private FileSaveWithPattern fileSaveAsWithPattern;
     private FileSaveWithPattern fileSaveWithPattern;
     private String fullFileName;
     private String fullName;
     private String kindOfStatement;
     private String typeOfDirection;
-    private int page = 0;
 
-    private JBroTable table = new JBroTable(); // Таблица
+    private JBroTable table15Morning = new JBroTable(); // Таблица
+    private JBroTable table30Morning = new JBroTable(); // Таблица
+    private JBroTable table45Morning = new JBroTable(); // Таблица
+    private JBroTable table60Morning = new JBroTable(); // Таблица
+    private JBroTable[] tablesMorning = {table15Morning, table30Morning, table45Morning, table60Morning};
+    private JBroTable tableSumMorning = new JBroTable(); // Таблица
+    private JBroTable table15Day = new JBroTable(); // Таблица
+    private JBroTable table30Day = new JBroTable(); // Таблица
+    private JBroTable table45Day = new JBroTable(); // Таблица
+    private JBroTable table60Day = new JBroTable(); // Таблица
+    private JBroTable[] tablesDay = {table15Day, table30Day, table45Day, table60Day};
+    private JBroTable tableSumDay = new JBroTable(); // Таблица
+    private JBroTable table15Evening = new JBroTable(); // Таблица
+    private JBroTable table30Evening = new JBroTable(); // Таблица
+    private JBroTable table45Evening = new JBroTable(); // Таблица
+    private JBroTable table60Evening = new JBroTable(); // Таблица
+    private JBroTable[] tablesEvening = {table15Evening, table30Evening, table45Evening, table60Evening};
+    private JBroTable tableSumEvening = new JBroTable(); // Таблица
 
     private JComboBox comboBox1;
     private JComboBox comboBox3;
@@ -91,20 +114,32 @@ public class CreateConfigurationPanel {
     private JSplitPane horizSplitRight9;
 
     // Правая панель
-    private JLabel label1;
+    private JLabel chooseTable;
 
-    private JButton save15 = new JButton();
-    private JButton save30 = new JButton();
-    private JButton save45 = new JButton();
-    private JButton save60 = new JButton();
+    // Панель кнопок выбора конкретной 15минутной таблицы
+    private JButton table0_15 = new JButton();
+    private JButton table15_30 = new JButton();
+    private JButton table30_45 = new JButton();
+    private JButton table45_60 = new JButton();
 
-    private JLabel label2;
+    private JLabel timeOfDay;
 
     private JButton buttonReset = new JButton();
 
+    // Группа радио кнопок выбора конкретной 15минутной таблицы
+    private JRadioButton table0_15Radio = new JRadioButton("", true);
+    private JRadioButton table15_30Radio = new JRadioButton();
+    private JRadioButton table30_45Radio = new JRadioButton();
+    private JRadioButton table45_60Radio = new JRadioButton();
+
+    // Группа радио кнопок выбора Времени дня
     private JRadioButton morningRadio = new JRadioButton("", true);
     private JRadioButton dayRadio = new JRadioButton();
     private JRadioButton eveningRadio = new JRadioButton();
+
+    // Группы кнопок
+    private ButtonGroup groupPeriodOfDay = new ButtonGroup();
+    private ButtonGroup group15MinuteTable = new ButtonGroup();
 
     // Панель управления панелями кнопок
     // В вертикальную панель наверх устанавливаем горизонтальную панель, а вниз устанавливаем вертикальную панель.
@@ -207,34 +242,42 @@ public class CreateConfigurationPanel {
         horizSplitRight9 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         horizSplitRight9.setDividerSize(3);
 
-        createButton(save15, "Сохранить 15 минут");
-        createButton(save30, "Сохранить 30 минут");
-        createButton(save45, "Сохранить 45 минут");
-        createButton(save60, "Сохранить 60 минут");
+        createButton(table0_15, "Таблица 0-15 минут");
+        createButton(table15_30, "Таблица 15-30 минут");
+        createButton(table30_45, "Таблица 30-45 минут");
+        createButton(table45_60, "Таблица 45-60 минут");
 
-        vertSplitRight1.setTopComponent(createLabelOnPanel(label1, "Конфигурация сохранения:"));
+        // Панель группы кнопок Выбора конкретной 15минутной таблицы
+        createRadioButton(table0_15Radio, "Таблица 0-15 минут");
+        createRadioButton(table15_30Radio, "Таблица 15-30 минут");
+        createRadioButton(table30_45Radio, "Таблица 30-45 минут");
+        createRadioButton(table45_60Radio, "Таблица 45-60 минут");
+
+        vertSplitRight1.setTopComponent(createLabelOnPanel(chooseTable, "Конфигурация подсчета:"));
         vertSplitRight1.setBottomComponent(vertSplitRight2);
-        vertSplitRight2.setTopComponent(createGroupButton(save15, save30, save45, save60));
+        vertSplitRight2.setTopComponent(createGroupButtonInGroup(table0_15Radio, table15_30Radio, table30_45Radio, table45_60Radio, group15MinuteTable));
+//        createGroupButton(table0_15, table15_30, table30_45, table45_60);
+//        createGroupButtonInGroup(table0_15Radio, table15_30Radio, table30_45Radio, table45_60Radio, group15MinuteTable);
         vertSplitRight2.setBottomComponent(vertSplitRight3);
-        vertSplitRight3.setTopComponent(createLabelOnPanel(label2, "Время дня:"));
+        vertSplitRight3.setTopComponent(createLabelOnPanel(timeOfDay, "Время дня:"));
         vertSplitRight3.setBottomComponent(vertSplitRight4);
 
         // Панель нижняя заглушка
         JPanel p = new JPanel();
         p.setBackground(Color.WHITE);
 
-        // Панель группы кнопок
+        // Панель группы кнопок Выбора времени дня
         createRadioButton(morningRadio, "Утро");
         createRadioButton(dayRadio, "День");
         createRadioButton(eveningRadio, "Вечер");
 
         // Добавляем панель, в которой создаем группу кнопок
-        vertSplitRight4.setTopComponent(createGroupButton(morningRadio, dayRadio, eveningRadio));
-        vertSplitRight4.setBottomComponent(vertSplitRight5);
+        vertSplitRight4.setTopComponent(createGroupButtonInGroup(morningRadio, dayRadio, eveningRadio, groupPeriodOfDay));
+//        vertSplitRight4.setBottomComponent(vertSplitRight5);
 
-        buttonReset.addActionListener(reset);
-        vertSplitRight5.setTopComponent(createButton(buttonReset, "Очистить таблицу"));
-        vertSplitRight5.setBottomComponent(p);
+//        buttonReset.addActionListener(reset);
+//        vertSplitRight5.setTopComponent(createButton(buttonReset, "Очистить таблицу"));
+        vertSplitRight4.setBottomComponent(p);
 
         // Убрать границу (тень) вокруг divider
         // UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder()); // Убрать границу (тень) вокруг divider для всех SplitPane в приложении
@@ -278,22 +321,31 @@ public class CreateConfigurationPanel {
         return button;
     }
 
-    // Группа кнопок
-    private ButtonGroup groupPeriodOfDay = new ButtonGroup();
-
     // Конфигурируем группу кнопок
-    private JPanel createGroupButton(JRadioButton button1, JRadioButton button2, JRadioButton button3) {
+    private JPanel createGroupButtonInGroup(JRadioButton b1, JRadioButton b2, JRadioButton b3, ButtonGroup bGroup) {
         JPanel pp = new JPanel(new GridLayout(0, 1, 0, 3));
         pp.setBackground(Color.WHITE);
-        pp.add(button1);
-        button1.addActionListener(timeOfDayListener);
-        pp.add(button2);
-        button2.addActionListener(timeOfDayListener);
-        pp.add(button3);
-        button3.addActionListener(timeOfDayListener);
-        groupPeriodOfDay.add(button1);
-        groupPeriodOfDay.add(button2);
-        groupPeriodOfDay.add(button3);
+        pp.add(b1);
+        pp.add(b2);
+        pp.add(b3);
+        bGroup.add(b1);
+        bGroup.add(b2);
+        bGroup.add(b3);
+
+        return pp;
+    }
+
+    private JPanel createGroupButtonInGroup(JRadioButton b1, JRadioButton b2, JRadioButton b3, JRadioButton b4, ButtonGroup bGroup) {
+        JPanel pp = new JPanel(new GridLayout(0, 1, 0, 3));
+        pp.setBackground(Color.WHITE);
+        pp.add(b1);
+        pp.add(b2);
+        pp.add(b3);
+        pp.add(b4);
+        bGroup.add(b1);
+        bGroup.add(b2);
+        bGroup.add(b3);
+        bGroup.add(b4);
 
         return pp;
     }
@@ -305,68 +357,24 @@ public class CreateConfigurationPanel {
         pp.add(b2);
         pp.add(b3);
         pp.add(b4);
-        b1.addActionListener(saveTime);
-        b2.addActionListener(saveTime);
-        b3.addActionListener(saveTime);
-        b4.addActionListener(saveTime);
 
         return pp;
     }
-
-    // Сохраняем промежуточные результаты таблицы в нужную таблицу по 15 минуткам
-    private ActionListener saveTime = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save15.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 12, cartogram);
-                }
-                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save30.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 33, cartogram);
-                }
-                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save45.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 54, cartogram);
-                }
-                if (((JButton) e.getSource()).getText().equalsIgnoreCase(save60.getText())) {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, 84, cartogram);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    };
-
-    // Слушатель выбора времени Дня (утро, день, вечер)
-    private ActionListener timeOfDayListener = new ActionListener() {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("утро")) {
-                page = 0;
-            }
-            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("день")) {
-                page = 1;
-            }
-            if (getSelectedButtonText(groupPeriodOfDay).equalsIgnoreCase("вечер")) {
-                page = 2;
-            }
-        }
-    };
 
     // Сброс всей таблицы (во всех ячейках устанавливаем 0)
     private ActionListener reset = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (table != null) {
-                // по строкам
-                for (int i = 0; i < table.getModel().getData().getRows().length; i++) {
-                    // по столбцам
-                    int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
-                    for (int j = unAccountedColumns; j < table.getModel().getData().getFieldsCount(); j++) {
-                        table.getModel().setValueAt("0", i, j);
-                    }
-                }
-            }
+//            if (table != null) {
+//                // по строкам
+//                for (int i = 0; i < table.getModel().getData().getRows().length; i++) {
+//                    // по столбцам
+//                    int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
+//                    for (int j = unAccountedColumns; j < table.getModel().getData().getFieldsCount(); j++) {
+//                        table.getModel().setValueAt("0", i, j);
+//                    }
+//                }
+//            }
         }
     };
 
@@ -506,6 +514,7 @@ public class CreateConfigurationPanel {
         JButton bP = new JButton("Создать проект");
         bP.setFocusable(false); // отключаем возможность получения фокуса кнопкой
         bP.setToolTipText(bP.getText());
+        // Слой добавления Таблиц (сам слушатель берем из класса configurationPanel, метод называется onButtonClick
         bP.addActionListener(this::onButtonClick);
         p.add(bP, BorderLayout.NORTH);
 
@@ -651,7 +660,7 @@ public class CreateConfigurationPanel {
         horizSplit3.setLeftComponent(scPanel); //Добавление конфигурированного лэйбла в панель
 
         // Правый компонент
-        // ComboBox
+        // ComboBox. items[0] = Старая. items[1] = Новая.
         String[] items = {"Старая", "Новая"};
         comboBox3 = new JComboBox(items);
         comboBox3.setSelectedIndex(0);
@@ -660,6 +669,7 @@ public class CreateConfigurationPanel {
         ((JLabel) comboBox3.getRenderer()).setHorizontalAlignment(JLabel.CENTER); // выравнивание текста внутри JComboBox
 
         comboBox3.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (String.valueOf(comboBox3.getSelectedItem()).equalsIgnoreCase("Старая")) {
                     checkBox.setModel(createTreeModelNow()); // меняем дерево выбора того, что считать
@@ -705,206 +715,162 @@ public class CreateConfigurationPanel {
         paths = checkBox.getCheckedPaths(); // Получаем путь для каждого выбранного узла
 
         // Если вид таблицы СТАРЫЙ, то:
-        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("старая")) {
-
-            // Если выбрано 4 направления, то:
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4")) {
-
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/4"); // клонируем шаблон в путь и с названием файла которые указывает пользователь
-                    fullFileName = fileSaveWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
-                    if (fullFileName != null) { // если успешно сохранился клон, то
-                        kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "4";
-                        createTable((new CrossRoadModel()).getModel(), "Now", typeOfDirection); // создаем новую таблицу
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-            // Если выбрано 4 направления кольцо, то:
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4 кольцо")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/4Circle");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "4 кольцо";
-                        createTable((new CrossRoadModel()).getModel(), "Now", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 3 направления вверх, то:
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вверх")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/3Up");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "3 вверх";
-                        createTable((new TUpRoadModel()).getModel(), "Now", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 3 направления вправо, то:
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Now/3Up");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "старая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "3 вправо";
-                        createTable((new TUpRoadModel()).getModel(), "Now", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("Старая")) {
+            kindOfStatement = "Now";
         }
-
         // Если вид таблицы НОВЫЙ, то:
-        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("новая")) {
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/4");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "4";
-                        createTable((new CrossRoadModel()).getModel(), "Future", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4 кольцо")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/4");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "4 кольцо";
-                        createTable((new CrossRoadModel()).getModel(), "Future", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/3Right");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "3 вправо";
-                        createTable((new TRightRoadModel()).getModel(), "Future", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вверх")) {
-                try {
-                    fileSaveWithPattern = new FileSaveWithPattern("Future/3Right");
-                    fullFileName = fileSaveWithPattern.getFullFileName();
-                    if (fullFileName != null) {
-                        kindOfStatement = "новая"; // передаем параметры для дальнейшего определения как сохранять данные
-                        typeOfDirection = "3 вправо";
-                        createTable((new TRightRoadModel()).getModel(), "Future", typeOfDirection);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("Новая")) {
+            kindOfStatement = "Future";
         }
+        // Если выбрано 4 направления, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4")) {
+            saveExcelAndCreateTable(new CrossRoadModel().getModel(), "4");
+        }
+        // Если выбрано 4 направления кольцо, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("4 кольцо")) {
+            saveExcelAndCreateTable(new CrossRoadModel().getModel(), "4Circle");
+        }
+        // Если выбрано 3 направления вверх, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вверх")) {
+            saveExcelAndCreateTable(new TUpRoadModel().getModel(), "3Up");
+        }
+        // Если выбрано 3 направления вправо, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
+            saveExcelAndCreateTable(new TRightRoadModel().getModel(), "3Right");
+        }
+        // Если выбрано 3 направления вправо, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вниз")) {
+            saveExcelAndCreateTable(new TDownRoadModel().getModel(), "3Down");
+        }
+        // Если выбрано 3 направления вправо, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 влево")) {
+            saveExcelAndCreateTable(new TLeftRoadModel().getModel(), "3Left");
+        }
+
         pcs.firePropertyChange("fullFileName", oldValue, fullFileName); // уведомляем об изменении пути к файлу
     }
 
+    private int[] rowTableNow = {12, 33, 54, 75};
+    private int[] rowTableFuture = {11, 38, 65, 92};
+
     public void onSaveButtonClick(ActionEvent e) {
-        // Если вид таблицы СТАРЫЙ, то:
-        if (kindOfStatement.equalsIgnoreCase("старая")) {
-            // Если выбрано 4 направления, то:
-            if (typeOfDirection.equalsIgnoreCase("4")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 4 направления кольцо, то:
-            if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 3 направления вверх, то:
-            if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 3 направления вправо, то:
-            if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
+        saveAllTableInExcel();
+    }
 
-        // Если вид таблицы НОВЫЙ, то:
-        if (kindOfStatement.equalsIgnoreCase("новая")) {
-
-            if (typeOfDirection.equalsIgnoreCase("4")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            // Если выбрано 4 направления кольцо, то:
-            if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
-                try {
-                    new SaveInExistingFile(getFullName(), table, kindOfStatement, typeOfDirection, page, cartogram);
-                } catch (IOException ex) {
-                    Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+    public void onSaveAsButtonClick(ActionEvent e) {
+        // Пытаемся создать файл из шаблона
+        try {
+            fileSaveAsWithPattern = new FileSaveWithPattern(kindOfStatement + "/4"); // клонируем шаблон в путь и с названием файла которые указывает пользователь
+        } catch (IOException ex) {
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Таким образом заменяем значение в getFullFileName() этого класса - новые данные уже сохранятся в ЭТОТ новый файл
+        fullFileName = fileSaveAsWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
+        saveAllTableInExcel(); // Сохраняем все таблицы в в excel файл  по адресу getFullFileName()
     }
 
     // Создание таблицы и картограммы с переданными параметрами
     private void createTable(IModelFieldGroup[] modelGroup, String kindOfStatement, String typeOfDirection) {
-        Table tableModel = new Table();
-        cartogram = new CreateCartogram(fullFileName, typeOfDirection);
+        // ТАБЛИЦЫ (модели таблиц)
+        // Утро
+        Table tableSumMorningModel = new Table();
+        Table table15MorningModel = new Table();
+        Table table30MorningModel = new Table();
+        Table table45MorningModel = new Table();
+        Table table60MorningModel = new Table();
+        // День
+        Table tableSumDayModel = new Table();
+        Table table15DayModel = new Table();
+        Table table30DayModel = new Table();
+        Table table45DayModel = new Table();
+        Table table60DayModel = new Table();
+        // День
+        Table tableSumEveningModel = new Table();
+        Table table15EveningModel = new Table();
+        Table table30EveningModel = new Table();
+        Table table45EveningModel = new Table();
+        Table table60EveningModel = new Table();
+        cartogramMorning = new CreateCartogram(fullFileName, typeOfDirection, "cartogramMorning");
+        cartogramDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramDay");
+        cartogramEvening = new CreateCartogram(fullFileName, typeOfDirection, "cartogramEvening");
         try {
-            this.cartogramPanel = cartogram.initialize();
-            table = tableModel.doTable(modelGroup, kindOfStatement, typeOfDirection, cartogram);
+            this.cartogramPanelMorning = cartogramMorning.initialize();
+            this.cartogramPanelDay = cartogramDay.initialize();
+            this.cartogramPanelEvening = cartogramEvening.initialize();
+            // ТАБЛИЦЫ
+            // Утро
+            tableSumMorning = tableSumMorningModel.doTable(modelGroup, kindOfStatement, cartogramMorning);
+            tablesMorning[0] = table15Morning = table15MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
+            tablesMorning[1] = table30Morning = table30MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
+            tablesMorning[2] = table45Morning = table45MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
+            tablesMorning[3] = table60Morning = table60MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
+            // День
+            tableSumDay = tableSumDayModel.doTable(modelGroup, kindOfStatement, cartogramDay);
+            tablesDay[0] = table15Day = table15DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
+            tablesDay[1] = table30Day = table30DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
+            tablesDay[2] = table45Day = table45DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
+            tablesDay[3] = table60Day = table60DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
+            // Вечер
+            tableSumEvening = tableSumEveningModel.doTable(modelGroup, kindOfStatement, cartogramEvening);
+            tablesEvening[0] = table15Evening = table15EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
+            tablesEvening[1] = table30Evening = table30EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
+            tablesEvening[2] = table45Evening = table45EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
+            tablesEvening[3] = table60Evening = table60EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
         } catch (Exception ex) {
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void saveExcelAndCreateTable(IModelFieldGroup[] modelGroup, String typeOfDirection) {
+        try {
+            fileSaveWithPattern = new FileSaveWithPattern(kindOfStatement + "/4"); // клонируем шаблон в путь и с названием файла которые указывает пользователь
+            fullFileName = fileSaveWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
+            if (fullFileName != null) { // если успешно сохранился клон, то передаем параметры для дальнейшего определения как сохранять данные
+                this.typeOfDirection = typeOfDirection;
+                createTable(modelGroup, kindOfStatement, typeOfDirection); // создаем новые таблицы
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void saveAllTableInExcel() {
+        int page; // страница в Excel для сохранения
+        int[] rowTable = {}; // массив строк, указывающий на начало заполнения таблиц
+        // Если вид таблицы СТАРЫЙ, то:
+        if (kindOfStatement.equalsIgnoreCase("Now")) {
+            rowTable = rowTableNow;
+        }
+        // Если вид таблицы НОВЫЙ, то:
+        if (kindOfStatement.equalsIgnoreCase("Future")) {
+            rowTable = rowTableFuture;
+        }
+        try {
+            page = 0;
+            new SaveInExistingFile(getFullName(), table15Morning, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramMorning);
+            new SaveInExistingFile(getFullName(), table30Morning, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            new SaveInExistingFile(getFullName(), table45Morning, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            new SaveInExistingFile(getFullName(), table60Morning, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            page = 1;
+            new SaveInExistingFile(getFullName(), table15Day, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramDay);
+            new SaveInExistingFile(getFullName(), table30Day, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            new SaveInExistingFile(getFullName(), table45Day, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            new SaveInExistingFile(getFullName(), table60Day, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            page = 2;
+            new SaveInExistingFile(getFullName(), table15Evening, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramEvening);
+            new SaveInExistingFile(getFullName(), table30Evening, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            new SaveInExistingFile(getFullName(), table45Evening, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            new SaveInExistingFile(getFullName(), table60Evening, kindOfStatement, typeOfDirection, page, rowTable[3]);
+        } catch (NullPointerException ee) {
+            // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
+            JOptionPane.showMessageDialog(cartogramPanelMorning, "Сохранить не получилось! Попробуйте еще раз.");
+        } catch (FileNotFoundException e) { // FileNotFoundException входит в IOException, которые отлавливаем дальше
+            String message = e.getMessage().substring(e.getMessage().lastIndexOf("(") - 1).trim(); // сообщение с ошибкой
+            if (message.equals("(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)")) {
+                JOptionPane.showMessageDialog(cartogramPanelMorning, message + ". Закройте его и повторите сохранение.");
+            }
+        } catch (IOException ex) {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -918,8 +884,64 @@ public class CreateConfigurationPanel {
         return fullFileName;
     }
 
-    public JBroTable getTable() {
-        return table;
+    public JBroTable getTable15Morning() {
+        return table15Morning;
+    }
+
+    public JBroTable getTable30Morning() {
+        return table30Morning;
+    }
+
+    public JBroTable getTable45Morning() {
+        return table45Morning;
+    }
+
+    public JBroTable getTable60Morning() {
+        return table60Morning;
+    }
+
+    public JBroTable getTableSumMorning() {
+        return tableSumMorning;
+    }
+
+    public JBroTable getTable15Day() {
+        return table15Day;
+    }
+
+    public JBroTable getTable30Day() {
+        return table30Day;
+    }
+
+    public JBroTable getTable45Day() {
+        return table45Day;
+    }
+
+    public JBroTable getTable60Day() {
+        return table60Day;
+    }
+
+    public JBroTable getTableSumDay() {
+        return tableSumDay;
+    }
+
+    public JBroTable getTable15Evening() {
+        return table15Evening;
+    }
+
+    public JBroTable getTable30Evening() {
+        return table30Evening;
+    }
+
+    public JBroTable getTable45Evening() {
+        return table45Evening;
+    }
+
+    public JBroTable getTable60Evening() {
+        return table60Evening;
+    }
+
+    public JBroTable getTableSumEvening() {
+        return tableSumEvening;
     }
 
     private String getFullName() {
@@ -929,12 +951,12 @@ public class CreateConfigurationPanel {
         return this.fullName;
     }
 
-    // Вид ведомости (старая, новая)
+    // Вид ведомости (Now, Future)
     public String getKindOfStatement() {
         return kindOfStatement;
     }
 
-    // Количество направлений
+    // Количество направлений (4, 3 вправо, 3 влево и т.п.)
     public String getTypeOfDirection() {
         return typeOfDirection;
     }
@@ -943,12 +965,80 @@ public class CreateConfigurationPanel {
         return paths;
     }
 
-    public JPanel getCartogramPanel() {
-        return cartogramPanel;
+    public CreateCartogram getCartogramMorning() {
+        return cartogramMorning;
     }
 
-    public CreateCartogram getCartogram() {
-        return cartogram;
+    public CreateCartogram getCartogramDay() {
+        return cartogramDay;
+    }
+
+    public CreateCartogram getCartogramEvening() {
+        return cartogramEvening;
+    }
+
+    public JPanel getCartogramPanelMorning() {
+        return cartogramPanelMorning;
+    }
+
+    public JPanel getCartogramPanelDay() {
+        return cartogramPanelDay;
+    }
+
+    public JPanel getCartogramPanelEvening() {
+        return cartogramPanelEvening;
+    }
+
+    public JButton getTable0_15() {
+        return table0_15;
+    }
+
+    public JButton getTable15_30() {
+        return table15_30;
+    }
+
+    public JButton getTable30_45() {
+        return table30_45;
+    }
+
+    public JButton getTable45_60() {
+        return table45_60;
+    }
+
+    public JRadioButton getMorningRadio() {
+        return morningRadio;
+    }
+
+    public JRadioButton getDayRadio() {
+        return dayRadio;
+    }
+
+    public JRadioButton getEveningRadio() {
+        return eveningRadio;
+    }
+
+    public ButtonGroup getGroupPeriodOfDay() {
+        return groupPeriodOfDay;
+    }
+
+    public ButtonGroup getGroup15MinuteTable() {
+        return group15MinuteTable;
+    }
+
+    public JRadioButton getTable0_15Radio() {
+        return table0_15Radio;
+    }
+
+    public JRadioButton getTable15_30Radio() {
+        return table15_30Radio;
+    }
+
+    public JRadioButton getTable30_45Radio() {
+        return table30_45Radio;
+    }
+
+    public JRadioButton getTable45_60Radio() {
+        return table45_60Radio;
     }
 
 }

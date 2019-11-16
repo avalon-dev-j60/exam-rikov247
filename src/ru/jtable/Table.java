@@ -2,7 +2,6 @@ package ru.jtable;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.text.PlainDocument;
@@ -40,12 +39,14 @@ public class Table {
         "Грузовые", "Грузовые", "Грузовые", "Грузовые", "Грузовые",
         "Автопоезда", "Автопоезда", "Автопоезда", "Автопоезда", "Автопоезда", "Автопоезда",
         "Автобусы", "Автобусы", "Автобусы", "Автобусы", "Автобусы",
+        "Троллейбусы",
         "Трамвай",
         "ИТОГО"};
     private String[] kindOfTransportFuture = {"Легковые, фургоны",
         "2-осные", "3-осные", "4-осные", "4-осные (2 оси+прицеп)", "5-осные (3 оси+прицеп)",
         "3 осные (2 оси+полуприцеп)", "4 осные (2 оси+полуприцеп)", "5 осные (2 оси+полуприцеп)", "5 осные (3 оси+полуприцеп)", "6 осные", "7 осные и более",
         "Особо малого класса", "Малого класса", "Среднего класса", "Большого класса", "Особо большого класса",
+        "Троллейбусы",
         "Трамвай",
         "ИТОГО"};
 
@@ -143,10 +144,8 @@ public class Table {
         }
     };
 
-    public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, String typeOfDirection, CreateCartogram cartogram) throws Exception {
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String typeOfStatement, CreateCartogram cartogram, JBroTable totalTable, JBroTable[] arrayTable) throws Exception {
         // Создаем переменную класса, в котором для таблицы создается требуемый хэдер
-//        CrossRoadModel xModel = new CrossRoadModel();
-//        TRightRoadModel tRightModel = new TRightRoadModel();
         groups = modelGroup; // создаем требуемый хэдер и передаем его
 
         // Получаем информацию о модели хэдера
@@ -154,15 +153,29 @@ public class Table {
 
         // Данные в таблице
         // Временно
-        if (kindOfStatement.equalsIgnoreCase("Now")) {
+        if (typeOfStatement.equalsIgnoreCase("Now")) {
             typeOfTransport = typeOfTransportNow;
             kindOfTransport = kindOfTransportNow;
         }
-        if (kindOfStatement.equalsIgnoreCase("Future")) {
+        if (typeOfStatement.equalsIgnoreCase("Future")) {
             typeOfTransport = typeOfTransportFuture;
             kindOfTransport = kindOfTransportFuture;
         }
-        modelListener = new ModelListener(table, kindOfTransport, kindOfStatement, cartogram);
+
+        // Подключение слушателя изменений в таблице 
+        // Если картограмма передана (значит инициализируем итоговую таблицу) то ее передаем дальше
+        if (cartogram != null) {
+            modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
+        } else {
+            // Если картограмма не преедана (значит это 15 минутные таблицы - не итоговая), тогда Если передали Итоговую таблицу и массив таблиц по 15 минут, то
+            if (arrayTable != null && totalTable != null) {
+                // Передаем их дальше, чтобы эти таблицы передали информацию в Итоговую таблицу
+                modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, totalTable, arrayTable);
+            } else {
+                // Если не передали, то это просто стандартная таблица (ни на картограмму, ни в другие таблицы ничего не передает)
+                modelListener = new ModelListener(table, kindOfTransport, typeOfStatement);
+            }
+        }
 
         ModelRow rows[] = new ModelRow[typeOfTransport.length]; // количество строк (не от 0, а от 1)
         for (int i = 0; i < rows.length; i++) {
@@ -203,7 +216,7 @@ public class Table {
             );
             // Делаем что то с ячейками в фиксированных столбцах
             for (int i = 0; i < fixed.getColumnModel().getColumnCount(); i++) {
-                cellRenderer(fixed, i, kindOfStatement);
+                cellRenderer(fixed, i, typeOfStatement);
             }
         }
 
@@ -212,7 +225,7 @@ public class Table {
 
         // ЯЧЕЙКИ. Установка отображения для всех ячеек 
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
-            cellRenderer(table, i, kindOfStatement); // устанавливаем выравнивание ячеек по центру
+            cellRenderer(table, i, typeOfStatement); // устанавливаем выравнивание ячеек по центру
             cellEditing(table, i); // Установка отображения ячейки при ее редактировании (устанавливается фильтр только на цифры)
         }
 
@@ -249,6 +262,19 @@ public class Table {
         table.getModel().addTableModelListener(modelListener);
 
         return table;
+    }
+
+    // Если картограмму не указывать, то с создаваемой таблицей не будет ассоциироваться никакой картограммы
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement) throws Exception {
+        return doTable(modelGroup, kindOfStatement, null, null, null);
+    }
+
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, CreateCartogram cartogram) throws Exception {
+        return doTable(modelGroup, kindOfStatement, cartogram, null, null);
+    }
+
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, JBroTable totalTable, JBroTable[] arrayTable) throws Exception {
+        return doTable(modelGroup, kindOfStatement, null, totalTable, arrayTable);
     }
 
     public void setGroups(IModelFieldGroup[] groups) {

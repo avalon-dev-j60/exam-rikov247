@@ -81,9 +81,9 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
     }
 
     // Работает для SLAVE TABLE! (сбрасывается при взаимодействии с таблицей)
-    Color color = Color.red;
-    int clor = 1;
-    String pmet;
+//    Color color = Color.red;
+//    int clor = 1;
+//    String pmet;
 
     // Установка цвета для строк
     public void setBackgroundRow(JBroTable table, int row) {
@@ -139,7 +139,8 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
         Color thirdColor = new Color(255, 203, 209, 80); // розовый
         Color fourthColor = new Color(127, 255, 0, 80); // салатовый
         Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
-        Color sixColor = Color.white; // белый
+        Color sixColor = new Color(0, 191, 191, 80); 
+        Color sevenColor = Color.white; // белый
 
         if (row == 0) {
             label.setBackground(firstColor);
@@ -168,6 +169,11 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
         // 19 строка
         if (row == 18) {
             label.setBackground(sixColor);
+            label.setOpaque(true);
+        }
+        // 20 Строка - Итого
+        if (row == 19) {
+            label.setBackground(sevenColor);
             label.setOpaque(true);
         }
     }

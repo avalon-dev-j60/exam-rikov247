@@ -1,20 +1,21 @@
 package ru.cartogram;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -24,28 +25,21 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.MaskFormatter;
 
 /**
  * Класс для создания Панели (в виде таблицы) Настройки картограммы.<n>
  * На вкладке картограммы.
  */
-public class CreateConfigurationPanelMap {
+public class CreateConfigurationPanelCartogram {
 
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this); // переменная позволяющая добавить в этот слушатель изменения свойств 
 
-//    private FileSaveWithPattern fileSaveWithPattern;
-//    private String kindOfStatement;
-//    private String fullFileName;
-//    private String fullName;
-//    private String typeOfDirection; // Количество направлений
-//    private String typeOfStatement; // Вид ведомости (старая, новая)
-//    private JBroTable table = new JBroTable(); // Таблица
-//    private JComboBox comboBox1;
-//    private JComboBox comboBox3;
-//    private JCheckBoxTree checkBox;
-//    private TreePath[] paths;
-//    private JScrollPane scrollPane;
     private CreateCartogram cartogram;
+    private CreateCartogram cartogramMorning;
+    private CreateCartogram cartogramDay;
+    private CreateCartogram cartogramEvening;
+    private CreateCartogram[] cartograms; // массив с картограммами
     private String typeOfDirection; // получаем количество направлений движения
 
     private JTextField direction1 = new JTextField();
@@ -63,14 +57,18 @@ public class CreateConfigurationPanelMap {
     private JLabel streetVerticlabel = new JLabel();
 
     private JTextField sectionOrIntersection = new JTextField();
-    private JTextField date = new JTextField();
     private JTextField dayOfWeek = new JTextField();
-    private JTextField time = new JTextField();
+    private JFormattedTextField date = new JFormattedTextField();
+    private JFormattedTextField timeMorning = new JFormattedTextField();
+    private JFormattedTextField timeDay = new JFormattedTextField();
+    private JFormattedTextField timeEvening = new JFormattedTextField();
 
     private JLabel sectionOrIntersectionlabel = new JLabel();
     private JLabel datelabel = new JLabel();
     private JLabel dayOfWeeklabel = new JLabel();
-    private JLabel timelabel = new JLabel();
+    private JLabel timeMorninglabel = new JLabel();
+    private JLabel timeDaylabel = new JLabel();
+    private JLabel timeEveninglabel = new JLabel();
 
     private JSplitPane vertSplit1; // (вертикальная панель с разделением по горизонтали) - вертикальная потому что она вытянута по вертикали
     private JSplitPane vertSplit2;
@@ -82,8 +80,16 @@ public class CreateConfigurationPanelMap {
     private JSplitPane horizSplit4;
 
     // Получаем картограмму и количество направлений движения
-    public CreateConfigurationPanelMap(CreateCartogram cartogram, String typeOfDirection) {
+    public CreateConfigurationPanelCartogram(CreateCartogram cartogram, String typeOfDirection) {
         this.cartogram = cartogram;
+        this.typeOfDirection = typeOfDirection;
+    }
+
+    public CreateConfigurationPanelCartogram(CreateCartogram cartogramMorning, CreateCartogram cartogramDay, CreateCartogram cartogramEvening, String typeOfDirection) {
+        cartograms = new CreateCartogram[]{cartogramMorning, cartogramDay, cartogramEvening};
+        this.cartogramMorning = cartogramMorning;
+        this.cartogramDay = cartogramDay;
+        this.cartogramEvening = cartogramEvening;
         this.typeOfDirection = typeOfDirection;
     }
 
@@ -124,7 +130,9 @@ public class CreateConfigurationPanelMap {
         createLabel(sectionOrIntersectionlabel, "Участок/перекресток: ");
         createLabel(datelabel, "Дата: ");
         createLabel(dayOfWeeklabel, "День недели: ");
-        createLabel(timelabel, "Время: ");
+        createLabel(timeMorninglabel, "Время утро: ");
+        createLabel(timeDaylabel, "Время день: ");
+        createLabel(timeEveninglabel, "Время вечер: ");
 
         // Конфигурируем Текстовые поля
         // Для первого блока
@@ -136,9 +144,11 @@ public class CreateConfigurationPanelMap {
         createTextField(streetVertic, streetVerticlabel, "StreetName_Vertical1", "StreetName_Vertical2");
         // Для второго блока
         createTextFieldData(sectionOrIntersection, "SectionOrIntersection");
-        createTextFieldData(date, "Date");
         createTextFieldData(dayOfWeek, "DayOfWeek");
-        createTextFieldData(time, "Time");
+        createFormattedTextFieldDataDate(date, "Date");
+        createFormattedTextFieldDataTime(timeMorning, "Time", cartogramMorning);
+        createFormattedTextFieldDataTime(timeDay, "Time", cartogramDay);
+        createFormattedTextFieldDataTime(timeEvening, "Time", cartogramEvening);
 
         JScrollPane leftPanel1 = new JScrollPane();
         JScrollPane rightPanel1 = new JScrollPane();
@@ -147,23 +157,23 @@ public class CreateConfigurationPanelMap {
             leftPanel1 = createLabelPanel(direction1label, direction2label, direction3label, direction4label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction2, direction3, direction4, streetHoriz, streetVertic);
         }
-        if (typeOfDirection.equalsIgnoreCase("4 кольцо")) {
+        if (typeOfDirection.equalsIgnoreCase("4Circle")) {
             leftPanel1 = createLabelPanel(direction1label, direction2label, direction3label, direction4label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction2, direction3, direction4, streetHoriz, streetVertic);
         }
-        if (typeOfDirection.equalsIgnoreCase("3 вверх")) {
+        if (typeOfDirection.equalsIgnoreCase("3Up")) {
             leftPanel1 = createLabelPanel(direction1label, direction2label, direction4label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction2, direction4, streetHoriz, streetVertic);
         }
-        if (typeOfDirection.equalsIgnoreCase("3 вправо")) {
+        if (typeOfDirection.equalsIgnoreCase("3Right")) {
             leftPanel1 = createLabelPanel(direction1label, direction2label, direction3label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction2, direction3, streetHoriz, streetVertic);
         }
         createHorizPanel(horizSplit1, leftPanel1, rightPanel1);
         // Создаем вторую горизонтальную панель (с двумя половинами, разделенными вертикальной линией)
         createHorizPanel(horizSplit2,
-                createLabelPanel(sectionOrIntersectionlabel, datelabel, dayOfWeeklabel, timelabel),
-                createTextFieldPanel(sectionOrIntersection, date, dayOfWeek, time));
+                createLabelPanel(sectionOrIntersectionlabel, datelabel, dayOfWeeklabel, timeMorninglabel, timeDaylabel, timeEveninglabel),
+                createTextFieldPanel(sectionOrIntersection, date, createComboboxDayOfWeek(), timeMorning, timeDay, timeEvening));
 
         vertSplit1.setTopComponent(horizSplit1);
         vertSplit1.setBottomComponent(vertSplit2);
@@ -187,7 +197,6 @@ public class CreateConfigurationPanelMap {
         horizSplit2.setBorder(BorderFactory.createEmptyBorder());
 //        horizSplit3.setBorder(BorderFactory.createEmptyBorder());
 //        horizSplit4.setBorder(BorderFactory.createEmptyBorder());
-
         return vertSplit1;
     }
 
@@ -203,29 +212,29 @@ public class CreateConfigurationPanelMap {
     }
 
     // Конструкторы для возможности добавления на панель меньше, чем исходное количество направлений (6)
-    private JScrollPane createTextFieldPanel(JTextField tF1) {
+    private JScrollPane createTextFieldPanel(JComponent tF1) {
         return createTextFieldPanel(tF1, null, null, null, null, null);
     }
 
-    private JScrollPane createTextFieldPanel(JTextField tF1, JTextField tF2) {
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2) {
         return createTextFieldPanel(tF1, tF2, null, null, null, null);
     }
 
-    private JScrollPane createTextFieldPanel(JTextField tF1, JTextField tF2, JTextField tF3) {
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3) {
         return createTextFieldPanel(tF1, tF2, tF3, null, null, null);
     }
 
-    private JScrollPane createTextFieldPanel(JTextField tF1, JTextField tF2, JTextField tF3, JTextField tF4) {
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3, JComponent tF4) {
         return createTextFieldPanel(tF1, tF2, tF3, tF4, null, null);
     }
 
-    private JScrollPane createTextFieldPanel(JTextField tF1, JTextField tF2, JTextField tF3, JTextField tF4, JTextField tF5) {
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3, JComponent tF4, JComponent tF5) {
         return createTextFieldPanel(tF1, tF2, tF3, tF4, tF5, null);
     }
 
     // Конфигурируем группу текстовых полей
-    private JScrollPane createTextFieldPanel(JTextField tF1, JTextField tF2, JTextField tF3,
-            JTextField tF4, JTextField tF5, JTextField tF6) {
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3,
+            JComponent tF4, JComponent tF5, JComponent tF6) {
         // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
         JScrollBar scrollBar = new JScrollBar(JScrollBar.VERTICAL) {
             @Override
@@ -246,11 +255,10 @@ public class CreateConfigurationPanelMap {
         }
 
         // Пока что не нужные слушатели. Для реагирования на нажатие на Enter 
-        addListenerToTextField(tF1, "StreetName_Up");
-        addListenerToTextField(tF2, "StreetName_Right");
-        addListenerToTextField(tF3, "StreetName_Down");
-        addListenerToTextField(tF4, "StreetName_Left");
-
+//        addListenerToTextField(tF1, "StreetName_Up");
+//        addListenerToTextField(tF2, "StreetName_Right");
+//        addListenerToTextField(tF3, "StreetName_Down");
+//        addListenerToTextField(tF4, "StreetName_Left");
         JScrollPane s = new JScrollPane(p); // Добавление лэйбла в прокручивающуюся панель
         // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом
         s.setHorizontalScrollBar(scrollBar);
@@ -348,23 +356,38 @@ public class CreateConfigurationPanelMap {
         textField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
-                cartogram.changeValueWithoutSave(ID2, textField.getText());
-                cartogram.saveChangeValue();
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].changeValueWithoutSave(ID2, textField.getText());
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+//                cartogram.changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+//                cartogram.changeValueWithoutSave(ID2, textField.getText());
+//                cartogram.saveChangeValue();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSave(ID1, textField.getText());
-                cartogram.changeValueWithoutSave(ID2, textField.getText());
-                cartogram.saveChangeValue();
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].changeValueWithoutSave(ID2, textField.getText());
+                        cartograms[i].saveChangeValue();
+                    }
+                }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSave(ID1, textField.getText());
-                cartogram.changeValueWithoutSave(ID2, textField.getText());
-                cartogram.saveChangeValue();
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].changeValueWithoutSave(ID2, textField.getText());
+                        cartograms[i].saveChangeValue();
+                    }
+                }
             }
         });
         return textField;
@@ -373,6 +396,59 @@ public class CreateConfigurationPanelMap {
     // Создание текстового поля для панели Данных о картограмме (здесь изначально элемент в SVG пустой)
     private JTextField createTextFieldData(JTextField textField, String ID) {
         textField.setToolTipText(textField.getText()); // Устанавливаем всплывающую подсказку
+        // Слушатель изменения положения каретки для обновления всплывающей подсказки
+        textField.addCaretListener(new CaretListener() {
+            @Override
+            public void caretUpdate(CaretEvent e) {
+                textField.setToolTipText(textField.getText()); // Устанавливаем всплывающую подсказку с новым текстом
+            }
+        });
+        // Слушатель изменения текста, добавления его на картинку SVG и обновления SVGCanvas
+        textField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+//                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+//                cartogram.saveChangeValue();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+            }
+        });
+        return textField;
+    }
+
+    private JTextField createFormattedTextFieldDataTime(JFormattedTextField textField, String ID, CreateCartogram cartogram) {
+        try {
+            MaskFormatter phoneFormatter = new MaskFormatter("##:##-##:##");
+            phoneFormatter.setPlaceholderCharacter('_');
+            phoneFormatter.install(textField); // устанавливаем MaskFormatted для textField
+            textField.setColumns(11);
+        } catch (ParseException ex) {
+            Logger.getLogger(CreateConfigurationPanelCartogram.class.getName()).log(Level.SEVERE, null, ex);
+        }
         // Слушатель изменения положения каретки для обновления всплывающей подсказки
         textField.addCaretListener(new CaretListener() {
             @Override
@@ -398,6 +474,59 @@ public class CreateConfigurationPanelMap {
             public void changedUpdate(DocumentEvent e) {
                 cartogram.changeValueWithoutSaveTspan2(ID, textField.getText());
                 cartogram.saveChangeValue();
+            }
+        });
+        return textField;
+    }
+
+    private JTextField createFormattedTextFieldDataDate(JFormattedTextField textField, String ID) {
+        try {
+            MaskFormatter phoneFormatter = new MaskFormatter("##.##.##");
+            phoneFormatter.setPlaceholderCharacter('_');
+            phoneFormatter.install(textField); // устанавливаем MaskFormatted для textField
+            textField.setColumns(8);
+        } catch (ParseException ex) {
+            Logger.getLogger(CreateConfigurationPanelCartogram.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Слушатель изменения положения каретки для обновления всплывающей подсказки
+        textField.addCaretListener(new CaretListener() {
+            @Override
+            public void caretUpdate(CaretEvent e) {
+                textField.setToolTipText(textField.getText()); // Устанавливаем всплывающую подсказку с новым текстом
+            }
+        });
+        // Слушатель изменения текста, добавления его на картинку SVG и обновления SVGCanvas
+        textField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+//                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+//                cartogram.saveChangeValue();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
             }
         });
         return textField;
@@ -465,6 +594,38 @@ public class CreateConfigurationPanelMap {
         pcs.addPropertyChangeListener(listener);
     }
 
+    private JComboBox createComboboxDayOfWeek() {
+        String[] items = {"понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"};
+        JComboBox comboBox = new JComboBox(items);
+        comboBox.setFocusable(false);
+        comboBox.setBackground(Color.WHITE); // установка цвета заднего фона JComboBox
+        ((JLabel) comboBox.getRenderer()).setHorizontalAlignment(JLabel.CENTER); // выравнивание текста внутри JComboBox
+
+        // Исходная установка значения в SVG файл
+        for (int i = 0; i < cartograms.length; i++) {
+            if (cartograms[i] != null) {
+                cartograms[i].changeValueWithoutSaveTspan2("DayOfWeek", (String) comboBox.getSelectedItem()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                cartograms[i].saveChangeValue();
+            }
+        }
+//        cartogram.changeValueWithoutSaveTspan2("DayOfWeek", (String) comboBox.getSelectedItem());
+//        cartogram.saveChangeValue();
+        comboBox.setToolTipText((String) comboBox.getSelectedItem());
+        // Слушатель изменения состояния комбоБокса для переноса данных в SVG файл
+        comboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < cartograms.length; i++) {
+                    if (cartograms[i] != null) {
+                        cartograms[i].changeValueWithoutSaveTspan2("DayOfWeek", (String) comboBox.getSelectedItem()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                        cartograms[i].saveChangeValue();
+                    }
+                }
+                comboBox.setToolTipText((String) comboBox.getSelectedItem());
+            }
+        });
+
+        return comboBox;
+    }
 //    private String getFullName() {
 //        if (fullFileName != null) {
 //            this.fullName = fullFileName;

@@ -17,12 +17,10 @@ import ru.trafficClicker.OnButtonClick;
  */
 public class popupButtonToTable {
 
-    public popupButtonToTable(JButton button, JBroTable table, String typeOfStatement, String fieldName, String typeOfTransport) {
+    public popupButtonToTable(JButton button, JBroTable table, String kindOfStatement, CreatePopupButtonMenu popupMenu, String fieldName, String typeOfTransport) {
         // Если вид таблицы - старый
-        if (typeOfStatement.equalsIgnoreCase("Now")) {
+        if (kindOfStatement.equalsIgnoreCase("Now")) {
             // Если указан нужный столбец, то
-            // Создаем объект в котором создается меню и его дети
-            CreatePopupButtonMenu popupMenu = new CreatePopupButtonMenu(typeOfStatement);
             if (typeOfTransport.equalsIgnoreCase("Truck")) {
                 // Привязываем popupMenu к определенной кнопке (Грузовой транспорт)
                 popupButton(button, popupMenu.getTruck());
@@ -42,10 +40,9 @@ public class popupButtonToTable {
                 popupMenu.getMicroBus().addActionListener(new OnButtonClick(table, "Микроавтобус", fieldName)::onButtonClick);
             }
         }
-        if (typeOfStatement.equalsIgnoreCase("Future")) {
-            // Если указан нужный столбец, то
-            // Создаем объект в котором создается меню и его дети
-            CreatePopupButtonMenu popupMenu = new CreatePopupButtonMenu(typeOfStatement);
+        if (kindOfStatement.equalsIgnoreCase("Future")) {
+//            // Если указан нужный столбец, то
+//            // Создаем объект в котором создается меню и его дети
             if (typeOfTransport.equalsIgnoreCase("Truck")) {
                 // Привязываем popupMenu к определенной кнопке (Грузовой транспорт)
                 popupButton(button, popupMenu.getTruck());
@@ -82,7 +79,9 @@ public class popupButtonToTable {
 
     // Добавляем к кнопке выбранное popupMenu и указываем место отображения
     private void popupButton(JButton button, JPopupMenu popMenu) {
+        button.setComponentPopupMenu(popMenu); // Добавляем popupMenu к кнопке
         button.addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) { // если кликнули по правой кнопке мыши
                     Component b = (Component) e.getSource(); // получаем компонент, по которому кликнули - кнопка
