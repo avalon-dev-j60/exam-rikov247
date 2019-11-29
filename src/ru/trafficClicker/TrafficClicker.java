@@ -17,7 +17,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.tree.TreePath;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.quinto.swing.table.view.JBroTable;
+import org.xml.sax.SAXException;
 import ru.AddVideoPanel;
 import ru.CreateLeftControlPanel;
 import ru.CreateMenuBar;
@@ -86,6 +89,9 @@ public class TrafficClicker extends AbstractFrame {
     private CreateVideoPlayerControlPanel vPCPanel = new CreateVideoPlayerControlPanel(); // VideoPlayer Control Panel (Контрольная Панель Видео Плеера)
     private CreateLeftControlPanel leftCPanel = new CreateLeftControlPanel(); // Left Control Panel (Левая Контрольная Панель)
     private CreateRightControlPanel rightCPanel = new CreateRightControlPanel(); // Right Control Panel (Правая Контрольная Панель)
+
+    private Settings settings = new Settings(); // класс работы с файлом настроек;
+    private SettingsFrame settingsFrame = new SettingsFrame(settings); // окно настроек
 
     // Что происходит при создании окна
     @Override
@@ -157,8 +163,7 @@ public class TrafficClicker extends AbstractFrame {
         jBar.getToolsItem1().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SettingsFrame settingsFrame = new SettingsFrame();
-                settingsFrame.makeNewWindow();
+                settingsFrame.setFrameVisible(true);
             }
         });
 
@@ -237,6 +242,13 @@ public class TrafficClicker extends AbstractFrame {
                 }
             }
         });
+
+        // Инициализация Настроек
+        try {
+            settings.writeFirstDocument(); // Записываем первоначальный файл настроек в папку пользователя (если он уже создан, то он перезаписывается на себя же)
+        } catch (TransformerFactoryConfigurationError | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // Подготовка видео, запуск и постановка на паузу. Также установка всплывающей панели

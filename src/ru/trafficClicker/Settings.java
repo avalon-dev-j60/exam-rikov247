@@ -82,6 +82,29 @@ public class Settings {
         }
     }
 
+    public void writeFirstDocument() throws TransformerFactoryConfigurationError, SAXException, IOException, ParserConfigurationException {
+        try {
+            // Создается построитель документа
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            // Создается дерево DOM документа из файла
+            try {
+                document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
+            } catch (FileNotFoundException e) {
+                document = documentBuilder.parse(defaultSettings);
+            }
+            // Запись файла
+            Transformer tr = TransformerFactory.newInstance().newTransformer();
+            DOMSource source = new DOMSource(document);
+            FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml"); // указание имени и дериктории нового файла xml (стараемся перезаписать)
+            StreamResult result = new StreamResult(fos);
+            tr.transform(source, result);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException | TransformerException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     // Получаем директорию Пользователя (User/nameUser)
     public String getUserDataDirectory() {
         return System.getProperty("user.home") + File.separator;

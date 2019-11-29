@@ -36,9 +36,15 @@ public class SettingsFrame {
     private JButton okButton, acceptButton, cancelButton;
     private JCheckBox activePlayPauseCheckBox = new JCheckBox("Play/pause по нажатию");
 
-    private Settings settings = new Settings();
+    private Settings settings;
 
     private JTabbedPane tableTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // создание панели вкладок с размещением выбора вкладок вверху панели и размещением новых вкладок (если им мало места) в скролящуюся горизонтальную панель
+
+    public SettingsFrame(Settings settings) {
+        this.settings = settings;
+        makeNewWindow(); // Создаем окно и НЕ ОТОБРАЖАЕМ его
+        firstInitialize(); // Считываем настройки из файла настроек
+    }
 
     private Component createTabbedPane() throws IOException {
         tableTabs.setFocusable(false);
@@ -68,6 +74,7 @@ public class SettingsFrame {
         return tableTabs;
     }
 
+    // Панель настройки слоя кнопок
     private JPanel createButtonsOverlaySettingPanel() {
         JPanel panelOfButtons = new JPanel(new MigLayout());
         panelOfButtons.setBackground(Color.white);
@@ -83,6 +90,7 @@ public class SettingsFrame {
         return panelOfButtons;
     }
 
+    // Панель с кнопками: ОК, Отмена и Применить
     private JPanel createOkAcceptCancelPanel() {
         JPanel okAcceptCancelPanel = new JPanel(new MigLayout());
         okAcceptCancelPanel.setBackground(Color.white);
@@ -104,20 +112,27 @@ public class SettingsFrame {
         return okAcceptCancelPanel;
     }
 
+    // Какая то еще панель (тестовая)
     private JPanel createTestPanel(String text) {
         JPanel pnl = new JPanel(new MigLayout());
         pnl.setBackground(Color.white);
 
-        pnl.add(new JButton("E"));
-        pnl.add(new JButton("F"));
-        pnl.add(new JButton("G"));
-        pnl.add(new JButton("H"));
+        JButton a = new JButton("A");
+        a.setFocusable(false);
+        JButton b = new JButton("B");
+        b.setFocusable(false);
+        JButton c = new JButton("C");
+        c.setFocusable(false);
+        pnl.add(a);
+        pnl.add(b);
+        pnl.add(c);
         pnl.setBorder(BorderFactory.createTitledBorder(text));
 
         return pnl;
     }
 
-    public void makeNewWindow() {
+    // Метод создания окна настроек. Окно создается при инициализации класса. Далее управляем только его видимостью
+    private void makeNewWindow() {
         frame = new JFrame("Настройки");
         frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         frame.setSize(new Dimension(weightFrame, heightFrame));
@@ -131,8 +146,6 @@ public class SettingsFrame {
         } catch (IOException ex) {
             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        frame.setVisible(true);
     }
 
     // Получаем директорию Пользователя (User/nameUser)
@@ -163,17 +176,35 @@ public class SettingsFrame {
         }
     };
 
+    // Метод считывания исходных настроек из файла настроек (если его нет, то из дефолтного файла настроек)
+    private void firstInitialize() {
+        try {
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
+                activePlayPauseCheckBox.setSelected(true);
+            }
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
+                activePlayPauseCheckBox.setSelected(false);
+            }
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     // Закрытие окна настроек
     ActionListener closeWindow = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             frame.setVisible(false); // Скрываем окно
-            frame.dispose(); // уничтожаем все ресурсы связанные с окном и само окно
+//            frame.dispose(); // уничтожаем все ресурсы связанные с окном и само окно
         }
     };
+
+    public void setFrameVisible(boolean visible) {
+        frame.setVisible(visible);
+    }
 
     public JCheckBox getActivePlayPauseCheckBox() {
         return activePlayPauseCheckBox;
     }
-    
+
 }
