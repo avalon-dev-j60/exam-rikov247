@@ -12,7 +12,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import ru.Excel.excelOpen;
+import ru.Excel.open.excelOpen;
 
 /**
  * Метод для считывания данных с excel и перевода их в jtable

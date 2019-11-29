@@ -1,6 +1,5 @@
-package ru.Excel;
+package ru.Excel.open;
 
-import resources.FileChooserRus;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
@@ -45,7 +44,6 @@ public class excelOpen extends JPanel {
     }
 
     public String getSelectExcelFile() {
-        new FileChooserRus(); // Локализация компонентов окна JFileChooser
         excelOpen.setFileSelectionMode(JFileChooser.FILES_ONLY); // Выбор только файлов (не директорий)
         excelOpen.setAcceptAllFileFilterUsed(false); // Убираем фильтр всех файлов
         excelOpen.setFileFilter(excelFilter);
@@ -56,7 +54,7 @@ public class excelOpen extends JPanel {
         }
         disableTF(excelOpen); // отключаем возможность вписать файл, оставляем только просмотр
 
-        int ret = excelOpen.showDialog(null, "Открыть файл"); // показываем диалог с названием "Открыть файл"
+        int ret = excelOpen.showDialog(null, "Открыть проект"); // показываем диалог с названием "Открыть файл"
         if (ret == JFileChooser.APPROVE_OPTION) { //  
             file = excelOpen.getSelectedFile();
             return file.getAbsolutePath(); // получаем абсолютный путь к выбранному файлу и возвращаем его

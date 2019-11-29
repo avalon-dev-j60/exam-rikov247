@@ -165,6 +165,7 @@ public class Table {
         // Подключение слушателя изменений в таблице 
         // Если картограмма передана (значит инициализируем итоговую таблицу) то ее передаем дальше
         if (cartogram != null) {
+            table.getModel().removeTableModelListener(modelListener);  // удаляем старый слушатель (так как используем одну и туже таблицу
             modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
         } else {
             // Если картограмма не преедана (значит это 15 минутные таблицы - не итоговая), тогда Если передали Итоговую таблицу и массив таблиц по 15 минут, то
@@ -285,4 +286,23 @@ public class Table {
         return groups;
     }
 
+    public void removeAndSetModelListener(String typeOfStatement, CreateCartogram cartogram) {
+        table.getModel().removeTableModelListener(modelListener);
+        modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
+        table.getModel().addTableModelListener(modelListener);
+    }
+
+    public void removeModelListener() {
+        table.getModel().removeTableModelListener(modelListener);
+    }
+
+    public void setModelListener(String typeOfStatement, CreateCartogram cartogram) {
+        modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
+        table.getModel().addTableModelListener(modelListener);
+    }
+    
+    public void setModelListener(String typeOfStatement) {
+        modelListener = new ModelListener(table, kindOfTransport, typeOfStatement);
+        table.getModel().addTableModelListener(modelListener);
+    }
 }

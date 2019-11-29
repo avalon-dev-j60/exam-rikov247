@@ -26,6 +26,11 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import ru.trafficClicker.TrafficClicker;
 
 /**
  * Класс для создания Панели (в виде таблицы) Настройки картограммы.<n>
@@ -62,6 +67,14 @@ public class CreateConfigurationPanelCartogram {
     private JFormattedTextField timeMorning = new JFormattedTextField();
     private JFormattedTextField timeDay = new JFormattedTextField();
     private JFormattedTextField timeEvening = new JFormattedTextField();
+
+    private DateDocumentListener dateListener;
+    private TimeDocumentListener timeMorningListener;
+    private TimeDocumentListener timeDayListener;
+    private TimeDocumentListener timeEveningListener;
+
+    private String[] items = {"понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"};
+    private JComboBox comboBox = new JComboBox(items);
 
     private JLabel sectionOrIntersectionlabel = new JLabel();
     private JLabel datelabel = new JLabel();
@@ -146,9 +159,19 @@ public class CreateConfigurationPanelCartogram {
         createTextFieldData(sectionOrIntersection, "SectionOrIntersection");
         createTextFieldData(dayOfWeek, "DayOfWeek");
         createFormattedTextFieldDataDate(date, "Date");
-        createFormattedTextFieldDataTime(timeMorning, "Time", cartogramMorning);
-        createFormattedTextFieldDataTime(timeDay, "Time", cartogramDay);
-        createFormattedTextFieldDataTime(timeEvening, "Time", cartogramEvening);
+
+        timeMorningListener = new TimeDocumentListener(timeMorning, cartograms[0]);
+        timeDayListener = new TimeDocumentListener(timeDay, cartograms[1]);
+        timeEveningListener = new TimeDocumentListener(timeEvening, cartograms[2]);
+
+        createFormattedTextFieldDataTime(timeMorning, "Morning");
+        createFormattedTextFieldDataTime(timeDay, "Day");
+        createFormattedTextFieldDataTime(timeEvening, "Evening");
+
+        // Первоначальная установка значений с картограммы!
+        setValuesOnConfigPanelFromCartogram(cartogramMorning, "Morning");
+        setValuesOnConfigPanelFromCartogram(cartogramDay, "Day");
+        setValuesOnConfigPanelFromCartogram(cartogramEvening, "Evening");
 
         JScrollPane leftPanel1 = new JScrollPane();
         JScrollPane rightPanel1 = new JScrollPane();
@@ -341,9 +364,19 @@ public class CreateConfigurationPanelCartogram {
         return createTextField(textField, label, ID, null);
     }
 
+    private JTextField createTextField(JTextField textField, String ID) {
+        return createTextField(textField, null, ID, null);
+    }
+
+    private JTextField createTextField(JTextField textField, String ID1, String ID2) {
+        return createTextField(textField, null, ID1, ID2);
+    }
+
     // Метод для изменения сразу двух элементов в документе SVG одновременно
     private JTextField createTextField(JTextField textField, JLabel label, String ID1, String ID2) {
-        textField.setText(label.getText().replaceAll("[:,<,/,h,t,m,l,>,b]", "").trim()); // Удаляем все лишние символы
+        if (label != null) {
+            textField.setText(label.getText().replaceAll("[:,<,/,h,t,m,l,>,b]", "").trim()); // Удаляем все лишние символы
+        }
         textField.setToolTipText(textField.getText()); // Устанавливаем всплывающую подсказку
         // Слушатель изменения положения каретки для обновления всплывающей подсказки
         textField.addCaretListener(new CaretListener() {
@@ -363,9 +396,6 @@ public class CreateConfigurationPanelCartogram {
                         cartograms[i].saveChangeValue();
                     }
                 }
-//                cartogram.changeValueWithoutSave(ID1, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
-//                cartogram.changeValueWithoutSave(ID2, textField.getText());
-//                cartogram.saveChangeValue();
             }
 
             @Override
@@ -440,7 +470,7 @@ public class CreateConfigurationPanelCartogram {
         return textField;
     }
 
-    private JTextField createFormattedTextFieldDataTime(JFormattedTextField textField, String ID, CreateCartogram cartogram) {
+    private JTextField createFormattedTextFieldDataTime(JFormattedTextField textField, String ID) {
         try {
             MaskFormatter phoneFormatter = new MaskFormatter("##:##-##:##");
             phoneFormatter.setPlaceholderCharacter('_');
@@ -457,25 +487,15 @@ public class CreateConfigurationPanelCartogram {
             }
         });
         // Слушатель изменения текста, добавления его на картинку SVG и обновления SVGCanvas
-        textField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
-                cartogram.saveChangeValue();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText());
-                cartogram.saveChangeValue();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText());
-                cartogram.saveChangeValue();
-            }
-        });
+        if (ID.equalsIgnoreCase("Morning")) {
+            textField.getDocument().addDocumentListener(timeMorningListener);
+        }
+        if (ID.equalsIgnoreCase("Day")) {
+            textField.getDocument().addDocumentListener(timeDayListener);
+        }
+        if (ID.equalsIgnoreCase("Evening")) {
+            textField.getDocument().addDocumentListener(timeEveningListener);
+        }
         return textField;
     }
 
@@ -505,8 +525,6 @@ public class CreateConfigurationPanelCartogram {
                         cartograms[i].saveChangeValue();
                     }
                 }
-//                cartogram.changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
-//                cartogram.saveChangeValue();
             }
 
             @Override
@@ -595,8 +613,6 @@ public class CreateConfigurationPanelCartogram {
     }
 
     private JComboBox createComboboxDayOfWeek() {
-        String[] items = {"понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"};
-        JComboBox comboBox = new JComboBox(items);
         comboBox.setFocusable(false);
         comboBox.setBackground(Color.WHITE); // установка цвета заднего фона JComboBox
         ((JLabel) comboBox.getRenderer()).setHorizontalAlignment(JLabel.CENTER); // выравнивание текста внутри JComboBox
@@ -608,11 +624,10 @@ public class CreateConfigurationPanelCartogram {
                 cartograms[i].saveChangeValue();
             }
         }
-//        cartogram.changeValueWithoutSaveTspan2("DayOfWeek", (String) comboBox.getSelectedItem());
-//        cartogram.saveChangeValue();
         comboBox.setToolTipText((String) comboBox.getSelectedItem());
         // Слушатель изменения состояния комбоБокса для переноса данных в SVG файл
         comboBox.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < cartograms.length; i++) {
                     if (cartograms[i] != null) {
@@ -626,6 +641,162 @@ public class CreateConfigurationPanelCartogram {
 
         return comboBox;
     }
+
+    // Первоначальная установка значений для панели конфигураций. Значения берутся с картограммы
+    public void setValuesOnConfigPanelFromCartogram(CreateCartogram cartogram, String Identifier) {
+        direction1.setText(cartogram.getFullValue("StreetName_Up"));
+        direction2.setText(cartogram.getFullValue("StreetName_Right"));
+        direction3.setText(cartogram.getFullValue("StreetName_Down"));
+        direction4.setText(cartogram.getFullValue("StreetName_Left"));
+        streetHoriz.setText(cartogram.getFullValue("StreetName_Horizontal1"));
+        streetVertic.setText(cartogram.getFullValue("StreetName_Vertical1"));
+
+        sectionOrIntersection.setText(cartogram.getValueTspan2("SectionOrIntersection"));
+        date.setText(cartogram.getValueTspan2("Date"));
+        if (Identifier.equalsIgnoreCase("Morning")) {
+            timeMorning.setText(cartogram.getValueTspan2("Time"));
+        }
+        if (Identifier.equalsIgnoreCase("Day")) {
+            timeDay.setText(cartogram.getValueTspan2("Time"));
+        }
+        if (Identifier.equalsIgnoreCase("Evening")) {
+            timeEvening.setText(cartogram.getValueTspan2("Time"));
+        }
+        comboBox.setSelectedItem(cartogram.getValueTspan2("DayOfWeek"));
+    }
+
+    // Первоначальная установка значений для всех картограмм
+    public void setValuesOnAllCartogramFromConfigPanel() {
+        setValuesOnCartogramFromConfigPanel(cartogramMorning, "Morning");
+        setValuesOnCartogramFromConfigPanel(cartogramDay, "Day");
+        setValuesOnCartogramFromConfigPanel(cartogramEvening, "Evening");
+    }
+
+    // Первоначальная установка значений для одной передаваемой картограмм. Значения берутся из панели конфигураций
+    public void setValuesOnCartogramFromConfigPanel(CreateCartogram cartogram, String Identifier) {
+        cartogram.changeValueWithoutSave("StreetName_Up", direction1.getText());
+        cartogram.changeValueWithoutSave("StreetName_Right", direction2.getText());
+        cartogram.changeValueWithoutSave("StreetName_Down", direction3.getText());
+        cartogram.changeValueWithoutSave("StreetName_Left", direction4.getText());
+
+        cartogram.changeValueWithoutSave("StreetName_Horizontal1", streetHoriz.getText());
+        cartogram.changeValueWithoutSave("StreetName_Horizontal2", streetHoriz.getText());
+        cartogram.changeValueWithoutSave("StreetName_Vertical1", streetVertic.getText());
+        cartogram.changeValueWithoutSave("StreetName_Vertical2", streetVertic.getText());
+
+        cartogram.changeValueWithoutSaveTspan2("SectionOrIntersection", sectionOrIntersection.getText());
+        cartogram.changeValueWithoutSaveTspan2("Date", date.getText());
+
+        if (Identifier.equalsIgnoreCase("Morning")) {
+            cartogram.changeValueWithoutSaveTspan2("Time", timeMorning.getText());
+        }
+        if (Identifier.equalsIgnoreCase("Day")) {
+            cartogram.changeValueWithoutSaveTspan2("Time", timeDay.getText());
+        }
+        if (Identifier.equalsIgnoreCase("Evening")) {
+            cartogram.changeValueWithoutSaveTspan2("Time", timeEvening.getText());
+        }
+        cartogram.changeValueWithoutSaveTspan2("DayOfWeek", String.valueOf(comboBox.getSelectedItem()));
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        cartogram.saveChangeValue();
+    }
+
+    public void setCartogram(CreateCartogram cartogramMorning, CreateCartogram cartogramDay, CreateCartogram cartogramEvening) {
+        cartograms[0] = this.cartogramMorning = cartogramMorning;
+        cartograms[1] = this.cartogramDay = cartogramDay;
+        cartograms[2] = this.cartogramEvening = cartogramEvening;
+
+        // Обновляем слушателя изменения времени в картограмму
+        addAndRemoveTimeListener(timeMorning, timeMorningListener, cartograms[0]);
+        addAndRemoveTimeListener(timeDay, timeDayListener, cartograms[1]);
+        addAndRemoveTimeListener(timeEvening, timeEveningListener, cartograms[2]);
+    }
+
+    // Обновляние слушателя изменения времени в картограмму
+    private void addAndRemoveTimeListener(JFormattedTextField fTextField, TimeDocumentListener timeDocList, CreateCartogram cartogram) {
+        fTextField.getDocument().removeDocumentListener(timeDocList);
+        timeDocList = new TimeDocumentListener(fTextField, cartogram);
+        fTextField.getDocument().addDocumentListener(timeDocList);
+    }
+
+    // Документ слушатель ДАТЫ
+    public class DateDocumentListener implements DocumentListener {
+
+        private JFormattedTextField textField;
+        private String ID;
+
+        public DateDocumentListener(JFormattedTextField textField, String ID) {
+            this.textField = textField;
+            this.ID = ID;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            for (int i = 0; i < cartograms.length; i++) {
+                if (cartograms[i] != null) {
+                    cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                    cartograms[i].saveChangeValue();
+                }
+            }
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            for (int i = 0; i < cartograms.length; i++) {
+                if (cartograms[i] != null) {
+                    cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                    cartograms[i].saveChangeValue();
+                }
+            }
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            for (int i = 0; i < cartograms.length; i++) {
+                if (cartograms[i] != null) {
+                    cartograms[i].changeValueWithoutSaveTspan2(ID, textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+                    cartograms[i].saveChangeValue();
+                }
+            }
+        }
+
+    }
+
+    // Документ слушатель ВРЕМЕНИ
+    public class TimeDocumentListener implements DocumentListener {
+
+        private JFormattedTextField textField;
+        private CreateCartogram cartogram;
+
+        public TimeDocumentListener(JFormattedTextField textField, CreateCartogram cartogram) {
+            this.textField = textField;
+            this.cartogram = cartogram;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            cartogram.changeValueWithoutSaveTspan2("Time", textField.getText()); // меняем текст по ID в SVG файле и обновляем SVGCanvas
+            cartogram.saveChangeValue();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            cartogram.changeValueWithoutSaveTspan2("Time", textField.getText());
+            cartogram.saveChangeValue();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            cartogram.changeValueWithoutSaveTspan2("Time", textField.getText());
+            cartogram.saveChangeValue();
+        }
+
+    }
+
 //    private String getFullName() {
 //        if (fullFileName != null) {
 //            this.fullName = fullFileName;

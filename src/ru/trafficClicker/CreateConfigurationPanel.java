@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +21,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,10 +38,15 @@ import org.quinto.swing.table.model.IModelFieldGroup;
 import org.quinto.swing.table.view.JBroTable;
 import ru.Excel.Save.templates.FileSaveWithPattern;
 import ru.Excel.Save.templates.savePattern.SaveInExistingFile;
+import ru.Excel.open.InfoFromProject;
+import ru.Excel.open.SaveInInfoAboutProject;
+import ru.Excel.open.excelOpen;
+import ru.Excel.open.openPattern.FromExcelToCartogram;
 import ru.JCheckBoxTree;
 import ru.cartogram.CreateCartogram;
 import ru.jtable.Table;
 import ru.jtable.model.*;
+import ru.jtable.modelListener.cartogram.CountingOneDirectionNow;
 
 /**
  * Класс для создания Панели (в виде таблицы) Настройки подсчета.<n>
@@ -59,9 +66,13 @@ public class CreateConfigurationPanel {
     private FileSaveWithPattern fileSaveAsWithPattern;
     private FileSaveWithPattern fileSaveWithPattern;
     private String fullFileName;
-    private String fullName;
+    private String fullName; // Если fullFileName становится null, то fullName не изменяется и сохраняет старое имя
     private String kindOfStatement;
     private String typeOfDirection;
+
+    private Table tableSumMorningModel = new Table();
+    private Table tableSumDayModel = new Table();
+    private Table tableSumEveningModel = new Table();
 
     private JBroTable table15Morning = new JBroTable(); // Таблица
     private JBroTable table30Morning = new JBroTable(); // Таблица
@@ -515,7 +526,7 @@ public class CreateConfigurationPanel {
         bP.setFocusable(false); // отключаем возможность получения фокуса кнопкой
         bP.setToolTipText(bP.getText());
         // Слой добавления Таблиц (сам слушатель берем из класса configurationPanel, метод называется onButtonClick
-        bP.addActionListener(this::onButtonClick);
+        bP.addActionListener(this::onCreateProjectButtonClick);
         p.add(bP, BorderLayout.NORTH);
 
         return p;
@@ -709,7 +720,7 @@ public class CreateConfigurationPanel {
     // Клик по кнопке принятия всех параметров конфигурации и инициализации нового проекта
     // Создаем Excel файл, в котором далее сохраним результат подсчета. Нужно копировать excel файл и далее просто для него выбрать имя и место.
     // В зависимости от выбранных параметров (в общем то только количества подсчитываемых направлений и их тип - Т-левый, Т-правый и т.п.)
-    public void onButtonClick(ActionEvent e) {
+    public void onCreateProjectButtonClick(ActionEvent e) {
         String oldValue = fullFileName + "_"; // старое имя файла (путь к нему + имя файла)
 
         paths = checkBox.getCheckedPaths(); // Получаем путь для каждого выбранного узла
@@ -747,7 +758,99 @@ public class CreateConfigurationPanel {
             saveExcelAndCreateTable(new TLeftRoadModel().getModel(), "3Left");
         }
 
+        // Переносим в файл Excel идентифицирующую информацию о созданном проекте
+        if (fullFileName != null) {
+            new SaveInInfoAboutProject(fullFileName, kindOfStatement, typeOfDirection, paths);
+        }
+
         pcs.firePropertyChange("fullFileName", oldValue, fullFileName); // уведомляем об изменении пути к файлу
+    }
+
+    public void onOpenProjectButtonClick(ActionEvent e) {
+        String oldValue = fullFileName + "_";
+
+        String projectName = null;
+        excelOpen openProject = null;
+        // Если был открыть хоть один какой либо проект ранее, то выбрасываем сообщение с выбором
+        if (getFullName() != null) {
+            int ret = JOptionPane.showConfirmDialog(table0_15, "У вас уже открыт проект. Сохранить его?", "Сохранение проекта, перед открытием нового", JOptionPane.YES_NO_CANCEL_OPTION);
+            // И обрабатываем варианты выбора,  
+            if (ret == JOptionPane.CANCEL_OPTION) {
+            }
+            // Открываем новый проект без сохранения
+            if (ret == JOptionPane.NO_OPTION) {
+                openProject = new excelOpen(); // Вызываем FileChooser для открытия Excel файла проекта
+                projectName = openProject.getSelectExcelFile(); // Если открыть файл проекта получилось - то имя не будет null
+            }
+            // Сохраняем прошлый проект и открываем новый
+            if (ret == JOptionPane.OK_OPTION) {
+                onSaveAsButtonClick(e); // Сохраняем ранее открытый проект
+//                // Если не хотим сохранять, то новый файл не открываем 
+//                if (fileSaveAsWithPattern.getFullFileName() != null) {
+                openProject = new excelOpen(); // Вызываем FileChooser для открытия Excel файла проекта
+                projectName = openProject.getSelectExcelFile(); // Если открыть файл проекта получилось - то имя не будет null
+//                }
+            }
+            // Если ранее открытых проектов не было, то предлагаем выбрать свой проект
+        } else {
+            openProject = new excelOpen(); // Вызываем FileChooser для открытия Excel файла проекта
+            projectName = openProject.getSelectExcelFile(); // Если открыть файл проекта получилось - то имя не будет null
+        }
+
+        // Получаем данные о видах подсчитываемого в проекте транспорта из EXCEL
+        if (projectName != null) {
+            // Кидаем вспомогательное сообщение
+            JOptionPane.showMessageDialog(openProject, "Сохраните свой новый проект, создаваемый из старого");
+            // Считываем исходные значения натроек проекта
+            String tempKindOfStatement = comboBox3.getSelectedItem().toString();
+            String tempTypeOfDirection = comboBox1.getSelectedItem().toString();
+            TreePath[] tempTreePath = checkBox.getCheckedPaths();
+            // АНАЛИЗ ДОКУМЕНТА ПРОЕКТА
+            // Создаем переменную для получения данных из выбранного excel файла проекта
+            InfoFromProject infoProject = new InfoFromProject(projectName);
+
+            // Считываем вид ведомости
+            comboBox3.setSelectedItem(infoProject.getKindOfStatement());
+
+            // Считываем тип перекрестка
+            comboBox1.setSelectedItem(infoProject.getTypeOfDirection());
+
+            // Считываем данные по УЧИТЫВАЕМЫМ ЕДИНИЦАМ ТРАНСПОРТА (TreePath)
+            // Перебираем виды подсчитываемого транспорта из Excel 
+            for (int i = 0; i < infoProject.getTreePath().length; i++) {
+                // Перебираем все элементы checkBox
+                for (int j = 0; j < checkBox.getRowCount(); j++) {
+                    // Сравниваем элементы из файла проекта с элементами доступными в приложении
+                    // Если совпадают, то этот элемент нужно включить
+                    if (infoProject.getTreePath()[i].equalsIgnoreCase(checkBox.getPath(j))) {
+                        checkBox.setCheckedPaths(j, true);
+                    }
+                }
+            }
+            // Пытаемся создать проект. Но если не получилось/отказались, то ничего не меняем в настройках (оставить прежние)
+            onCreateProjectButtonClick(e); // Создается пустой проект, теперь его надо наполнить информацией из excel файла
+            // Если сохранить новый проект(создаваемый из старого) не получилось/не захотели, то ничего не происходит и выкидываем сообщение
+            if (fullFileName == null) {
+                JOptionPane.showMessageDialog(openProject, "Проект не открылся. Если не сохранить ваш новый проект (созданный из старого), то и работать с ним не получится.");
+                // Возвращаем все обратно
+                comboBox3.setSelectedItem(tempKindOfStatement);
+                comboBox1.setSelectedItem(tempTypeOfDirection);
+                for (int i = 0; i < tempTreePath.length; i++) {
+                    // Перебираем все элементы checkBox
+                    String tempComponent = tempTreePath[i].getLastPathComponent().toString();
+                    for (int j = 0; j < checkBox.getRowCount(); j++) {
+                        if (tempComponent.equalsIgnoreCase(checkBox.getPath(j)) && !tempComponent.equalsIgnoreCase("Учитываемые единицы")) {
+                            checkBox.setCheckedPaths(j, true);
+                        }
+                    }
+                }
+            }
+            // РЕАЛИЗАЦИЯ НАПОЛНЕНИЯ ПРОЕКТА В JAVA из EXCEL (таблицы + картограммы)
+            if (fullFileName != null) {
+                saveAllTableFromExcel(projectName);
+                pcs.firePropertyChange("openProjectDoCartogramConfigPanel", oldValue, fullFileName); // для переноса данных из файла проекта в картограмму, а из нее на панель конфигурации картограммы
+            }
+        }
     }
 
     private int[] rowTableNow = {12, 33, 54, 75};
@@ -758,6 +861,7 @@ public class CreateConfigurationPanel {
     }
 
     public void onSaveAsButtonClick(ActionEvent e) {
+        String oldValue = fullFileName + "_";
         // Пытаемся создать файл из шаблона
         try {
             fileSaveAsWithPattern = new FileSaveWithPattern(kindOfStatement + "/4"); // клонируем шаблон в путь и с названием файла которые указывает пользователь
@@ -765,27 +869,55 @@ public class CreateConfigurationPanel {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         // Таким образом заменяем значение в getFullFileName() этого класса - новые данные уже сохранятся в ЭТОТ новый файл
-        fullFileName = fileSaveAsWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
-        saveAllTableInExcel(); // Сохраняем все таблицы в в excel файл  по адресу getFullFileName()
+        // Если получилось, то новое имя будет если нет - то оно null и мы ничего не делаем
+        if (fileSaveAsWithPattern.getFullFileName() != null) {
+            fullFileName = fileSaveAsWithPattern.getFullFileName(); // если сохранил успешно - имя есть; не успешно - имя null
+            saveAllTableInExcel(); // Сохраняем все таблицы в excel файл по адресу getFullFileName()
+
+            // Инициализируем, создаем и передаем новые картограммы для сохранения
+            cartogramMorning = new CreateCartogram(fullFileName, typeOfDirection, "cartogramMorning");
+            cartogramDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramDay");
+            cartogramEvening = new CreateCartogram(fullFileName, typeOfDirection, "cartogramEvening");
+            try {
+                this.cartogramPanelMorning = cartogramMorning.initialize();
+                this.cartogramPanelDay = cartogramDay.initialize();
+                this.cartogramPanelEvening = cartogramEvening.initialize();
+            } catch (IOException | URISyntaxException ex) {
+                Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            // Делаем паузу для потока (это предотвращает ошибки работы с SVG) перед каждым сохранением картограммы
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            // Сохраняем новые картограммы
+            cartogramMorning.saveChangeValue();
+            cartogramDay.saveChangeValue();
+            cartogramEvening.saveChangeValue();
+            // Указываем таблицам, что нужно сохранять информацию в новые картограммы
+            tableSumMorningModel.removeAndSetModelListener(kindOfStatement, cartogramMorning);
+            tableSumDayModel.removeAndSetModelListener(kindOfStatement, cartogramDay);
+            tableSumEveningModel.removeAndSetModelListener(kindOfStatement, cartogramEvening);
+
+            pcs.firePropertyChange("cartogramChange", oldValue, fullFileName); // уведомляем об изменении пути к файлу
+        }
     }
 
     // Создание таблицы и картограммы с переданными параметрами
     private void createTable(IModelFieldGroup[] modelGroup, String kindOfStatement, String typeOfDirection) {
         // ТАБЛИЦЫ (модели таблиц)
         // Утро
-        Table tableSumMorningModel = new Table();
         Table table15MorningModel = new Table();
         Table table30MorningModel = new Table();
         Table table45MorningModel = new Table();
         Table table60MorningModel = new Table();
         // День
-        Table tableSumDayModel = new Table();
         Table table15DayModel = new Table();
         Table table30DayModel = new Table();
         Table table45DayModel = new Table();
         Table table60DayModel = new Table();
         // День
-        Table tableSumEveningModel = new Table();
         Table table15EveningModel = new Table();
         Table table30EveningModel = new Table();
         Table table45EveningModel = new Table();
@@ -828,6 +960,7 @@ public class CreateConfigurationPanel {
             if (fullFileName != null) { // если успешно сохранился клон, то передаем параметры для дальнейшего определения как сохранять данные
                 this.typeOfDirection = typeOfDirection;
                 createTable(modelGroup, kindOfStatement, typeOfDirection); // создаем новые таблицы
+                fullName = fullFileName;
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
@@ -875,9 +1008,101 @@ public class CreateConfigurationPanel {
         }
     }
 
+    // Переносим таблицы из Excel-проекта в Java
+    private void saveAllTableFromExcel(String projectName) {
+        int page; // страница в Excel для сохранения
+        int[] rowTable = {}; // массив строк, указывающий на начало заполнения таблиц
+        // Если вид таблицы СТАРЫЙ, то:
+        if (kindOfStatement.equalsIgnoreCase("Now")) {
+            rowTable = rowTableNow;
+        }
+        // Если вид таблицы НОВЫЙ, то:
+        if (kindOfStatement.equalsIgnoreCase("Future")) {
+            rowTable = rowTableFuture;
+        }
+
+        // Указываем таблицам, что НЕ НУЖНО сохранять информацию в новые картограммы
+        tableSumMorningModel.removeModelListener();
+        tableSumDayModel.removeModelListener();
+        tableSumEveningModel.removeModelListener();
+
+        // Указываем, что в Итоговых таблицах тоже нужно обновлять данные
+        tableSumMorningModel.setModelListener(kindOfStatement);
+        tableSumDayModel.setModelListener(kindOfStatement);
+        tableSumEveningModel.setModelListener(kindOfStatement);
+        try {
+            page = 0;
+            FromExcelToCartogram fromExcelToCartogramTable15Morning = new FromExcelToCartogram(projectName, table15Morning, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramMorning);
+            fromExcelToCartogramTable15Morning.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable30Morning = new FromExcelToCartogram(projectName, table30Morning, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            fromExcelToCartogramTable30Morning.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable45Morning = new FromExcelToCartogram(projectName, table45Morning, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            fromExcelToCartogramTable45Morning.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable60Morning = new FromExcelToCartogram(projectName, table60Morning, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            fromExcelToCartogramTable60Morning.doCount();
+
+            page = 1;
+            FromExcelToCartogram fromExcelToCartogramTable15Day = new FromExcelToCartogram(projectName, table15Day, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramDay);
+            fromExcelToCartogramTable15Day.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable30Day = new FromExcelToCartogram(projectName, table30Day, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            fromExcelToCartogramTable30Day.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable45Day = new FromExcelToCartogram(projectName, table45Day, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            fromExcelToCartogramTable45Day.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable60Day = new FromExcelToCartogram(projectName, table60Day, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            fromExcelToCartogramTable60Day.doCount();
+
+            page = 2;
+            FromExcelToCartogram fromExcelToCartogramTable15Evening = new FromExcelToCartogram(projectName, table15Evening, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramEvening);
+            fromExcelToCartogramTable15Evening.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable30Evening = new FromExcelToCartogram(projectName, table30Evening, kindOfStatement, typeOfDirection, page, rowTable[1]);
+            fromExcelToCartogramTable30Evening.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable45Evening = new FromExcelToCartogram(projectName, table45Evening, kindOfStatement, typeOfDirection, page, rowTable[2]);
+            fromExcelToCartogramTable45Evening.doCount();
+            FromExcelToCartogram fromExcelToCartogramTable60Evening = new FromExcelToCartogram(projectName, table60Evening, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            fromExcelToCartogramTable60Evening.doCount();
+        } catch (NullPointerException ee) {
+            // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
+            JOptionPane.showMessageDialog(cartogramPanelMorning, "Сохранить не получилось! Попробуйте еще раз.");
+        } catch (FileNotFoundException e) { // FileNotFoundException входит в IOException, которые отлавливаем дальше
+            String message = e.getMessage().substring(e.getMessage().lastIndexOf("(") - 1).trim(); // сообщение с ошибкой
+            if (message.equals("(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)")) {
+                JOptionPane.showMessageDialog(cartogramPanelMorning, message + ". Закройте его и повторите сохранение.");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Удаляем слушателей изменения модели
+        tableSumMorningModel.removeModelListener();
+        tableSumDayModel.removeModelListener();
+        tableSumEveningModel.removeModelListener();
+
+        // Указываем, что в Итоговых таблицах тоже нужно обновлять данные и картограммы
+        tableSumMorningModel.setModelListener(kindOfStatement, cartogramMorning);
+        tableSumDayModel.setModelListener(kindOfStatement, cartogramDay);
+        tableSumEveningModel.setModelListener(kindOfStatement, cartogramEvening);
+
+        // Тригерим слушатель модели - обновляем картограммы
+        tableSumMorningModel.getTable().setValueAt(tableSumMorningModel.getTable().getValueAt(0, 0), 0, 0);
+        tableSumDayModel.getTable().setValueAt(tableSumDayModel.getTable().getValueAt(0, 0), 0, 0);
+        tableSumEveningModel.getTable().setValueAt(tableSumEveningModel.getTable().getValueAt(0, 0), 0, 0);
+    }
+
     // Метод добавляющий слушатель изменения свойств в этот класс
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
+    }
+
+    private String getKindOfStatementFromComboBox() {
+        // Если вид таблицы СТАРЫЙ, то:
+        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("Старая")) {
+            kindOfStatement = "Now";
+        }
+        // Если вид таблицы НОВЫЙ, то:
+        if (((String) (comboBox3.getSelectedItem())).equalsIgnoreCase("Новая")) {
+            kindOfStatement = "Future";
+        }
+        return kindOfStatement;
     }
 
     public String getFullFileName() {

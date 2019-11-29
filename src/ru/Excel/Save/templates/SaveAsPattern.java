@@ -15,7 +15,6 @@ import javax.swing.JPanel;
  */
 public class SaveAsPattern extends JPanel {
 
-    JOptionPane optionPane = null; // переменная для всплывающей подсказки
     String fullFileName;
 
     public SaveAsPattern(JFileChooser fileSave, String pattern) throws IOException {
@@ -63,7 +62,7 @@ public class SaveAsPattern extends JPanel {
                             new AsHSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             this.fullFileName = fullFileName;
                             // всплывающая подсказка о сохранении файла
-                            optionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "\" сохранен");
+                            JOptionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "\" сохранен");
                             break; // выходим из цикла отображения окна сохранения файлов
                         } else if (result == JOptionPane.NO_OPTION) {
                             continue again;// возвращение обратно в меню сохранения файлов
@@ -78,7 +77,7 @@ public class SaveAsPattern extends JPanel {
                             continue again;// возвращение обратно в меню сохранения файлов
                         }
                         // всплывающая подсказка о сохранении файла
-                        optionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "\" сохранен");
+                        JOptionPane.showMessageDialog(fileSave, "Файл с именем \"" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "\" сохранен");
                         break; // выходим из цикла отображения окна сохранения файлов
                     }
                 }
@@ -105,7 +104,7 @@ public class SaveAsPattern extends JPanel {
                             new AsXSSFwithPattern(fullFileName, pattern);  // производим сохранение таблицы Java (table) в файл (filename) с расширением ".xls" (предварительно удаляем любой текст с названием расширения и добавляем расширение - чтобы избежать повторного введения расширения;
                             this.fullFileName = fullFileName;
                             // всплывающая подсказка о сохранении файла
-                            optionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "' сохранен");
+                            JOptionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"|" + extension, "") + "' сохранен");
                             break; // выходим из цикла отображения окна сохранения файлов
                         } else if (result == JOptionPane.NO_OPTION) {
                             continue again;// возвращение обратно в меню сохранения файлов
@@ -119,14 +118,14 @@ public class SaveAsPattern extends JPanel {
                             continue again;// возвращение обратно в меню сохранения файлов
                         }
                         // всплывающая подсказка о сохранении файла
-                        optionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "' сохранен");
+                        JOptionPane.showMessageDialog(fileSave, "Файл с именем '" + fileSave.getSelectedFile().getName().replaceAll(">|<|:|/|'\'|\"", "") + "' сохранен");
                         break; // выходим из цикла отображения окна сохранения файлов
                     }
                 }
             } // ЕСЛИ СОХРАНЯТЬ СЮДА НЕЛЬЗЯ, то
             else { // показываем всплывающую подсказку
                 if (!fileSave.getCurrentDirectory().canWrite()) {
-                    optionPane.showMessageDialog(fileSave, "Сюда нельзя сохранить файл! Выберите другую директорию"); // всплывающая подсказка
+                    JOptionPane.showMessageDialog(fileSave, "Сюда нельзя сохранить файл! Выберите другую директорию"); // всплывающая подсказка
                 }
             }
         }

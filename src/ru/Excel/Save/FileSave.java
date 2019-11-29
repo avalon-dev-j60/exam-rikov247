@@ -45,6 +45,6 @@ public class FileSave extends JPanel {
         });
 
         // метод сохранения таблицы Java (table) в файл excel с расширением .xls с помощью JFileChooser (компонента выбора файлов)
-        new SaveAs(table, fileSave);
+        SaveAs saveAs = new SaveAs(table, fileSave);
     }
 }

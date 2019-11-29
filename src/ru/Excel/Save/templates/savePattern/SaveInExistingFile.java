@@ -253,7 +253,7 @@ public class SaveInExistingFile extends JPanel {
 
         // "Время"
         String value1Time = String.valueOf(cartogram.getValueTspan1("Time")); // получаем значение из таблицы в виде СТРОКИ 
-        String value2Time = String.valueOf(cartogram.getValueTspan2("Time")).length() != 11 ? "не указано" : String.valueOf(cartogram.getValueTspan2("Time")); // Если время не указали или указали не полностью (строка пустая, то передаем нужный текст)
+        String value2Time = String.valueOf(cartogram.getValueTspan2("Time")).contains("_") ? "не указано" : String.valueOf(cartogram.getValueTspan2("Time")); // Если время не указали или указали не полностью (строка пустая, то передаем нужный текст)
 
         // Если время указано полностью, то заполняем эту графу в файле Excel, если нет - то ничего не делаем
         if (!value2Time.equals("не указано")) {

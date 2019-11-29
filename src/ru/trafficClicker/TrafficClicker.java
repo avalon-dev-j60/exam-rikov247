@@ -148,7 +148,8 @@ public class TrafficClicker extends AbstractFrame {
 
         canvas.addMouseWheelListener(wheelSound);  // Слушатель изменения звука
         // Слушатели КНОПОК В БАРЕ (MenuBar)
-        jBar.getFileItem3().addActionListener(configurationPanel::onButtonClick); // Слушатель Создание проекта
+        jBar.getFileItem2().addActionListener(configurationPanel::onOpenProjectButtonClick); // Слушатель открытия проекта
+        jBar.getFileItem3().addActionListener(configurationPanel::onCreateProjectButtonClick); // Слушатель Создание проекта
         jBar.getFileItem6().addActionListener(this::onAddVideoButtonClick); // Слушатель кнопки "Выбор видео" в Баре
         jBar.getViewItem3().addActionListener(this::onFullScreenButtonClick); // Слушатель кнопки "Полноэкранного режима" в Баре
         jBar.getFileItem4().addActionListener(configurationPanel::onSaveButtonClick); // Слушатель кнопки "Сохранить"
@@ -217,12 +218,22 @@ public class TrafficClicker extends AbstractFrame {
             public void propertyChange(PropertyChangeEvent evt) {
                 // Если fileSave был открыт, но файл не был сохранен, то новое значение становится null - новая таблица не создается
                 // Если имя не null (изменено или осталось прежним (для этого некоторые махинации проводим внутри configurationPanel)), то делаем, что нужно
-                if (evt.getNewValue() != null) {
+                if (evt.getPropertyName().equalsIgnoreCase("fullFileName") && evt.getNewValue() != null) {
                     try {
                         doOverlayAndGetTable();
                     } catch (IOException ex) {
                         Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                }
+                // Если поменяли картограммы (файлы картограммы) - например Сохранили как, то приходит уведомление и мы пытаемся обновить картограммы на панели
+                if (evt.getPropertyName().equalsIgnoreCase("cartogramChange") && evt.getNewValue() != null) {
+                    updateCartogramPanels();
+                }
+                // Если поменяли картограммы (файлы картограммы) - например Сохранили как, то приходит уведомление и мы пытаемся обновить картограммы на панели
+                if (evt.getPropertyName().equalsIgnoreCase("openProjectDoCartogramConfigPanel") && evt.getNewValue() != null) {
+                    configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramMorning(), "Morning");
+                    configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramDay(), "Day");
+                    configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramEvening(), "Evening");
                 }
             }
         });
@@ -738,7 +749,7 @@ public class TrafficClicker extends AbstractFrame {
                 if (videoTabs.getSelectedIndex() == 2) {
                     // обновляем SVGCanvas
                     if (configurationPanel.getCartogramMorning() != null) {
-                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
+                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas (перед каждым сохранением)
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException ex) {
@@ -747,7 +758,6 @@ public class TrafficClicker extends AbstractFrame {
                         configurationPanel.getCartogramMorning().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
                     if (configurationPanel.getCartogramDay() != null) {
-                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException ex) {
@@ -756,7 +766,6 @@ public class TrafficClicker extends AbstractFrame {
                         configurationPanel.getCartogramDay().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
                     if (configurationPanel.getCartogramEvening() != null) {
-                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException ex) {
@@ -851,7 +860,7 @@ public class TrafficClicker extends AbstractFrame {
         // Уничтожаем предыдущий overlay, если он существовал (для правильного освобождения ресурсов и отображения нового overlay)
         if (overlay != null) {
             overlay.dispose();
-            // Удаляем старые слушатели перемещения панелей с кноками
+            // Удаляем старые слушатели перемещения панелей с кнопками
             deregisterOldListenerMovePanel();
         }
 
@@ -904,6 +913,7 @@ public class TrafficClicker extends AbstractFrame {
         if (!jBar.getFileItem5().isEnabled()) {
             jBar.getFileItem5().setEnabled(true); // Делаем кнопку "Сохранить" активной
         }
+
     }
 
     // Выбор для кнопок, в какую таблицу сохранять данные
@@ -963,6 +973,32 @@ public class TrafficClicker extends AbstractFrame {
                 overlay.chooseTable(table60Evening);
             }
         }
+    }
+
+    private void updateCartogramPanels() {
+        // таким образом обновляем (добавляем новые) панели с картограммами
+        cartogramPane.removeAll(); // удаляем ранее добавленные вкладки
+        try {
+            cartogramPane = cartogramPaneLink.createTabbedPane(
+                    configurationPanel.getCartogramPanelMorning(),
+                    configurationPanel.getCartogramPanelDay(),
+                    configurationPanel.getCartogramPanelEvening());
+        } catch (IOException ex) {
+            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Таким образом ОБНОВЛЯЕМ таблицы (чтобы сработал ModelListener, который перенесет данные из старых таблиц в новые картограммы)
+        tableSumMorning.setValueAt(tableSumMorning.getValueAt(0, 0), 0, 0);
+        tableSumDay.setValueAt(tableSumDay.getValueAt(0, 0), 0, 0);
+        tableSumEvening.setValueAt(tableSumEvening.getValueAt(0, 0), 0, 0);
+
+        // Инициализация панели конфигурации картограммы - данные считываются с загруженной картограммы (предварительно туда переносят из старой)
+        configPanelCartogram.setCartogram(configurationPanel.getCartogramMorning(), configurationPanel.getCartogramDay(), configurationPanel.getCartogramEvening());
+
+        // Переносим данные с панели конфигурации для картограммы на картограмму
+        configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramMorning(), "Morning");
+        configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramDay(), "Day");
+        configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramEvening(), "Evening");
     }
 
     // Получаем таблицы из конфигурационной панели (в которой они создаются)
