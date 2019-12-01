@@ -7,6 +7,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import org.quinto.swing.table.view.JBroTable;
 import ru.trafficClicker.OnButtonClick;
 
@@ -79,19 +81,31 @@ public class popupButtonToTable {
 
     // Добавляем к кнопке выбранное popupMenu и указываем место отображения
     private void popupButton(JButton button, JPopupMenu popMenu) {
-        button.setComponentPopupMenu(popMenu); // Добавляем popupMenu к кнопке
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) { // если кликнули по правой кнопке мыши
-                    Component b = (Component) e.getSource(); // получаем компонент, по которому кликнули - кнопка
-                    Point p = b.getLocationOnScreen(); // получаем положение на экране компонента по которому кликнули - кнопки
-
-                    popMenu.show(e.getComponent(), 0, 0); // отображаем меню (указываем: компонет, в пространстве которого показываем popupMenu; и координаты popupMenu в системе координат компонента по которому кликнули - кнопки
-                    popMenu.setLocation(p.x, p.y + b.getHeight()); // Устанавливаем положение popupMenu в системе координат области, в которой находится компонент, по которому кликнули - кнопка. по x = левый угол кнопки; по y - низ кнопки
-                }
-            }
-        });
+        button.setComponentPopupMenu(popMenu); // устанавливаем всплывающее меню на кнопку
+        button.setContentAreaFilled(false); // отключаем область вокруг кнопки, появляющуюся при клике на нее
+        PopupButtonListener popList = new PopupButtonListener(button);
+        button.removeMouseListener(popList);
+        button.addMouseListener(popList);
     }
 
+    private class PopupButtonListener extends MouseAdapter {
+
+        private JButton button;
+
+        public PopupButtonListener(JButton button) {
+            this.button = button;
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isRightMouseButton(e) || SwingUtilities.isLeftMouseButton(e)) { // если кликнули по правой кнопке мыши
+                Component b = (Component) e.getSource(); // получаем компонент, по которому кликнули - кнопка
+                Point p = b.getLocationOnScreen(); // получаем положение на экране компонента по которому кликнули - кнопки
+
+                button.getComponentPopupMenu().show(e.getComponent(), 0, 0); // отображаем меню (указываем: компонет, в пространстве которого показываем popupMenu; и координаты popupMenu в системе координат компонента по которому кликнули - кнопки
+                button.getComponentPopupMenu().setLocation(p.x, p.y + b.getHeight()); // Устанавливаем положение popupMenu в системе координат области, в которой находится компонент, по которому кликнули - кнопка. по x = левый угол кнопки; по y - низ кнопки
+            }
+        }
+
+    }
 }

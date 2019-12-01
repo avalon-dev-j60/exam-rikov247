@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -29,6 +31,8 @@ import org.xml.sax.SAXException;
  * Класс для создания окна Настроек
  */
 public class SettingsFrame {
+
+    private PropertyChangeSupport pcs = new PropertyChangeSupport(this); // переменная позволяющая добавить в этот слушатель изменения свойств 
 
     private int weightFrame = 400;
     private int heightFrame = 450;
@@ -134,6 +138,7 @@ public class SettingsFrame {
     // Метод создания окна настроек. Окно создается при инициализации класса. Далее управляем только его видимостью
     private void makeNewWindow() {
         frame = new JFrame("Настройки");
+        frame.setAlwaysOnTop(true); // Окно всегда остается поверх всего (но его можно свернуть)
         frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         frame.setSize(new Dimension(weightFrame, heightFrame));
         // Установка стартового местоположения окна
@@ -157,22 +162,29 @@ public class SettingsFrame {
     ActionListener activePlayPauseCheckBoxListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            String oldValue = ""; // старое значение 
+            String newValue = ""; // новое значение 
             if (activePlayPauseCheckBox.isSelected()) {
                 try {
+                    oldValue = settings.getValueNode("ActionPlayPause"); // Считываем значение "ДО"
                     settings.setValueNode("ActionPlayPause", "Yes");
                     settings.writeDocument();
+                    newValue = settings.getValueNode("ActionPlayPause"); // Считываем значение "ПОСЛЕ"
                 } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
                     Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (!activePlayPauseCheckBox.isSelected()) {
                 try {
+                    oldValue = settings.getValueNode("ActionPlayPause"); // Считываем значение "ДО"
                     settings.setValueNode("ActionPlayPause", "No");
                     settings.writeDocument();
+                    newValue = settings.getValueNode("ActionPlayPause"); // Считываем значение "ПОСЛЕ"
                 } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
                     Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            pcs.firePropertyChange("ActionPlayPauseChange", oldValue, newValue); // Если значение этой настройки в файле изменилось, то сообщаем об этом куда нужно
         }
     };
 
@@ -203,8 +215,17 @@ public class SettingsFrame {
         frame.setVisible(visible);
     }
 
+    public JFrame getFrame() {
+        return frame;
+    }
+
     public JCheckBox getActivePlayPauseCheckBox() {
         return activePlayPauseCheckBox;
+    }
+
+    // Метод добавляющий слушатель изменения свойств в этот класс
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
     }
 
 }

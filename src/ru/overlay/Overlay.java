@@ -24,7 +24,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.basic.BasicButtonListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.TreePath;
 import org.quinto.swing.table.view.JBroTable;
 import ru.trafficClicker.OnButtonClick;
@@ -56,6 +57,13 @@ public class Overlay extends JWindow {
     private CreatePopupButtonMenu popupMenuLeft23;
     private CreatePopupButtonMenu popupMenuForward2;
     private CreatePopupButtonMenu popupMenuRight21;
+
+    CreatePopupButtonMenu[] popupMenus = {
+        popupMenuAround11, popupMenuLeft12, popupMenuForward1, popupMenuRight14,
+        popupMenuAround44, popupMenuLeft41, popupMenuForward4, popupMenuRight43,
+        popupMenuAround33, popupMenuLeft34, popupMenuForward3, popupMenuRight32,
+        popupMenuAround22, popupMenuLeft23, popupMenuForward2, popupMenuRight21
+    };
 
     private SimpleBackground panelUp;
     private SimpleBackground panelLeft;
@@ -533,10 +541,6 @@ public class Overlay extends JWindow {
                         item.removeActionListener(item.getActionListeners()[r]);
                     }
                 }
-                // Удаляем слушателя отображения popupMenu
-                for (int t = 0; t < buttonsUp[i].getMouseListeners().length; t++) {
-                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[t]);
-                }
             }
         }
         for (int i = 0; i < buttonsRight.length; i++) {
@@ -550,10 +554,6 @@ public class Overlay extends JWindow {
                     for (int r = 0; r < item.getActionListeners().length; r++) {
                         item.removeActionListener(item.getActionListeners()[r]);
                     }
-                }
-                // Удаляем слушателя отображения popupMenu
-                for (int t = 0; t < buttonsRight[i].getMouseListeners().length; t++) {
-                    buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[t]);
                 }
             }
         }
@@ -569,10 +569,6 @@ public class Overlay extends JWindow {
                         item.removeActionListener(item.getActionListeners()[r]);
                     }
                 }
-                // Удаляем слушателя отображения popupMenu
-                for (int t = 0; t < buttonsDown[i].getMouseListeners().length; t++) {
-                    buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[t]);
-                }
             }
         }
         for (int i = 0; i < buttonsLeft.length; i++) {
@@ -587,10 +583,6 @@ public class Overlay extends JWindow {
                         item.removeActionListener(item.getActionListeners()[r]);
                     }
                 }
-                // Удаляем слушателя отображения popupMenu
-                for (int t = 0; t < buttonsLeft[i].getMouseListeners().length; t++) {
-                    buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[t]);
-                }
             }
         }
     }
@@ -599,72 +591,54 @@ public class Overlay extends JWindow {
     public void removeAllMouseListenerFromButtons() {
         for (int i = 0; i < buttonsUp.length; i++) {
             // Удаляем слушатели кликов по кнопкам
-            MouseListener mTemp = buttonsUp[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
-            for (int j = 0; j < buttonsUp[i].getMouseListeners().length; j++) {
-                buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+            if (buttonsUp[i].getComponentPopupMenu() == null) {
+                MouseListener mTemp = buttonsUp[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+                for (int j = 0; j < buttonsUp[i].getMouseListeners().length; j++) {
+                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+                }
+                buttonsUp[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
             }
-            buttonsUp[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
             // Если у кнопки есть всплывающее меню (popupMenu)
             if (buttonsUp[i].getComponentPopupMenu() != null) {
-                // Удаляем слушателей с компонентов popupmenu, если он есть
-                for (int q = 0; q < buttonsUp[i].getComponentPopupMenu().getComponentCount(); q++) {
-                    JMenuItem item = (JMenuItem) buttonsUp[i].getComponentPopupMenu().getComponent(q);
-
-                }
-                // Удаляем слушателя отображения popupMenu
-                for (int t = 0; t < buttonsUp[i].getMouseListeners().length; t++) {
-                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[t]);
-                }
+                buttonsUp[i].getComponentPopupMenu().removePopupMenuListener(popListWithEMP);
             }
         }
-//        for (int i = 0; i < buttonsRight.length; i++) {
-//            for (int j = 0; j < buttonsRight[i].getMouseListeners().length; j++) {
-//                buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[j]);
-//            }
-//            if (buttonsRight[i].getComponentPopupMenu() != null) {
-//                // Удаляем слушателей с компонентов popupmenu, если он есть
-//                for (int q = 0; q < buttonsRight[i].getComponentPopupMenu().getComponentCount(); q++) {
-//                    JMenuItem item = (JMenuItem) buttonsRight[i].getComponentPopupMenu().getComponent(q);
-//
-//                }
-//                // Удаляем слушателя отображения popupMenu
-//                for (int t = 0; t < buttonsRight[i].getMouseListeners().length; t++) {
-//                    buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[t]);
-//                }
-//            }
-//        }
-//        for (int i = 0; i < buttonsDown.length; i++) {
-//            for (int j = 0; j < buttonsDown[i].getMouseListeners().length; j++) {
-//                buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[j]);
-//            }
-//            if (buttonsDown[i].getComponentPopupMenu() != null) {
-//                // Удаляем слушателей с компонентов popupmenu, если он есть
-//                for (int q = 0; q < buttonsDown[i].getComponentPopupMenu().getComponentCount(); q++) {
-//                    JMenuItem item = (JMenuItem) buttonsDown[i].getComponentPopupMenu().getComponent(q);
-//
-//                }
-//                // Удаляем слушателя отображения popupMenu
-//                for (int t = 0; t < buttonsDown[i].getMouseListeners().length; t++) {
-//                    buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[t]);
-//                }
-//            }
-//        }
-//        for (int i = 0; i < buttonsLeft.length; i++) {
-//            for (int j = 0; j < buttonsLeft[i].getMouseListeners().length; j++) {
-//                buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[j]);
-//            }
-//            if (buttonsLeft[i].getComponentPopupMenu() != null) {
-//                // Удаляем слушателей с компонентов popupmenu, если он есть
-//                for (int q = 0; q < buttonsLeft[i].getComponentPopupMenu().getComponentCount(); q++) {
-//                    JMenuItem item = (JMenuItem) buttonsLeft[i].getComponentPopupMenu().getComponent(q);
-//
-//                }
-//                // Удаляем слушателя отображения popupMenu
-//                for (int t = 0; t < buttonsLeft[i].getMouseListeners().length; t++) {
-//                    buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[t]);
-//                }
-//            }
-//        }
+        for (int i = 0; i < buttonsRight.length; i++) {
+            if (buttonsRight[i].getComponentPopupMenu() == null) {
+                MouseListener mTemp = buttonsRight[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+                for (int j = 0; j < buttonsRight[i].getMouseListeners().length; j++) {
+                    buttonsRight[i].removeMouseListener(buttonsRight[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+                }
+                buttonsRight[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
+            }
+            if (buttonsRight[i].getComponentPopupMenu() != null) {
+                buttonsRight[i].getComponentPopupMenu().removePopupMenuListener(popListWithEMP);
+            }
+        }
+        for (int i = 0; i < buttonsDown.length; i++) {
+            if (buttonsDown[i].getComponentPopupMenu() == null) {
+                MouseListener mTemp = buttonsDown[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+                for (int j = 0; j < buttonsDown[i].getMouseListeners().length; j++) {
+                    buttonsDown[i].removeMouseListener(buttonsDown[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+                }
+                buttonsDown[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
+            }
+            if (buttonsDown[i].getComponentPopupMenu() != null) {
+                buttonsDown[i].getComponentPopupMenu().removePopupMenuListener(popListWithEMP);
+            }
+        }
+        for (int i = 0; i < buttonsLeft.length; i++) {
+            if (buttonsLeft[i].getComponentPopupMenu() == null) {
+                MouseListener mTemp = buttonsLeft[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+                for (int j = 0; j < buttonsLeft[i].getMouseListeners().length; j++) {
+                    buttonsLeft[i].removeMouseListener(buttonsLeft[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+                }
+                buttonsLeft[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
+            }
+            if (buttonsLeft[i].getComponentPopupMenu() != null) {
+                buttonsLeft[i].getComponentPopupMenu().removePopupMenuListener(popListWithEMP);
+            }
+        }
     }
 
     // Выбор для кнопок, в какую таблицу сохранять данные
@@ -676,7 +650,7 @@ public class Overlay extends JWindow {
         removeAllActionListenerFromButtons();
         listenerToTable(table); // добавляем слушателей к кнопкам в указанную таблицу
     }
-    
+
 // Добавляем слушателей кликов кнопок в указанную таблицу
     public void listenerToTable(JBroTable table) {
         // Слушатель кликов по кнопке и занесение информации в таблицу
@@ -958,6 +932,37 @@ public class Overlay extends JWindow {
 
     }
 
+    private PopupMenuListener popListWithEMP = new PopupMenuListener() {
+        boolean switchBoolean = false; // логическая единица, чтобы уведомлять, что при отпускании кнопки нужно включить видео
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            // Если видео включено, то:
+            if (emp.mediaPlayer().status().isPlaying() == true) {
+                emp.mediaPlayer().controls().pause(); // ставим на паузу видео
+                switchBoolean = true; // переключаем логическую единицу, чтобы уведомить, что при отпускании кнопки нужно включить видео
+            }
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+            // Если при отпускании кнопки нужно включить видео, то включаем его
+            if (switchBoolean) {
+                emp.mediaPlayer().controls().start();
+                switchBoolean = false;
+            }
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+            // Если при отпускании кнопки нужно включить видео, то включаем его
+            if (switchBoolean) {
+                emp.mediaPlayer().controls().start();
+                switchBoolean = false;
+            }
+        }
+    };
+
     // Слушатель мыши для кнопок с действиями с видео (динамическая установка паузы и плея)
     private class ClickOnButtonWithEMP extends MouseAdapter {
 
@@ -971,7 +976,7 @@ public class Overlay extends JWindow {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
+            if (SwingUtilities.isLeftMouseButton(e) && button.getComponentPopupMenu() == null) {
                 button.setContentAreaFilled(true); // включение закраски кнопки в нажатом состоянии
                 // Если видео включено, то:
                 if (emp.mediaPlayer().status().isPlaying() == true) {
@@ -1074,30 +1079,44 @@ public class Overlay extends JWindow {
             buttonsLeft[i].addMouseListener(clickWithoutEMP);
         }
     }
-    
+
     // Добавляем слушателя мыши для кнопок с действиями с видео (динамическая установка паузы и плея)
-    public void addMouseListenerWithEMP() {
+    public void addMouseAndPopupListenerWithEMP() {
         // Удаляем лишние слушатели мыши
         removeAllMouseListenerFromButtons();
         // Добавляем слушателей мыши
         for (int i = 0; i < buttonsUp.length; i++) {
             // Устанавливаем слушатель мыши на кнопки
             ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsUp[i]);
+            // Если у кнопки есть всплывающее меню, то для него добавляем нужный слушатель
+            if (buttonsUp[i].getComponentPopupMenu() != null) {
+                buttonsUp[i].getComponentPopupMenu().addPopupMenuListener(popListWithEMP);
+            }
+            // Слушатель клика кнопкой мыши по кнопке, если у нее НЕТ всплыващего меню
             buttonsUp[i].addMouseListener(clickWithEMP);
         }
         for (int i = 0; i < buttonsRight.length; i++) {
             // Устанавливаем слушатель мыши на кнопки
             ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsRight[i]);
+            if (buttonsRight[i].getComponentPopupMenu() != null) {
+                buttonsRight[i].getComponentPopupMenu().addPopupMenuListener(popListWithEMP);
+            }
             buttonsRight[i].addMouseListener(clickWithEMP);
         }
         for (int i = 0; i < buttonsDown.length; i++) {
             // Устанавливаем слушатель мыши на кнопки
             ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsDown[i]);
+            if (buttonsDown[i].getComponentPopupMenu() != null) {
+                buttonsDown[i].getComponentPopupMenu().addPopupMenuListener(popListWithEMP);
+            }
             buttonsDown[i].addMouseListener(clickWithEMP);
         }
         for (int i = 0; i < buttonsLeft.length; i++) {
             // Устанавливаем слушатель мыши на кнопки
             ClickOnButtonWithEMP clickWithEMP = new ClickOnButtonWithEMP(buttonsLeft[i]);
+            if (buttonsLeft[i].getComponentPopupMenu() != null) {
+                buttonsLeft[i].getComponentPopupMenu().addPopupMenuListener(popListWithEMP);
+            }
             buttonsLeft[i].addMouseListener(clickWithEMP);
         }
     }

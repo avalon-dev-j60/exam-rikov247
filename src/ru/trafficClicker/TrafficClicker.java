@@ -19,6 +19,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.xpath.XPathExpressionException;
 import org.quinto.swing.table.view.JBroTable;
 import org.xml.sax.SAXException;
 import ru.AddVideoPanel;
@@ -243,12 +244,31 @@ public class TrafficClicker extends AbstractFrame {
             }
         });
 
-        // Инициализация Настроек
+        // НАСТРОЙКИ. Инициализация Настроек
         try {
             settings.writeFirstDocument(); // Записываем первоначальный файл настроек в папку пользователя (если он уже создан, то он перезаписывается на себя же)
         } catch (TransformerFactoryConfigurationError | SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Теперь нужно применить настройки из файла (в основном настройки применяются та, где они нужны (или в листенерах)
+        // Слушатель изменения настроек (вызовется если при нажатии на кнопку ОК или Применить в настройках, ПРОВЕРЯЕМАЯ настройка изменила свое значение
+        settingsFrame.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equalsIgnoreCase("ActionPlayPauseChange") && overlay != null) {
+                    try {
+                        if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
+                            overlay.addMouseAndPopupListenerWithEMP();
+                        }
+                        if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
+                            overlay.addMouseListenerWithoutEMP();
+                        }
+                    } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                        Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
     }
 
     // Подготовка видео, запуск и постановка на паузу. Также установка всплывающей панели
@@ -756,14 +776,20 @@ public class TrafficClicker extends AbstractFrame {
                     canvas.requestFocus(); // переключаем фокус на canvas
                 }
                 if (videoTabs.getSelectedIndex() == 1) {
+                    if (emp.mediaPlayer().status().isPlaying() == true) {
+                        emp.mediaPlayer().controls().pause(); // ставим на паузу видео
+                    }
                     splitMain2Tab2.getLeftComponent().requestFocus(); // переключаем фокус на canvas
                 }
                 if (videoTabs.getSelectedIndex() == 2) {
+                    if (emp.mediaPlayer().status().isPlaying() == true) {
+                        emp.mediaPlayer().controls().pause(); // ставим на паузу видео
+                    }
                     // обновляем SVGCanvas
                     if (configurationPanel.getCartogramMorning() != null) {
                         // Делаем паузу для потока на Х мс перед обновлением SVGCanvas (перед каждым сохранением)
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(100);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -771,7 +797,7 @@ public class TrafficClicker extends AbstractFrame {
                     }
                     if (configurationPanel.getCartogramDay() != null) {
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(100);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -779,7 +805,7 @@ public class TrafficClicker extends AbstractFrame {
                     }
                     if (configurationPanel.getCartogramEvening() != null) {
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(100);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -924,6 +950,18 @@ public class TrafficClicker extends AbstractFrame {
         }
         if (!jBar.getFileItem5().isEnabled()) {
             jBar.getFileItem5().setEnabled(true); // Делаем кнопку "Сохранить" активной
+        }
+
+        // НАСТРОЙКИ
+        try {
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
+                overlay.addMouseAndPopupListenerWithEMP();
+            }
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
+                overlay.addMouseListenerWithoutEMP();
+            }
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

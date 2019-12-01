@@ -7,48 +7,51 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import org.quinto.swing.table.view.JBroTable;
 
 public class CreatePopupButtonMenu {
 
-    private JBroTable table; // таблица
-    private String fieldName; // идентификатор столбца
-    private int row; // строка
-
     private JPopupMenu bus = new JPopupMenu();
     // Now
-    private JMenuItem bigBus;
-    private JMenuItem averageBus;
-    private JMenuItem microBus;
+    private JMenuItem bigBus = new JMenuItem();
+    private JMenuItem averageBus = new JMenuItem();
+    private JMenuItem microBus = new JMenuItem();
     // Future
-    private JMenuItem verySmallBusf;
-    private JMenuItem smallBusf;
-    private JMenuItem averageBusf;
-    private JMenuItem bigBusf;
-    private JMenuItem veryBigBusf;
+    private JMenuItem verySmallBusf = new JMenuItem();
+    private JMenuItem smallBusf = new JMenuItem();
+    private JMenuItem averageBusf = new JMenuItem();
+    private JMenuItem bigBusf = new JMenuItem();
+    private JMenuItem veryBigBusf = new JMenuItem();
 
     private JPopupMenu track = new JPopupMenu();
     // Now
-    private JMenuItem track2;
-    private JMenuItem track2to6;
-    private JMenuItem track6to12;
-    private JMenuItem track12to20;
-    private JMenuItem trackMore20;
+    private JMenuItem track2 = new JMenuItem();
+    private JMenuItem track2to6 = new JMenuItem();
+    private JMenuItem track6to12 = new JMenuItem();
+    private JMenuItem track12to20 = new JMenuItem();
+    private JMenuItem trackMore20 = new JMenuItem();
     // Future
-    private JMenuItem track2f;
-    private JMenuItem track3f;
-    private JMenuItem track4f;
-    private JMenuItem track4with2f;
-    private JMenuItem track5with3f;
+    private JMenuItem track2f = new JMenuItem();
+    private JMenuItem track3f = new JMenuItem();
+    private JMenuItem track4f = new JMenuItem();
+    private JMenuItem track4with2f = new JMenuItem();
+    private JMenuItem track5with3f = new JMenuItem();
 
     private JPopupMenu trainBus = new JPopupMenu();
     //Future
-    private JMenuItem trainBus3with2;
-    private JMenuItem trainBus4with2;
-    private JMenuItem trainBus5with2;
-    private JMenuItem trainBus5with3;
-    private JMenuItem trainBus6;
-    private JMenuItem trainBus7more;
+    private JMenuItem trainBus3with2 = new JMenuItem();
+    private JMenuItem trainBus4with2 = new JMenuItem();
+    private JMenuItem trainBus5with2 = new JMenuItem();
+    private JMenuItem trainBus5with3 = new JMenuItem();
+    private JMenuItem trainBus6 = new JMenuItem();
+    private JMenuItem trainBus7more = new JMenuItem();
+
+    private JMenuItem[] menuItems = {
+        bigBus, averageBus, microBus,
+        verySmallBusf, smallBusf, averageBusf, bigBusf, veryBigBusf,
+        track2, track2to6, track6to12, track12to20, trackMore20,
+        track2f, track3f, track4f, track4with2f, track5with3f,
+        trainBus3with2, trainBus4with2, trainBus5with2, trainBus5with3, trainBus6, trainBus7more
+    };
 
     public CreatePopupButtonMenu(String typeOfStatement) {
 
@@ -198,9 +201,8 @@ public class CreatePopupButtonMenu {
     public JMenuItem getTruckMore20() {
         return trackMore20;
     }
-    
-    // Future. Грузовые
 
+    // Future. Грузовые
     public JMenuItem getTruck2f() {
         return track2f;
     }
@@ -215,11 +217,11 @@ public class CreatePopupButtonMenu {
 
     public JMenuItem getTruck4with2f() {
         return track4with2f;
-    } 
+    }
 
     public JMenuItem getTruck5with3f() {
         return track5with3f;
-    }    
+    }
 
     // Future. Автопоезда
     public JPopupMenu getTrainBus() {
@@ -248,6 +250,10 @@ public class CreatePopupButtonMenu {
 
     public JMenuItem getTrainBus7more() {
         return trainBus7more;
+    }
+
+    public JMenuItem[] getMenuItems() {
+        return menuItems;
     }
 
 }
