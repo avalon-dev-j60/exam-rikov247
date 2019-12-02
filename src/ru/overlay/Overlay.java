@@ -4,10 +4,19 @@
 package ru.overlay;
 
 import com.sun.jna.platform.WindowUtils;
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Robot;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,6 +25,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -24,6 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.TreePath;
@@ -1121,6 +1132,80 @@ public class Overlay extends JWindow {
         }
     }
 
+    private class ButtonKeyListenerWithEMP extends KeyAdapter {
+
+        // Если кнопку нажать и держать, то благодаря temp она сработает только один раз, если ее отпустить
+        private JButton button; // кнопка, рна которую хотим нажать
+        private int keyCode; // кнопка на клавиатуре, которую отслеживаем
+        private int altCtrlOrShift; // доп. кнопка (Alt, Ctrl или Shift), если хотим
+        private boolean temp = true;
+        private boolean switchBoolean = false; // логическая переменная для возможность динамически включат и выключать видео
+
+        // Каждые 10 секунд таймер срабатывает и убирает закраску области вокруг кнопки
+        private Timer timer = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                button.setContentAreaFilled(false);
+            }
+        });
+
+        // Конструктор
+        public ButtonKeyListenerWithEMP(JButton button, int keyCode) {
+            this.button = button;
+            this.keyCode = keyCode;
+        }
+
+        // Конструктор
+        public ButtonKeyListenerWithEMP(JButton button, int keyCode, int altCtrlOrShift) {
+            this.button = button;
+            this.keyCode = keyCode;
+            this.altCtrlOrShift = altCtrlOrShift;
+        }
+
+        // Если кнопка нажата (если кнопку зажать, то она будет многократно нажиматься, но не отпускаться)
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == keyCode && temp) {
+                button.setContentAreaFilled(true); // отображаем область вокруг кнопки, когда она нажата
+                timer.setRepeats(false); // говорим, чтобы таймер сработал только один раз!
+                // Обновляем фон кнопки
+                overlayPanel.repaint();
+                repaint();
+                // делаем клик по кнопке - триггерим action слушатель
+                button.doClick();
+                temp = false; // логическая переменная для возможности удерживать кнопку нажатой и чтобы на не срабатывала много раз
+
+                // Если при нажатии на кнопку нужно выключить видео, то выключаем его
+                if (emp.mediaPlayer().status().isPlaying() == true) {
+                    emp.mediaPlayer().controls().pause(); // ставим на паузу видео
+                    switchBoolean = true; // переключаем логическую единицу, чтобы уведомить, что при отпускании кнопки нужно включить видео
+                }
+            }
+        }
+
+        // Если отпускаем кнопку
+        @Override
+        public void keyReleased(KeyEvent e) {
+            if (e.getKeyCode() == keyCode) {
+                // Запускаем таймер
+                timer.start();
+                // Обновляем фон кнопки
+                overlayPanel.repaint();
+                repaint();
+
+                // Говорим, что теперь кнопку можно нажать еще раз (результативно)
+                temp = true;
+
+                // Если при отпускании кнопки нужно включить видео, то включаем его
+                if (switchBoolean) {
+                    emp.mediaPlayer().controls().start();
+                    switchBoolean = false;
+                }
+            }
+        }
+
+    }
+
 // Для абстрактной кнопки устанавливается размер и убирается отображение стандартных качеств кнопки
     private JButton createButtonWithIcon(JButton button) {
         button.setBorderPainted(false); // отключение прорисовки рамки
@@ -1408,6 +1493,21 @@ public class Overlay extends JWindow {
 
     public JButton getbLeftUpCar() {
         return bLeftUpCar;
+    }
+
+    public ButtonKeyListenerWithEMP getBListLeftUpCar() {
+        ButtonKeyListenerWithEMP bList = new ButtonKeyListenerWithEMP(bLeftUpCar, KeyEvent.VK_Q);
+        return bList;
+    }
+
+    public ButtonKeyListenerWithEMP getBListForwardUpCar() {
+        ButtonKeyListenerWithEMP bList = new ButtonKeyListenerWithEMP(bForwardUpCar, KeyEvent.VK_W);
+        return bList;
+    }
+
+    public ButtonKeyListenerWithEMP getBListRightUpCar() {
+        ButtonKeyListenerWithEMP bList = new ButtonKeyListenerWithEMP(bRightUpCar, KeyEvent.VK_E);
+        return bList;
     }
 
 }

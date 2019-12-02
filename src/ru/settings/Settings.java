@@ -1,4 +1,4 @@
-package ru.trafficClicker;
+package ru.settings;
 
 import java.io.File;
 import java.io.FileNotFoundException;

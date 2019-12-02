@@ -1,5 +1,7 @@
 package ru.trafficClicker;
 
+import ru.settings.SettingsFrame;
+import ru.settings.Settings;
 import resources.FileChooserRus;
 import java.awt.*;
 import java.awt.event.*;
@@ -255,16 +257,21 @@ public class TrafficClicker extends AbstractFrame {
         settingsFrame.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equalsIgnoreCase("ActionPlayPauseChange") && overlay != null) {
-                    try {
-                        if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
-                            overlay.addMouseAndPopupListenerWithEMP();
+                if (overlay != null) {
+                    if (evt.getPropertyName().equalsIgnoreCase("ActionPlayPauseChange")) {
+                        try {
+                            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
+                                overlay.addMouseAndPopupListenerWithEMP();
+                            }
+                            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
+                                overlay.addMouseListenerWithoutEMP();
+                            }
+                        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
-                            overlay.addMouseListenerWithoutEMP();
-                        }
-                    } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
-                        Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    if (evt.getPropertyName().equalsIgnoreCase("HotKeyChanged")) {
+
                     }
                 }
             }
@@ -846,7 +853,7 @@ public class TrafficClicker extends AbstractFrame {
     // ТАЙМЕР для реализации линии времени видео. Точно не виноват в ошибки вылета java машины после окончания видео
     private void timer() {
         // Создание таймера с задержкой в начале работы (10 мс) и Action слушателем
-        Timer timer = new Timer(100, new ActionListener() {
+        Timer timer = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int nowVideoTime = (int) (emp.mediaPlayer().status().position() * emp.mediaPlayer().media().info().duration() / 1000); // какая СЕКУНДА (для перевода в миллисекунды убрать "/1000") видео в данный момент
@@ -907,7 +914,11 @@ public class TrafficClicker extends AbstractFrame {
         String typeOfDirection = configurationPanel.getTypeOfDirection(); // получаем количество направлений движения
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
         overlay = new Overlay(this, kinfOfStatement, typeOfDirection, paths, emp); // создаем новый overlay слой кнопок
-
+        
+        canvas.addKeyListener(overlay.getBListLeftUpCar());
+        canvas.addKeyListener(overlay.getBListForwardUpCar());
+        canvas.addKeyListener(overlay.getBListRightUpCar());
+        
         // OVERLAY (кнопки)
         // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
         if (emp.mediaPlayer().media().isValid()) {

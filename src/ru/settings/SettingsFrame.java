@@ -1,4 +1,4 @@
-package ru.trafficClicker;
+package ru.settings;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -28,7 +28,10 @@ import net.miginfocom.swing.MigLayout;
 import org.xml.sax.SAXException;
 
 /**
- * Класс для создания окна Настроек
+ * Класс для создания окна Настроек.
+ * Настройки берутся из файла. Сама реализация настройки в другом месте.
+ * Меняется настройка - записываем изменения в файл настроек.
+ * Этот класс уведомляет (fireChanged) кого то, где переменная этого класса создана.
  */
 public class SettingsFrame {
 
