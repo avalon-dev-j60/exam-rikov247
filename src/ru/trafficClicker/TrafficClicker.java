@@ -914,11 +914,10 @@ public class TrafficClicker extends AbstractFrame {
         String typeOfDirection = configurationPanel.getTypeOfDirection(); // получаем количество направлений движения
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
         overlay = new Overlay(this, kinfOfStatement, typeOfDirection, paths, emp); // создаем новый overlay слой кнопок
-        
-        canvas.addKeyListener(overlay.getBListLeftUpCar());
-        canvas.addKeyListener(overlay.getBListForwardUpCar());
-        canvas.addKeyListener(overlay.getBListRightUpCar());
-        
+
+        canvas.addKeyListener(overlay.getRepaintOverlayPanel()); // Если нажимаем на кнопку - то обновляем панель с кнпоками (для правильного отображения contentAreaField кнопки
+        canvas.addKeyListener(overlay.getBListRightUpCarE());
+
         // OVERLAY (кнопки)
         // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
         if (emp.mediaPlayer().media().isValid()) {
