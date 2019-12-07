@@ -35,6 +35,8 @@ import ru.overlay.Overlay;
 import ru.AbstractFrame;
 import ru.cartogram.AddCartogramPanel;
 import ru.cartogram.CreateConfigurationPanelCartogram;
+import ru.overlay.ButtonKeyListenerWithEMP;
+import ru.overlay.ButtonKeyListenerWithoutEMP;
 
 import uk.co.caprica.vlcj.player.base.MarqueePosition;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -271,7 +273,11 @@ public class TrafficClicker extends AbstractFrame {
                         }
                     }
                     if (evt.getPropertyName().equalsIgnoreCase("HotKeyChanged")) {
-
+                        try {
+                            addKeyListenerToCanvas();
+                        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
             }
@@ -915,9 +921,6 @@ public class TrafficClicker extends AbstractFrame {
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
         overlay = new Overlay(this, kinfOfStatement, typeOfDirection, paths, emp); // создаем новый overlay слой кнопок
 
-        canvas.addKeyListener(overlay.getRepaintOverlayPanel()); // Если нажимаем на кнопку - то обновляем панель с кнпоками (для правильного отображения contentAreaField кнопки
-        canvas.addKeyListener(overlay.getBListRightUpCarE());
-
         // OVERLAY (кнопки)
         // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
         if (emp.mediaPlayer().media().isValid()) {
@@ -963,13 +966,17 @@ public class TrafficClicker extends AbstractFrame {
         }
 
         // НАСТРОЙКИ
+        // Overlay
         try {
+            // Пауза при нажатии на кнопки 
             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                 overlay.addMouseAndPopupListenerWithEMP();
             }
             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
                 overlay.addMouseListenerWithoutEMP();
             }
+            // Добавление слушателей клавиатуры для кнопок overlay слоя
+            addKeyListenerToCanvas();
         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1137,6 +1144,124 @@ public class TrafficClicker extends AbstractFrame {
         for (JLabel label : overlay.getLabelsRight()) {
             componentMoverRight = new ComponentMover(overlay.getPanelRight(), label);
         }
+    }
+
+    private void addKeyListenerToCanvas() throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+        // Слушатель клавиатуры - нажатие на кнопки
+        KeyListener bAroundUpCarListener = new KeyAdapter() {
+        }, bLeftUpCarListener = new KeyAdapter() {
+        }, bForwardUpCarListener = new KeyAdapter() {
+        }, bRightUpCarListener = new KeyAdapter() {
+        };
+        KeyListener bAroundRightCarListener = new KeyAdapter() {
+        }, bLeftRightCarListener = new KeyAdapter() {
+        }, bForwardRightCarListener = new KeyAdapter() {
+        }, bRightRightCarListener = new KeyAdapter() {
+        };
+        KeyListener bAroundDownCarListener = new KeyAdapter() {
+        }, bLeftDownCarListener = new KeyAdapter() {
+        }, bForwardDownCarListener = new KeyAdapter() {
+        }, bRightDownCarListener = new KeyAdapter() {
+        };
+        KeyListener bAroundLeftCarListener = new KeyAdapter() {
+        }, bLeftLeftCarListener = new KeyAdapter() {
+        }, bForwardLeftCarListener = new KeyAdapter() {
+        }, bRightLeftCarListener = new KeyAdapter() {
+        };
+
+        // Удаляем все слушатели клавиатуры (далее их инициализируем и затем добавляем)
+        canvas.removeKeyListener(overlay.getRepaintOverlayPanel());
+        
+        canvas.removeKeyListener(bAroundUpCarListener);
+        canvas.removeKeyListener(bLeftUpCarListener);
+        canvas.removeKeyListener(bForwardUpCarListener);
+        canvas.removeKeyListener(bRightUpCarListener);
+
+        canvas.removeKeyListener(bAroundRightCarListener);
+        canvas.removeKeyListener(bLeftRightCarListener);
+        canvas.removeKeyListener(bForwardRightCarListener);
+        canvas.removeKeyListener(bRightRightCarListener);
+
+        canvas.removeKeyListener(bAroundDownCarListener);
+        canvas.removeKeyListener(bLeftDownCarListener);
+        canvas.removeKeyListener(bForwardDownCarListener);
+        canvas.removeKeyListener(bRightDownCarListener);
+
+        canvas.removeKeyListener(bAroundLeftCarListener);
+        canvas.removeKeyListener(bLeftLeftCarListener);
+        canvas.removeKeyListener(bForwardLeftCarListener);
+        canvas.removeKeyListener(bRightLeftCarListener);
+        
+        try {
+            // Клик по кннопке на клавиатуре - имитация действия мышью по кнопке на overlay
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
+                bAroundUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbAroundUpCar(), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey2")), emp);
+                bLeftUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbLeftUpCar(), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey2")), emp);
+                bForwardUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbForwardUpCar(), Integer.valueOf(settings.getValueNode("bForwardUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardUpCarListenerKey2")), emp);
+                bRightUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbRightUpCar(), Integer.valueOf(settings.getValueNode("bRightUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightUpCarListenerKey2")), emp);
+
+                bAroundRightCarListener = new ButtonKeyListenerWithEMP(overlay.getbAroundRightCar(), Integer.valueOf(settings.getValueNode("bAroundRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundRightCarListenerKey2")), emp);
+                bLeftRightCarListener = new ButtonKeyListenerWithEMP(overlay.getbLeftRightCar(), Integer.valueOf(settings.getValueNode("bLeftRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftRightCarListenerKey2")), emp);
+                bForwardRightCarListener = new ButtonKeyListenerWithEMP(overlay.getbForwardRightCar(), Integer.valueOf(settings.getValueNode("bForwardRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardRightCarListenerKey2")), emp);
+                bRightRightCarListener = new ButtonKeyListenerWithEMP(overlay.getbRightRightCar(), Integer.valueOf(settings.getValueNode("bRightRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightRightCarListenerKey2")), emp);
+
+                bAroundDownCarListener = new ButtonKeyListenerWithEMP(overlay.getbAroundDownCar(), Integer.valueOf(settings.getValueNode("bAroundDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundDownCarListenerKey2")), emp);
+                bLeftDownCarListener = new ButtonKeyListenerWithEMP(overlay.getbLeftDownCar(), Integer.valueOf(settings.getValueNode("bLeftDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftDownCarListenerKey2")), emp);
+                bForwardDownCarListener = new ButtonKeyListenerWithEMP(overlay.getbForwardDownCar(), Integer.valueOf(settings.getValueNode("bForwardDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardDownCarListenerKey2")), emp);
+                bRightDownCarListener = new ButtonKeyListenerWithEMP(overlay.getbRightDownCar(), Integer.valueOf(settings.getValueNode("bRightDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightDownCarListenerKey2")), emp);
+
+                bAroundLeftCarListener = new ButtonKeyListenerWithEMP(overlay.getbAroundLeftCar(), Integer.valueOf(settings.getValueNode("bAroundLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundLeftCarListenerKey2")), emp);
+                bLeftLeftCarListener = new ButtonKeyListenerWithEMP(overlay.getbLeftLeftCar(), Integer.valueOf(settings.getValueNode("bLeftLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftLeftCarListenerKey2")), emp);
+                bForwardLeftCarListener = new ButtonKeyListenerWithEMP(overlay.getbForwardLeftCar(), Integer.valueOf(settings.getValueNode("bForwardLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardLeftCarListenerKey2")), emp);
+                bRightLeftCarListener = new ButtonKeyListenerWithEMP(overlay.getbRightLeftCar(), Integer.valueOf(settings.getValueNode("bRightLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightLeftCarListenerKey2")), emp);
+            }
+            if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("No")) {
+                bAroundUpCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbAroundUpCar(), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey2")));
+                bLeftUpCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbLeftUpCar(), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey2")));
+                bForwardUpCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbForwardUpCar(), Integer.valueOf(settings.getValueNode("bForwardUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardUpCarListenerKey2")));
+                bRightUpCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbRightUpCar(), Integer.valueOf(settings.getValueNode("bRightUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightUpCarListenerKey2")));
+
+                bAroundRightCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbAroundRightCar(), Integer.valueOf(settings.getValueNode("bAroundRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundRightCarListenerKey2")));
+                bLeftRightCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbLeftRightCar(), Integer.valueOf(settings.getValueNode("bLeftRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftRightCarListenerKey2")));
+                bForwardRightCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbForwardRightCar(), Integer.valueOf(settings.getValueNode("bForwardRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardRightCarListenerKey2")));
+                bRightRightCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbRightRightCar(), Integer.valueOf(settings.getValueNode("bRightRightCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightRightCarListenerKey2")));
+
+                bAroundDownCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbAroundDownCar(), Integer.valueOf(settings.getValueNode("bAroundDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundDownCarListenerKey2")));
+                bLeftDownCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbLeftDownCar(), Integer.valueOf(settings.getValueNode("bLeftDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftDownCarListenerKey2")));
+                bForwardDownCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbForwardDownCar(), Integer.valueOf(settings.getValueNode("bForwardDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardDownCarListenerKey2")));
+                bRightDownCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbRightDownCar(), Integer.valueOf(settings.getValueNode("bRightDownCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightDownCarListenerKey2")));
+
+                bAroundLeftCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbAroundLeftCar(), Integer.valueOf(settings.getValueNode("bAroundLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundLeftCarListenerKey2")));
+                bLeftLeftCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbLeftLeftCar(), Integer.valueOf(settings.getValueNode("bLeftLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftLeftCarListenerKey2")));
+                bForwardLeftCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbForwardLeftCar(), Integer.valueOf(settings.getValueNode("bForwardLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bForwardLeftCarListenerKey2")));
+                bRightLeftCarListener = new ButtonKeyListenerWithoutEMP(overlay.getbRightLeftCar(), Integer.valueOf(settings.getValueNode("bRightLeftCarListenerKey1")), Integer.valueOf(settings.getValueNode("bRightLeftCarListenerKey2")));
+            }
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        canvas.addKeyListener(overlay.getRepaintOverlayPanel()); // Если нажимаем на кнопку - то обновляем панель с кнпоками (для правильного отображения contentAreaField кнопки
+
+        // Добавляем слушатели клавиатуры
+        canvas.addKeyListener(bAroundUpCarListener);
+        canvas.addKeyListener(bLeftUpCarListener);
+        canvas.addKeyListener(bForwardUpCarListener);
+        canvas.addKeyListener(bRightUpCarListener);
+
+        canvas.addKeyListener(bAroundRightCarListener);
+        canvas.addKeyListener(bLeftRightCarListener);
+        canvas.addKeyListener(bForwardRightCarListener);
+        canvas.addKeyListener(bRightRightCarListener);
+
+        canvas.addKeyListener(bAroundDownCarListener);
+        canvas.addKeyListener(bLeftDownCarListener);
+        canvas.addKeyListener(bForwardDownCarListener);
+        canvas.addKeyListener(bRightDownCarListener);
+
+        canvas.addKeyListener(bAroundLeftCarListener);
+        canvas.addKeyListener(bLeftLeftCarListener);
+        canvas.addKeyListener(bForwardLeftCarListener);
+        canvas.addKeyListener(bRightLeftCarListener);
     }
 
     // Округление до двух чисел после запятой

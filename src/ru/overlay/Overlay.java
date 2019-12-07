@@ -8,8 +8,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -28,7 +26,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.TreePath;
@@ -1118,18 +1115,6 @@ public class Overlay extends JWindow {
         }
     }
 
-    private KeyAdapter repaintOverlayPanel = new KeyAdapter() {
-        @Override
-        public void keyPressed(KeyEvent e) {
-            overlayPanel.repaint(); // Обновляем фон кнопки
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            overlayPanel.repaint(); // Обновляем фон кнопки
-        }
-    };
-
 // Для абстрактной кнопки устанавливается размер и убирается отображение стандартных качеств кнопки
     private JButton createButtonWithIcon(JButton button) {
         button.setBorderPainted(false); // отключение прорисовки рамки
@@ -1411,21 +1396,88 @@ public class Overlay extends JWindow {
         return panelRight;
     }
 
-    public JPanel getPa() {
+    public JPanel getOverlayPanel() {
         return overlayPanel;
+    }
+
+    public KeyAdapter getRepaintOverlayPanel() {
+        KeyAdapter repaintOverlayPanel = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                overlayPanel.repaint(); // Обновляем фон панели с кнопками
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                overlayPanel.repaint(); // Обновляем фон панели с кнопками
+            }
+        };
+        return repaintOverlayPanel;
+    }
+
+    public JButton getbAroundUpCar() {
+        return bAroundUpCar;
     }
 
     public JButton getbLeftUpCar() {
         return bLeftUpCar;
     }
 
-    public KeyAdapter getRepaintOverlayPanel() {
-        return repaintOverlayPanel;
+    public JButton getbForwardUpCar() {
+        return bForwardUpCar;
     }
 
-    public ButtonKeyListenerWithEMP getBListRightUpCarE() {
-        ButtonKeyListenerWithEMP bList = new ButtonKeyListenerWithEMP(bRightUpCar, KeyEvent.VK_E, KeyEvent.VK_1, emp);
-        return bList;
+    public JButton getbRightUpCar() {
+        return bRightUpCar;
     }
 
+    public JButton getbAroundRightCar() {
+        return bAroundRightCar;
+    }
+
+    public JButton getbLeftRightCar() {
+        return bLeftRightCar;
+    }
+
+    public JButton getbForwardRightCar() {
+        return bForwardRightCar;
+    }
+
+    public JButton getbRightRightCar() {
+        return bRightRightCar;
+    }
+
+    public JButton getbAroundDownCar() {
+        return bAroundDownCar;
+    }
+
+    public JButton getbLeftDownCar() {
+        return bLeftDownCar;
+    }
+
+    public JButton getbForwardDownCar() {
+        return bForwardDownCar;
+    }
+
+    public JButton getbRightDownCar() {
+        return bRightDownCar;
+    }
+
+    public JButton getbAroundLeftCar() {
+        return bAroundLeftCar;
+    }
+
+    public JButton getbLeftLeftCar() {
+        return bLeftLeftCar;
+    }
+
+    public JButton getbForwardLeftCar() {
+        return bForwardLeftCar;
+    }
+
+    public JButton getbRightLeftCar() {
+        return bRightLeftCar;
+    }
+
+    
 }

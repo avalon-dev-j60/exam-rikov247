@@ -1,6 +1,7 @@
 package ru.cartogram;
 // https://stackoverflow.com/questions/41800279/unable-to-edit-svg-using-batik-in-java
-//https://stackoverflow.com/questions/13229690/checking-and-deleting-attributes-in-svg-using-batik-in-java
+// https://stackoverflow.com/questions/13229690/checking-and-deleting-attributes-in-svg-using-batik-in-java
+// https://www.drawsvg.org/drawsvg.html Рисовать svg онлайн
 
 import java.awt.BorderLayout;
 import java.awt.Graphics2D;
