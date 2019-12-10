@@ -46,7 +46,11 @@ public class Settings {
         XPath xpath = xPathFactory.newXPath();
         XPathExpression expr = xpath.compile("//" + nodeName); // Находим xpathВыражение с указанным нами тегом
         NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET); // Переводим xpathВыражение с указанным нами тегом в список элементов с таким тегом
-        return nl.item(0).getTextContent().trim(); // Получаем текстовое значение внутри области тега
+        if (nl.item(0) != null) {
+            return nl.item(0).getTextContent().trim(); // Получаем текстовое значение внутри области тега
+        } else {
+            return ""; // Если указанного node не существует, то возвращаем пустую строку
+        }
     }
 
     // Установка значения для указанного тега (node)
