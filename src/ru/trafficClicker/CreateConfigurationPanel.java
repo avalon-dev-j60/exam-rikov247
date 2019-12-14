@@ -21,7 +21,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -267,8 +266,6 @@ public class CreateConfigurationPanel {
         vertSplitRight1.setTopComponent(createLabelOnPanel(chooseTable, "Конфигурация подсчета:"));
         vertSplitRight1.setBottomComponent(vertSplitRight2);
         vertSplitRight2.setTopComponent(createGroupButtonInGroup(table0_15Radio, table15_30Radio, table30_45Radio, table45_60Radio, group15MinuteTable));
-//        createGroupButton(table0_15, table15_30, table30_45, table45_60);
-//        createGroupButtonInGroup(table0_15Radio, table15_30Radio, table30_45Radio, table45_60Radio, group15MinuteTable);
         vertSplitRight2.setBottomComponent(vertSplitRight3);
         vertSplitRight3.setTopComponent(createLabelOnPanel(timeOfDay, "Время дня:"));
         vertSplitRight3.setBottomComponent(vertSplitRight4);

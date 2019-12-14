@@ -98,7 +98,7 @@ public class SettingsFrame {
 
         panelOfButton.add(createButtonsOverlaySettingPanel(), "growx, push, wrap"); // протягиваем по х, выталкиваем лишнее и уведомляем об окончании столбца
         panelOfButton.add(createHotKeyPanel(), "growx, push, wrap");
-        panelOfButton.add(createTestPanel("Что то еще"), "growx, push, wrap");
+//        panelOfButton.add(createTestPanel("Что то еще"), "growx, push, wrap");
         panelOfButton.add(createOkAcceptCancelPanel(), "newline push, align right");
 
         // Вкладка 1 (index = 0).
@@ -143,7 +143,6 @@ public class SettingsFrame {
         okButton = new JButton("ОК"); // Применяем и выходим из настроек
         okButton.setFocusable(false);
         okButton.addActionListener(activePlayPauseCheckBoxListener);
-        okButton.addActionListener(hoyKeyListener);
         okButton.addActionListener(closeWindow);
 
         cancelButton = new JButton("Отменить"); // Выходим из настроек ничего не делая
@@ -153,7 +152,6 @@ public class SettingsFrame {
         acceptButton = new JButton("Применить"); // Применяем изменения и остаемся в настройках
         acceptButton.setFocusable(false);
         acceptButton.addActionListener(activePlayPauseCheckBoxListener);
-        acceptButton.addActionListener(hoyKeyListener);
         okAcceptCancelPanel.add(okButton);
         okAcceptCancelPanel.add(cancelButton);
         okAcceptCancelPanel.add(acceptButton);
@@ -189,11 +187,7 @@ public class SettingsFrame {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Условия при которых ячейки будут не редактируемыми:
-//                if (column == 0 || column == 1 || (column == 2 && row == 0)) {
-                return false; // делаем его не редактируемым     
-//                } else {
-//                    return true; // редактируемая ячейка
-//                }
+                return false; // делаем ячейки не редактируемыми     
             }
         };
         hotKeyTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); // включаем фиксацию введенных данных и выход из режима редактирования ячейки если фокус переключается на другую вкладку
@@ -247,19 +241,15 @@ public class SettingsFrame {
             }
         }
 
-//        TableColumn tableColumn2 = hotKeyTable.getColumnModel().getColumn(2);
-//        TableColumn tableColumn3 = hotKeyTable.getColumnModel().getColumn(3);
-        // Установка отображения ячейки при ее редактировании
-//        tableColumn2.setCellEditor(new DefaultCellEditor(formTextField())); // в качестве отображателя ячейки в режиме редактирования передаем новый дефолтный с нашим текстовым полем
-//        tableColumn3.setCellEditor(new DefaultCellEditor(formTextField())); // в качестве отображателя ячейки в режиме редактирования передаем новый дефолтный с нашим текстовым полем
         pnl.add(hotKeyTable.getScrollPane());
         pnl.setBorder(BorderFactory.createTitledBorder("Горячие клавиши"));
 
-        hotKeyTable.addMouseListener(new MyMouseAdapter());
+        MouseAdapter cellDoubleClick = new CellDoubleClickAdapter();
+        hotKeyTable.addMouseListener(cellDoubleClick);
         return pnl;
     }
 
-    class MyMouseAdapter extends MouseAdapter {
+    class CellDoubleClickAdapter extends MouseAdapter {
 
         String key;
 
@@ -277,6 +267,7 @@ public class SettingsFrame {
         }
     }
 
+    // Метод отображения текста сообщения при редактировании горячей клавиши
     private String hotKeyText(int col, int row, String hotKeyText) {
         String text = "<html><p></p>Горячая "
                 + "<u>" + hotKeyTable.getTableHeader().getColumnModel().getColumn(col).getIdentifier() + "</u>"
@@ -288,9 +279,10 @@ public class SettingsFrame {
     }
 
     private String tempHotKeyFrameText = ""; // переменная для хранения нажатой новой горячей кнопки (внутрь метода hotKeyFrame не получается засунуть)
+    private int keyCode;
 
+    // Окошко для изменения горячей клавиши. 
     private JFrame hotKeyFrame(int col, int row, String key) {
-
         JFrame frame = new JFrame("Горячие клавиши"); //Создания объекта на класс - свое диалоговое окно.
         frame.setLayout(new MigLayout());
         frame.setLocationRelativeTo(null); // Расположение окна на экране
@@ -299,13 +291,28 @@ public class SettingsFrame {
         label.setFocusable(false);
         frame.add(label, "align center, push, wrap");
 
-        JButton license = new JButton("ОК");
-        license.setFocusable(false);
-        frame.add(license, "newline push, align center");
-        license.addActionListener(new ActionListener() {
+        JButton ok = new JButton("ОК");
+        ok.setFocusable(false);
+        frame.add(ok, "newline push, align center");
+
+        // Если жмем ОК - то новая горячая клавиша записывается в таблицу и в файл настроек!
+        ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 hotKeyTable.setValueAt(tempHotKeyFrameText, row, col);
+                try {
+                    // Определяем ID для записи в правильный node в файл setting изменений
+                    String smallDirection = getIdSmallDirection(String.valueOf(hotKeyTable.getValueAt(row, 1)));
+                    String bigDirection = getIdBigDirection(String.valueOf(hotKeyTable.getValueAt(row, 0)));
+                    String keyColumn = getIdKeyDirection(col);
+                    String ID = smallDirection + bigDirection + keyColumn;
+
+                    settings.setValueNode(ID, String.valueOf(keyCode));
+                    settings.writeDocument();
+                    pcs.firePropertyChange("HotKeyChanged", "1", "2");
+                } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                    Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 frame.setVisible(false);
                 frame.dispose();
             }
@@ -319,8 +326,8 @@ public class SettingsFrame {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                int code = e.getKeyCode();
-                tempHotKeyFrameText = KeyEvent.getKeyText(code);
+                keyCode = e.getKeyCode();
+                tempHotKeyFrameText = KeyEvent.getKeyText(keyCode);
                 label.setText(hotKeyText(col, row, tempHotKeyFrameText));
             }
         });
@@ -332,14 +339,6 @@ public class SettingsFrame {
             }
         });
         return frame;
-    }
-
-    private JTextField formTextField() {
-//        field.setBackground(Color.LIGHT_GRAY);
-        JTextField field = new JTextField(); // Текстовое поле внутри ячейки
-        field.setHorizontalAlignment(JLabel.CENTER);
-
-        return field;
     }
 
     public void headerRenderer(JBroTable table, int levelHeader, int column) {
@@ -417,25 +416,24 @@ public class SettingsFrame {
         }
     };
 
-    private ActionListener hoyKeyListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String oldValue = "old"; // старое значение 
-            String newValue = "new"; // новое значение 
-            try {
-                hotKeyInSettingsFile("Направление 1");
-                hotKeyInSettingsFile("Направление 2");
-                hotKeyInSettingsFile("Направление 3");
-                hotKeyInSettingsFile("Направление 4");
-                settings.writeDocument(); // записываем все изменения в файл настроек
-
-            } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
-                Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            pcs.firePropertyChange("HotKeyChanged", oldValue, newValue);
-        }
-    };
-
+//    private ActionListener hoyKeyListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            String oldValue = "old"; // старое значение 
+//            String newValue = "new"; // новое значение 
+//            try {
+//                hotKeyInSettingsFile("Направление 1");
+//                hotKeyInSettingsFile("Направление 2");
+//                hotKeyInSettingsFile("Направление 3");
+//                hotKeyInSettingsFile("Направление 4");
+//                settings.writeDocument(); // записываем все изменения в файл настроек
+//
+//            } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+//                Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            pcs.firePropertyChange("HotKeyChanged", oldValue, newValue);
+//        }
+//    };
     // Метод считывания исходных настроек из файла настроек (если его нет, то из дефолтного файла настроек)
     private void firstInitialize() {
         try {
@@ -516,7 +514,7 @@ public class SettingsFrame {
 
     // Запись значений из файла настроек в таблицу по переданному направлению
     private void hotKeyInitialize(String bigDirection) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-        String idDirection = getIdDirection(bigDirection);
+        String idDirection = getIdBigDirection(bigDirection);
         // Разворот
         hotKeyTable.setValueAt(
                 keyText("bAround" + idDirection + "CarListenerKey1"),
@@ -537,30 +535,30 @@ public class SettingsFrame {
 
     // Перенос значений из таблицы Горячих клавиш в файл настроек по переданному направлению.
     // Требуется еще отдельно записать изменения в ФАЙЛ!
-    private void hotKeyInSettingsFile(String bigDirection) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-        String idDirection = getIdDirection(bigDirection);
-        // Разворот
-        // Указывается node в файле и значение, которое следует записать
-        settings.setValueNode("bAround" + idDirection + "CarListenerKey1",
-                String.valueOf(hotKeyTable.getValueAt(
-                        getRowHotKey(hotKeyTable, bigDirection, smallDirections[0]),
-                        getColumn(hotKeyTable, "Клавиша 1")))
-        );
-
-        settings.setValueNode("bAround" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[0]), getColumn(hotKeyTable, "Клавиша 2"))));
-        // Налево
-        settings.setValueNode("bLeft" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[1]), getColumn(hotKeyTable, "Клавиша 1"))));
-        settings.setValueNode("bLeft" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[1]), getColumn(hotKeyTable, "Клавиша 2"))));
-        // Прямо
-        settings.setValueNode("bForward" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[2]), getColumn(hotKeyTable, "Клавиша 1"))));
-        settings.setValueNode("bForward" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[2]), getColumn(hotKeyTable, "Клавиша 2"))));
-        // Направо
-        settings.setValueNode("bRight" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[3]), getColumn(hotKeyTable, "Клавиша 1"))));
-        settings.setValueNode("bRight" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[3]), getColumn(hotKeyTable, "Клавиша 2"))));
-    }
-
+    // Таким образом можно перенести только названия кнопки, а не ее код
+//    private void hotKeyInSettingsFile(String bigDirection) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+//        String idDirection = getIdBigDirection(bigDirection);
+//        // Разворот
+//        // Указывается node в файле и значение, которое следует записать
+//        settings.setValueNode("bAround" + idDirection + "CarListenerKey1",
+//                String.valueOf(hotKeyTable.getValueAt(
+//                        getRowHotKey(hotKeyTable, bigDirection, smallDirections[0]),
+//                        getColumn(hotKeyTable, "Клавиша 1")))
+//        );
+//
+//        settings.setValueNode("bAround" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[0]), getColumn(hotKeyTable, "Клавиша 2"))));
+//        // Налево
+//        settings.setValueNode("bLeft" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[1]), getColumn(hotKeyTable, "Клавиша 1"))));
+//        settings.setValueNode("bLeft" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[1]), getColumn(hotKeyTable, "Клавиша 2"))));
+//        // Прямо
+//        settings.setValueNode("bForward" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[2]), getColumn(hotKeyTable, "Клавиша 1"))));
+//        settings.setValueNode("bForward" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[2]), getColumn(hotKeyTable, "Клавиша 2"))));
+//        // Направо
+//        settings.setValueNode("bRight" + idDirection + "CarListenerKey1", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[3]), getColumn(hotKeyTable, "Клавиша 1"))));
+//        settings.setValueNode("bRight" + idDirection + "CarListenerKey2", String.valueOf(hotKeyTable.getValueAt(getRowHotKey(hotKeyTable, bigDirection, smallDirections[3]), getColumn(hotKeyTable, "Клавиша 2"))));
+//    }
     // Преобразование Направления в ID
-    private String getIdDirection(String bigDirection) {
+    private String getIdBigDirection(String bigDirection) {
         String idDirection = "";
         if (bigDirection.equalsIgnoreCase("Направление 1")) {
             idDirection = "Up";
@@ -573,6 +571,36 @@ public class SettingsFrame {
         }
         if (bigDirection.equalsIgnoreCase("Направление 4")) {
             idDirection = "Left";
+        }
+        return idDirection;
+    }
+
+    // Преобразование Направления в ID
+    private String getIdSmallDirection(String smallDirection) {
+        String idDirection = "";
+        if (smallDirection.equalsIgnoreCase("Разворот")) {
+            idDirection = "bAround";
+        }
+        if (smallDirection.equalsIgnoreCase("Налево")) {
+            idDirection = "bLeft";
+        }
+        if (smallDirection.equalsIgnoreCase("Прямо")) {
+            idDirection = "bForward";
+        }
+        if (smallDirection.equalsIgnoreCase("Направо")) {
+            idDirection = "bRight";
+        }
+        return idDirection;
+    }
+
+    // Преобразование Направления в ID
+    private String getIdKeyDirection(int idKeyColumn) {
+        String idDirection = "";
+        if (getColumn(hotKeyTable, "Клавиша 1") == idKeyColumn) {
+            idDirection = "CarListenerKey1";
+        }
+        if (getColumn(hotKeyTable, "Клавиша 2") == idKeyColumn) {
+            idDirection = "CarListenerKey2";
         }
         return idDirection;
     }

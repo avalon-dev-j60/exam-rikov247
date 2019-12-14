@@ -21,7 +21,7 @@ public class ButtonKeyListenerWithEMP extends KeyAdapter {
     private boolean keyCode2Boolean = false;
 
     // Если кнопку нажать и держать, то благодаря temp она сработает только один раз, если ее отпустить
-    private JButton button; // кнопка, рна которую хотим нажать
+    private JButton button; // кнопка, на которую хотим нажать
     private int keyCode1; // кнопка на клавиатуре, которую отслеживаем
     private int keyCode2;
     private boolean temp = true;

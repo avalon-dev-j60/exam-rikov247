@@ -7,8 +7,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import org.quinto.swing.table.view.JBroTable;
 import ru.trafficClicker.OnButtonClick;
 
@@ -79,12 +77,13 @@ public class popupButtonToTable {
         }
     }
 
+    private PopupButtonListener popList;
     // Добавляем к кнопке выбранное popupMenu и указываем место отображения
     private void popupButton(JButton button, JPopupMenu popMenu) {
         button.setComponentPopupMenu(popMenu); // устанавливаем всплывающее меню на кнопку
         button.setContentAreaFilled(false); // отключаем область вокруг кнопки, появляющуюся при клике на нее
-        PopupButtonListener popList = new PopupButtonListener(button);
         button.removeMouseListener(popList);
+        popList = new PopupButtonListener(button);
         button.addMouseListener(popList);
     }
 

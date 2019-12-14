@@ -76,6 +76,7 @@ public class TrafficClicker extends AbstractFrame {
     ComponentMover componentMoverRight;
 
     private Canvas canvas = new Canvas(); // подоснова для видео
+    private int duration; // продолжительность загруженного видео в миллисекундах
     private CreateConfigurationPanel configurationPanel; // инициализация панели для конфигурации таблицы подсчета
     private CreateConfigurationPanelCartogram configPanelCartogram;
 
@@ -274,7 +275,8 @@ public class TrafficClicker extends AbstractFrame {
                     }
                     if (evt.getPropertyName().equalsIgnoreCase("HotKeyChanged")) {
                         try {
-                            addKeyListenerToCanvas();
+                            removeKeyListenerToCanvas(); // Удаляем старые слушатели клавиатуры на canvas 
+                            addKeyListenerToCanvas(); // Добавляем слушателей клавиатуры на canvas 
                         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
                             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -304,7 +306,7 @@ public class TrafficClicker extends AbstractFrame {
         emp.mediaPlayer().controls().play(); // запуск видео
         emp.mediaPlayer().controls().setPause(true); // пауза
         canvas.requestFocus(); // установка фокуса на canvas (видео)
-        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
+//        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки ПАУЗА/ПЛЭЙ.
@@ -316,14 +318,14 @@ public class TrafficClicker extends AbstractFrame {
             emp.mediaPlayer().controls().play(); // Если медиа не проигрывается, то - play
             canvas.requestFocus(); // установка фокуса на canvas (видео)
         }
-        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
+//        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки "Полноэкранный режим" в Меню Баре (Alt+Shift+Enter)
     private void onFullScreenButtonClick(ActionEvent e) {
         emp.mediaPlayer().fullScreen().set(!emp.mediaPlayer().fullScreen().isFullScreen());
         canvas.requestFocus(); // установка фокуса на canvas (видео)
-        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
+//        tableFocusOnVPCPanel(); // переключение фокуса на панель управления видео, если фокус не получилось переключить на canvas (т.е. если сейчас в фокусе/открыта другая вкладка)
     }
 
     // Нажатие кнопки "Открыть видео.." в Меню Баре (Alt+Shift+Enter). МОЖНО ДОБАВИТЬ ФИЛЬТР ФАЙЛОВ, и к другим кнопкам добавить действий (сохранение и т.п.)
@@ -340,6 +342,9 @@ public class TrafficClicker extends AbstractFrame {
                 file = videoOpen.getSelectedFile(); // выбираем этот файл (получаем на него ссылку)
                 filePath = file.getAbsolutePath(); // берем текстовый абсолютный путь к файлу
                 splitMain2Tab1.setLeftComponent(canvas); // на вкладку видео панели добавляем наше видео (canvas - подоснова для видео, на ней далее будет отображено видео)
+
+                splitMain1Tab1.setLeftComponent(leftPanelFromVideoPanel); // Так же добавляем панель с элементами урпавления видео и слоем кнопок
+
                 // Подготавливаем новое видео         
                 prepareVideo(filePath);
             }
@@ -361,7 +366,7 @@ public class TrafficClicker extends AbstractFrame {
     // АДАПТЕРЫ (СЛУШАТЕЛИ)
     // ДЕЙСТВИЯ С МЫШЬЮ на canvas (видео)
     private MouseAdapter videoMouseClick = new MouseAdapter() {
-        // Pressed - только НАЖАТИЕ на кнопку мыши (отпускание не отслеживается
+        // Pressed - только НАЖАТИЕ на кнопку мыши (отпускание не отслеживается)
         @Override
         public void mousePressed(MouseEvent e) {
             // Метод отслеживает Клик ЛЕВОЙ (button1) кнопкой мыши по видео
@@ -388,6 +393,14 @@ public class TrafficClicker extends AbstractFrame {
             if (e.getKeyCode() == e.VK_F11) {
                 // активация слоя overlay
                 emp.mediaPlayer().overlay().enable(!emp.mediaPlayer().overlay().enabled()); // если overlay неактивен, то активировать и наоборот
+                if (overlay != null) {
+                    if (overlay.isShowing()) {
+                        leftCPanel.getButton().setText("Скрыть кнопки");
+                    }
+                    if (!overlay.isShowing()) {
+                        leftCPanel.getButton().setText("Показать кнопки");
+                    }
+                }
                 canvas.requestFocus(); // Установка фокуса на canvas
             }
 // СКОРОСТЬ ВОСПРОИЗВЕДЕНИЯ
@@ -467,6 +480,8 @@ public class TrafficClicker extends AbstractFrame {
         }
     };
 
+    private MouseMotionAdapter draggedVideo;
+    MouseAdapter releasedVideo;
     // АДАПТЕР ВИДЕО (видеоплеера). Пока что для правильной реализации метода stop() плеера после окончания видео И запуска таймера (привязки к видеоплееру)
     private MediaPlayerEventAdapter mpEventAdapter = new MediaPlayerEventAdapter() {
         @Override // При открытии видео - отключаем overlay слой (кнопок)
@@ -476,12 +491,38 @@ public class TrafficClicker extends AbstractFrame {
                 emp.mediaPlayer().overlay().set(overlay);
                 emp.mediaPlayer().overlay().enable(false);
             }
+            // При открытии видео создаем новые Слушатели мыши для взаимодействия с полосой прокрутки видео
+            // Установка слушателя для изменения позиции (времени) видео в зависимости от изменения положения слайдера (ползунка)
+            draggedVideo = new MouseMotionAdapter() {
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    emp.mediaPlayer().controls().setPosition((float) ((JSlider) e.getComponent()).getValue() / (duration)); // в качестве позиции (времени) видео устанавливается значение от ползунка
+                }
+            };
+            releasedVideo = new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    JSlider sourceSlider = (JSlider) e.getSource(); // получаем Слайдер
+                    BasicSliderUI ui = (BasicSliderUI) sourceSlider.getUI(); // получаем UI слайдера
+                    int value = ui.valueForXPosition(e.getX()); // получаем значение слайдера по клику
+                    vPCPanel.getJs().setValue(value); // устанавливаем новое значение для слайдера
+                    emp.mediaPlayer().controls().setPosition((float) value / (duration));
+                    canvas.requestFocus();
+                }
+            };
+            // Изменение позиции (времени) видео по перемещению ползунка на линии времени
+            vPCPanel.getJs().addMouseMotionListener(draggedVideo);
+            // Изменение позиции (времени) видео по клику на линию времени
+            vPCPanel.getJs().addMouseListener(releasedVideo);
         }
 
         @Override // при постановке видео на паузу - устанавливаем иконку play/pause в положение play
         public void paused(MediaPlayer mediaPlayer) {
             super.paused(mediaPlayer);
             vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
+//            for (int i = 0; i < vPCPanel.getJs().getMouseListeners().length; i++) {
+//                System.out.println(vPCPanel.getJs().getMouseListeners()[i]);
+//            };
         }
 
         @Override // при запуске видео - устанавливаем иконку play/pause в положение pause и конфигурируем и запускаем таймер (для учета времени видео)
@@ -504,6 +545,9 @@ public class TrafficClicker extends AbstractFrame {
                     vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
                 }
             });
+            // При окончании видео удаляем слушателей взаимодействия с полосой видео
+            vPCPanel.getJs().removeMouseMotionListener(draggedVideo);
+            vPCPanel.getJs().removeMouseListener(releasedVideo);
         }
     };
 
@@ -659,12 +703,11 @@ public class TrafficClicker extends AbstractFrame {
     }
 
     // переключение фокуса на панель управления видео - сделано для вкладки Таблицы (возможно и для других вкладок)
-    private void tableFocusOnVPCPanel() {
-        if (canvas.isFocusOwner() == false) { // если не получилось (открыта другая вкладка, не видео вкладка), то
-            vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на панель контроля видео
-        }
-    }
-
+//    private void tableFocusOnVPCPanel() {
+//        if (canvas.isFocusOwner() == false) { // если не получилось (открыта другая вкладка, не видео вкладка), то
+//            vPCPanel.getvPCPanel().requestFocus(); // переключаем фокус на панель контроля видео
+//        }
+//    }
     // Переключение состояния видео и текста кнопки
     private void actionPlayPause() {
         if (emp.mediaPlayer().status().isPlaying() == true) {
@@ -678,6 +721,7 @@ public class TrafficClicker extends AbstractFrame {
     // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с ВИДЕО с тремя областями
     private JSplitPane splitMain1Tab1 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
     private JSplitPane splitMain2Tab1 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
+    JScrollPane leftPanelFromVideoPanel;
 
     private JSplitPane createWorkSplitVideoPanel() {
         splitMain1Tab1.setDividerSize(4); // ширина разделительной области
@@ -689,13 +733,13 @@ public class TrafficClicker extends AbstractFrame {
 
         // МИНИМАЛЬНЫЙ размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
         Dimension leftRightPanelMinimumSize = new Dimension(
-                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3),
+                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3 + 25),
                 (int) (canvas.getMinimumSize().getHeight()));
 
         // Создание панели прокрутки для ЛЕВОЙ панели
-        JScrollPane leftPanel = new JScrollPane(leftCPanel.createLeftCPanel());
-        leftPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
-        leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
+        leftPanelFromVideoPanel = new JScrollPane(leftCPanel.createLeftCPanel(overlay, emp));
+        leftPanelFromVideoPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        leftPanelFromVideoPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
         // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
 //        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel());
@@ -708,7 +752,7 @@ public class TrafficClicker extends AbstractFrame {
         splitMain2Tab1.setRightComponent(null); // правая конфигурационная панель. Если не нужна - ставим null
 
         // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)
-        leftPanel.addComponentListener(dividerChange);
+        leftPanelFromVideoPanel.addComponentListener(dividerChange);
 //        rightPanel.addComponentListener(dividerChange);
 
         return splitMain1Tab1;
@@ -717,7 +761,7 @@ public class TrafficClicker extends AbstractFrame {
     // ОСНОВНАЯ РАБОЧАЯ ПАНЕЛЬ с Таблицей 
     JSplitPane splitMain1Tab2 = new JSplitPane(); // создание разделяющейся панели (левая панель / видео + правая панель)
     JSplitPane splitMain2Tab2 = new JSplitPane(); // создание разделяющейся панели(видео / правая панель)
-    JScrollPane rightPanel;
+    JScrollPane rightPanelFromTablePanel;
 
     private JSplitPane createWorkSplitTablePanel(JComponent leftComponent, JComponent centerComponent, JComponent rightComponent) {
         splitMain1Tab2.setDividerSize(4); // ширина разделительной области
@@ -739,10 +783,10 @@ public class TrafficClicker extends AbstractFrame {
         leftPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
         // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
-        rightPanel = new JScrollPane(rightComponent);
-        rightPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
-        rightPanel.setPreferredSize(new Dimension((int) (leftRightPanelMinimumSize.getWidth() * 1.4), (int) this.getHeight())); // Предпочтительный размер (при создании панели)
-        rightPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
+        rightPanelFromTablePanel = new JScrollPane(rightComponent);
+        rightPanelFromTablePanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
+        rightPanelFromTablePanel.setPreferredSize(new Dimension((int) (leftRightPanelMinimumSize.getWidth() * 1.4), (int) this.getHeight())); // Предпочтительный размер (при создании панели)
+        rightPanelFromTablePanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели
 
         // Добавление компонент в разделяющуюся панель
         splitMain1Tab2.setLeftComponent(leftPanel); // левая конфигурационная панель
@@ -858,14 +902,13 @@ public class TrafficClicker extends AbstractFrame {
 
     // ТАЙМЕР для реализации линии времени видео. Точно не виноват в ошибки вылета java машины после окончания видео
     private void timer() {
+        duration = (int) (emp.mediaPlayer().media().info().duration() / 1000); // продолжительность видео в СЕКУНДАХ (для перевода в миллисекунды убрать "/1000")
+        vPCPanel.getJs().setMaximum(duration); // установка максимального значения ползунка (панели времени) - для правильного разбиения на СЕКУНДЫ
         // Создание таймера с задержкой в начале работы (10 мс) и Action слушателем
         Timer timer = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int nowVideoTime = (int) (emp.mediaPlayer().status().position() * emp.mediaPlayer().media().info().duration() / 1000); // какая СЕКУНДА (для перевода в миллисекунды убрать "/1000") видео в данный момент
-                int duration = (int) (emp.mediaPlayer().media().info().duration() / 1000); // продолжительность видео в СЕКУНДАХ (для перевода в миллисекунды убрать "/1000")
-
-                vPCPanel.getJs().setMaximum(duration); // установка максимального значения ползунка (панели времени) - для правильного разбиения на СЕКУНДЫ
                 vPCPanel.getJs().setValue(nowVideoTime); // В качестве значения маркера устанавливается нынешнее значение времени видео в секундах
                 // Установка нынешнего значения времени около слайдера (ползунка)
                 vPCPanel.getTimeLabel().setText(String.format(
@@ -879,26 +922,7 @@ public class TrafficClicker extends AbstractFrame {
                         duration / 3600,
                         duration / 60 % 60,
                         duration % 60));
-                // Установка слушателя для изменения позиции (времени) видео в зависимости от изменения положения слайдера (ползунка)
-                vPCPanel.getJs().addMouseMotionListener(new MouseMotionAdapter() {
-                    @Override
-                    public void mouseDragged(MouseEvent e) {
-                        emp.mediaPlayer().controls().setPosition((float) ((JSlider) e.getComponent()).getValue() / (duration)); // в качестве позиции (времени) видео устанавливается значение от ползунка
-                        canvas.requestFocus();
-                    }
-                });
-                // Изменение позиции (времени) видео по клику на линию времени
-                vPCPanel.getJs().addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        JSlider sourceSlider = (JSlider) e.getSource(); // получаем Слайдер
-                        BasicSliderUI ui = (BasicSliderUI) sourceSlider.getUI(); // получаем UI слайдера
-                        int value = ui.valueForXPosition(e.getX()); // получаем значение слайдера по клику
-                        vPCPanel.getJs().setValue(value); // устанавливаем новое значение для слайдера
-                        emp.mediaPlayer().controls().setPosition((float) value / (duration));
-                        canvas.requestFocus();
-                    }
-                });
+
             }
         });
         timer.start(); // запуск таймера
@@ -910,9 +934,15 @@ public class TrafficClicker extends AbstractFrame {
         // УДАЛЕНИЕ СТАРОГО
         // Уничтожаем предыдущий overlay, если он существовал (для правильного освобождения ресурсов и отображения нового overlay)
         if (overlay != null) {
-            overlay.dispose();
             // Удаляем старые слушатели перемещения панелей с кнопками
             deregisterOldListenerMovePanel();
+            // Удаляем все слушатели клавиатуры
+            try {
+                removeKeyListenerToCanvas();
+            } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            overlay.dispose();
         }
 
         // СЧИТЫВАНИЕ ПАРАМЕТРОВ НОВОГО. Считываем идентификаторы выбранного режима подсчета
@@ -920,6 +950,7 @@ public class TrafficClicker extends AbstractFrame {
         String typeOfDirection = configurationPanel.getTypeOfDirection(); // получаем количество направлений движения
         TreePath[] paths = configurationPanel.getPaths(); // получаем массив выбранных узлов в дереве выбора того, что считаем
         overlay = new Overlay(this, kinfOfStatement, typeOfDirection, paths, emp); // создаем новый overlay слой кнопок
+        leftCPanel.setOverlay(overlay); // Передаем новый overlay в левую панель управления видео
 
         // OVERLAY (кнопки)
         // Установка overlay слоя над видео (слой КНОПОК) если видео подгружено на canvas
@@ -938,7 +969,7 @@ public class TrafficClicker extends AbstractFrame {
         // Вкладка "таблицы"
         // Добавляем панель со вкладками (каждая из них со своими вкладками) во вкладку "Таблицы" приложения
         splitMain2Tab2.setLeftComponent(getTablePaneAllDay());
-        splitMain2Tab2.setRightComponent(rightPanel);
+        splitMain2Tab2.setRightComponent(rightPanelFromTablePanel);
 
         // КАРТОГРАММЫ. 
         // Вкладка "картограммы"
@@ -976,6 +1007,7 @@ public class TrafficClicker extends AbstractFrame {
                 overlay.addMouseListenerWithoutEMP();
             }
             // Добавление слушателей клавиатуры для кнопок overlay слоя
+            removeKeyListenerToCanvas();
             addKeyListenerToCanvas();
         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -1146,54 +1178,31 @@ public class TrafficClicker extends AbstractFrame {
         }
     }
 
+    // Слушатель клавиатуры - нажатие на кнопки
+    KeyListener bAroundUpCarListener = new KeyAdapter() {
+    }, bLeftUpCarListener = new KeyAdapter() {
+    }, bForwardUpCarListener = new KeyAdapter() {
+    }, bRightUpCarListener = new KeyAdapter() {
+    };
+    KeyListener bAroundRightCarListener = new KeyAdapter() {
+    }, bLeftRightCarListener = new KeyAdapter() {
+    }, bForwardRightCarListener = new KeyAdapter() {
+    }, bRightRightCarListener = new KeyAdapter() {
+    };
+    KeyListener bAroundDownCarListener = new KeyAdapter() {
+    }, bLeftDownCarListener = new KeyAdapter() {
+    }, bForwardDownCarListener = new KeyAdapter() {
+    }, bRightDownCarListener = new KeyAdapter() {
+    };
+    KeyListener bAroundLeftCarListener = new KeyAdapter() {
+    }, bLeftLeftCarListener = new KeyAdapter() {
+    }, bForwardLeftCarListener = new KeyAdapter() {
+    }, bRightLeftCarListener = new KeyAdapter() {
+    };
+
     private void addKeyListenerToCanvas() throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-        // Слушатель клавиатуры - нажатие на кнопки
-        KeyListener bAroundUpCarListener = new KeyAdapter() {
-        }, bLeftUpCarListener = new KeyAdapter() {
-        }, bForwardUpCarListener = new KeyAdapter() {
-        }, bRightUpCarListener = new KeyAdapter() {
-        };
-        KeyListener bAroundRightCarListener = new KeyAdapter() {
-        }, bLeftRightCarListener = new KeyAdapter() {
-        }, bForwardRightCarListener = new KeyAdapter() {
-        }, bRightRightCarListener = new KeyAdapter() {
-        };
-        KeyListener bAroundDownCarListener = new KeyAdapter() {
-        }, bLeftDownCarListener = new KeyAdapter() {
-        }, bForwardDownCarListener = new KeyAdapter() {
-        }, bRightDownCarListener = new KeyAdapter() {
-        };
-        KeyListener bAroundLeftCarListener = new KeyAdapter() {
-        }, bLeftLeftCarListener = new KeyAdapter() {
-        }, bForwardLeftCarListener = new KeyAdapter() {
-        }, bRightLeftCarListener = new KeyAdapter() {
-        };
-
-        // Удаляем все слушатели клавиатуры (далее их инициализируем и затем добавляем)
-        canvas.removeKeyListener(overlay.getRepaintOverlayPanel());
-        
-        canvas.removeKeyListener(bAroundUpCarListener);
-        canvas.removeKeyListener(bLeftUpCarListener);
-        canvas.removeKeyListener(bForwardUpCarListener);
-        canvas.removeKeyListener(bRightUpCarListener);
-
-        canvas.removeKeyListener(bAroundRightCarListener);
-        canvas.removeKeyListener(bLeftRightCarListener);
-        canvas.removeKeyListener(bForwardRightCarListener);
-        canvas.removeKeyListener(bRightRightCarListener);
-
-        canvas.removeKeyListener(bAroundDownCarListener);
-        canvas.removeKeyListener(bLeftDownCarListener);
-        canvas.removeKeyListener(bForwardDownCarListener);
-        canvas.removeKeyListener(bRightDownCarListener);
-
-        canvas.removeKeyListener(bAroundLeftCarListener);
-        canvas.removeKeyListener(bLeftLeftCarListener);
-        canvas.removeKeyListener(bForwardLeftCarListener);
-        canvas.removeKeyListener(bRightLeftCarListener);
-        
         try {
-            // Клик по кннопке на клавиатуре - имитация действия мышью по кнопке на overlay
+            // Клик по кнопке на клавиатуре - имитация действия мышью по кнопке на overlay
             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                 bAroundUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbAroundUpCar(), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bAroundUpCarListenerKey2")), emp);
                 bLeftUpCarListener = new ButtonKeyListenerWithEMP(overlay.getbLeftUpCar(), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey1")), Integer.valueOf(settings.getValueNode("bLeftUpCarListenerKey2")), emp);
@@ -1262,6 +1271,31 @@ public class TrafficClicker extends AbstractFrame {
         canvas.addKeyListener(bLeftLeftCarListener);
         canvas.addKeyListener(bForwardLeftCarListener);
         canvas.addKeyListener(bRightLeftCarListener);
+    }
+
+    private void removeKeyListenerToCanvas() throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+        // Удаляем все слушатели клавиатуры (далее их инициализируем и затем добавляем)
+        canvas.removeKeyListener(overlay.getRepaintOverlayPanel());
+
+        canvas.removeKeyListener(bAroundUpCarListener);
+        canvas.removeKeyListener(bLeftUpCarListener);
+        canvas.removeKeyListener(bForwardUpCarListener);
+        canvas.removeKeyListener(bRightUpCarListener);
+
+        canvas.removeKeyListener(bAroundRightCarListener);
+        canvas.removeKeyListener(bLeftRightCarListener);
+        canvas.removeKeyListener(bForwardRightCarListener);
+        canvas.removeKeyListener(bRightRightCarListener);
+
+        canvas.removeKeyListener(bAroundDownCarListener);
+        canvas.removeKeyListener(bLeftDownCarListener);
+        canvas.removeKeyListener(bForwardDownCarListener);
+        canvas.removeKeyListener(bRightDownCarListener);
+
+        canvas.removeKeyListener(bAroundLeftCarListener);
+        canvas.removeKeyListener(bLeftLeftCarListener);
+        canvas.removeKeyListener(bForwardLeftCarListener);
+        canvas.removeKeyListener(bRightLeftCarListener);
     }
 
     // Округление до двух чисел после запятой

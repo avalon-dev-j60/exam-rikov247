@@ -30,54 +30,64 @@ public class TotalSumLastColumns {
         int modelColumn = table.convertColumnIndexToModel(column - unAccountedColumns); // переводим стандартный индекс столбца в индекс этого столбца в моделе хэдера
         ModelField columnToModelField = table.getData().getFields()[modelColumn]; // получаем field, который соответствует столбцу ячейки, в которой что то было изменено
 
-        // Определяем столбец, куда записать итоговую сумму подсчетов
-        int columnTotalFE = -1;
-        int columnTotalPE = -1;
-        for (int q = 0; q < table.getModel().getData().getFieldsCount(); q++) {
-            if (table.getModel().getData().getFields()[q].getIdentifier().startsWith("ФЕ Всего")) {
-                columnTotalFE = q;
-            }
-            if (table.getModel().getData().getFields()[q].getIdentifier().startsWith("ПЕ Всего")) {
-                columnTotalPE = q;
-            }
-        }
-
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого1") && columnTotalFE > 0) {
-            Object data = model.getValueAt(row, column); // получаем данные из ячейки
-            value1 = Integer.valueOf(String.valueOf(data)); // переводим значение из текста в числовой формат
-            sum = (value1 + value2 + value3 + value4); // рассчитываем значение суммы 
-            // устанавливаем значение суммы, умноженной на подходящий коэффициент, в ячейку ПЕ, соответствующую выбранной ФЕ
-            model.setValueAt(
-                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
-                    row, columnTotalPE);
-            model.setValueAt(sum, row, columnTotalFE); // устанавливаем значение в ячейку Итого для ФЕ, округленное до 2 знаков после запятой 
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого2") && columnTotalFE > 0) {
-            Object data = model.getValueAt(row, column);
-            value2 = Integer.valueOf(String.valueOf(data));
+//        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого1") && columnTotalFE > 0) {
+//            Object data = model.getValueAt(row, column); // получаем данные из ячейки
+//            value1 = Integer.valueOf(String.valueOf(data)); // переводим значение из текста в числовой формат
+//            sum = (value1 + value2 + value3 + value4); // рассчитываем значение суммы 
+//            // устанавливаем значение суммы, умноженной на подходящий коэффициент, в ячейку ПЕ, соответствующую выбранной ФЕ
+//            model.setValueAt(
+//                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
+//                    row, columnTotalPE);
+//            model.setValueAt(sum, row, columnTotalFE); // устанавливаем значение в ячейку Итого для ФЕ, округленное до 2 знаков после запятой 
+//            System.out.println("1: " + sum);
+//        }
+//        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого2") && columnTotalFE > 0) {
+//            Object data = model.getValueAt(row, column);
+//            value2 = Integer.valueOf(String.valueOf(data));
+//            sum = (value1 + value2 + value3 + value4);
+//            model.setValueAt(
+//                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
+//                    row, columnTotalPE);
+//            model.setValueAt(sum, row, columnTotalFE);
+//            System.out.println("2: " + sum);
+//        }
+//        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого3") && columnTotalFE > 0) {
+//            Object data = model.getValueAt(row, column);
+//            value3 = Integer.valueOf(String.valueOf(data));
+//            sum = (value1 + value2 + value3 + value4);
+//            model.setValueAt(
+//                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
+//                    row, columnTotalPE);
+//            model.setValueAt(sum, row, columnTotalFE);
+//            System.out.println("3: " + sum);
+//            System.out.println(value1);
+//            System.out.println(value2);
+//            System.out.println(value3);
+//            System.out.println(value4);
+//        }
+//        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого4") && columnTotalFE > 0) {
+//            Object data = model.getValueAt(row, column);
+//            value4 = Integer.valueOf(String.valueOf(data));
+//            sum = (value1 + value2 + value3 + value4);
+//            model.setValueAt(
+//                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
+//                    row, columnTotalPE);
+//            model.setValueAt(sum, row, columnTotalFE);
+//            System.out.println("4: " + sum);
+//        }
+        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого1")
+                || columnToModelField.getIdentifier().startsWith("ФЕ Итого2")
+                || columnToModelField.getIdentifier().startsWith("ФЕ Итого3")
+                || columnToModelField.getIdentifier().startsWith("ФЕ Итого4")) {
+            value1 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого1"))));
+            value2 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого2"))));
+            value3 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого3"))));
+            value4 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого4"))));
             sum = (value1 + value2 + value3 + value4);
             model.setValueAt(
                     String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
-                    row, columnTotalPE);
-            model.setValueAt(sum, row, columnTotalFE);
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого3") && columnTotalFE > 0) {
-            Object data = model.getValueAt(row, column);
-            value3 = Integer.valueOf(String.valueOf(data));
-            sum = (value1 + value2 + value3 + value4);
-            model.setValueAt(
-                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
-                    row, columnTotalPE);
-            model.setValueAt(sum, row, columnTotalFE);
-        }
-        if (columnToModelField.getIdentifier().startsWith("ФЕ Итого4") && columnTotalFE > 0) {
-            Object data = model.getValueAt(row, column);
-            value4 = Integer.valueOf(String.valueOf(data));
-            sum = (value1 + value2 + value3 + value4);
-            model.setValueAt(
-                    String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
-                    row, columnTotalPE);
-            model.setValueAt(sum, row, columnTotalFE);
+                    row, getColumnFromIdentifier(table, "ПЕ Всего"));
+            model.setValueAt(sum, row, getColumnFromIdentifier(table, "ФЕ Всего"));
         }
 
     }
