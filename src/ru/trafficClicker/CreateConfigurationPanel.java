@@ -960,6 +960,7 @@ public class CreateConfigurationPanel {
                 fullName = fullFileName;
             }
         } catch (IOException ex) {
+            JOptionPane.showInputDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
             JOptionPane.showMessageDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }

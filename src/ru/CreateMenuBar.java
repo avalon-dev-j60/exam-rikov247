@@ -33,15 +33,15 @@ public class CreateMenuBar {
     }
 
     private JMenuItem fileItem2 = new JMenuItem("Открыть проект...");
-    private ImageIcon fileItem2Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Open16.gif"));
+    private ImageIcon fileItem2Icon = new ImageIcon(CreateMenuBar.class.getResource("/toolbarButtonGraphics/general/Open16.gif"));
     private JMenuItem fileItem3 = new JMenuItem("Создать проект");
-    private ImageIcon fileItem3Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Add16.gif"));
+    private ImageIcon fileItem3Icon = new ImageIcon(CreateMenuBar.class.getResource("/toolbarButtonGraphics/general/Add16.gif"));
     private JMenuItem fileItem4 = new JMenuItem("Сохранить");
-    private ImageIcon fileItem4Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Save16.gif"));
+    private ImageIcon fileItem4Icon = new ImageIcon(CreateMenuBar.class.getResource("/toolbarButtonGraphics/general/Save16.gif"));
     private JMenuItem fileItem5 = new JMenuItem("Сохранить как..");
-    private ImageIcon fileItem5Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/SaveAs16.gif"));
+    private ImageIcon fileItem5Icon = new ImageIcon(CreateMenuBar.class.getResource("/toolbarButtonGraphics/general/SaveAs16.gif"));
     private JMenuItem fileItem6 = new JMenuItem("Открыть видео");
-    private ImageIcon fileItem6Icon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Movie16.gif"));
+    private ImageIcon fileItem6Icon = new ImageIcon(CreateMenuBar.class.getResource("/toolbarButtonGraphics/media/Movie16.gif"));
 
     private JMenu createFileMenu() {
         fileMenu.add(fileItem2);

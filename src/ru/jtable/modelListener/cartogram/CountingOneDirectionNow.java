@@ -161,28 +161,28 @@ public class CountingOneDirectionNow {
         // Верх
         // Считываем значения с файла SVG
         String id0Value = cartogram.getFullValue(id0AlsoID);
-        String carUparound = !id0Value.isBlank() ? id0Value.substring(0, id0Value.indexOf("-")).trim() : "0";
-        String truckUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.indexOf("-") + 1, id0Value.lastIndexOf("-")).trim() : "0";
-        String busUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.lastIndexOf("-") + 1, id0Value.indexOf("(")).trim() : "0";
-        String sumPEUparound = !id0Value.isBlank() ? id0Value.substring(id0Value.indexOf("(") + 1, id0Value.indexOf(")")).trim() : "0";
+        String carUparound = !id0Value.trim().isEmpty() ? id0Value.substring(0, id0Value.indexOf("-")).trim() : "0";
+        String truckUparound = !id0Value.trim().isEmpty() ? id0Value.substring(id0Value.indexOf("-") + 1, id0Value.lastIndexOf("-")).trim() : "0";
+        String busUparound = !id0Value.trim().isEmpty() ? id0Value.substring(id0Value.lastIndexOf("-") + 1, id0Value.indexOf("(")).trim() : "0";
+        String sumPEUparound = !id0Value.trim().isEmpty() ? id0Value.substring(id0Value.indexOf("(") + 1, id0Value.indexOf(")")).trim() : "0";
 
         String id1Value = cartogram.getFullValue(id1);
-        String carLeftleft = !id1Value.isBlank() ? id1Value.substring(0, id1Value.indexOf("-")).trim() : "0";
-        String truckLeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.indexOf("-") + 1, id1Value.lastIndexOf("-")).trim() : "0";
-        String busLeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.lastIndexOf("-") + 1, id1Value.indexOf("(")).trim() : "0";
-        String sumPELeftleft = !id1Value.isBlank() ? id1Value.substring(id1Value.indexOf("(") + 1, id1Value.indexOf(")")).trim() : "0";
+        String carLeftleft = !id1Value.trim().isEmpty() ? id1Value.substring(0, id1Value.indexOf("-")).trim() : "0";
+        String truckLeftleft = !id1Value.trim().isEmpty() ? id1Value.substring(id1Value.indexOf("-") + 1, id1Value.lastIndexOf("-")).trim() : "0";
+        String busLeftleft = !id1Value.trim().isEmpty() ? id1Value.substring(id1Value.lastIndexOf("-") + 1, id1Value.indexOf("(")).trim() : "0";
+        String sumPELeftleft = !id1Value.trim().isEmpty() ? id1Value.substring(id1Value.indexOf("(") + 1, id1Value.indexOf(")")).trim() : "0";
 
         String id2Value = cartogram.getFullValue(id2);
-        String carDownforward = !id2Value.isBlank() ? id2Value.substring(0, id2Value.indexOf("-")).trim() : "0";
-        String truckDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.indexOf("-") + 1, id2Value.lastIndexOf("-")).trim() : "0";
-        String busDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.lastIndexOf("-") + 1, id2Value.indexOf("(")).trim() : "0";
-        String sumPEDownforward = !id2Value.isBlank() ? id2Value.substring(id2Value.indexOf("(") + 1, id2Value.indexOf(")")).trim() : "0";
+        String carDownforward = !id2Value.trim().isEmpty() ? id2Value.substring(0, id2Value.indexOf("-")).trim() : "0";
+        String truckDownforward = !id2Value.trim().isEmpty() ? id2Value.substring(id2Value.indexOf("-") + 1, id2Value.lastIndexOf("-")).trim() : "0";
+        String busDownforward = !id2Value.trim().isEmpty() ? id2Value.substring(id2Value.lastIndexOf("-") + 1, id2Value.indexOf("(")).trim() : "0";
+        String sumPEDownforward = !id2Value.trim().isEmpty() ? id2Value.substring(id2Value.indexOf("(") + 1, id2Value.indexOf(")")).trim() : "0";
 
         String id3Value = cartogram.getFullValue(id3);
-        String carRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(0, cartogram.getFullValue(id3).indexOf("-")).trim() : "0";
-        String truckRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("-") + 1, cartogram.getFullValue(id3).lastIndexOf("-")).trim() : "0";
-        String busRightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).lastIndexOf("-") + 1, cartogram.getFullValue(id3).indexOf("(")).trim() : "0";
-        String sumPERightright = !id3Value.isBlank() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("(") + 1, cartogram.getFullValue(id3).indexOf(")")).trim() : "0";
+        String carRightright = !id3Value.trim().isEmpty() ? cartogram.getFullValue(id3).substring(0, cartogram.getFullValue(id3).indexOf("-")).trim() : "0";
+        String truckRightright = !id3Value.trim().isEmpty() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("-") + 1, cartogram.getFullValue(id3).lastIndexOf("-")).trim() : "0";
+        String busRightright = !id3Value.trim().isEmpty() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).lastIndexOf("-") + 1, cartogram.getFullValue(id3).indexOf("(")).trim() : "0";
+        String sumPERightright = !id3Value.trim().isEmpty() ? cartogram.getFullValue(id3).substring(cartogram.getFullValue(id3).indexOf("(") + 1, cartogram.getFullValue(id3).indexOf(")")).trim() : "0";
 
         int carSum = Integer.valueOf(carUparound) + Integer.valueOf(carLeftleft) + Integer.valueOf(carDownforward) + Integer.valueOf(carRightright);
         int truckSum = Integer.valueOf(truckUparound) + Integer.valueOf(truckLeftleft) + Integer.valueOf(truckDownforward) + Integer.valueOf(truckRightright);

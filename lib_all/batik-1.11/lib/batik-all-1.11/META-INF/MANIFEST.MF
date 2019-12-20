@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: simon
+Build-Jdk: 1.6.0_34
+Implementation-Title: org.apache.xmlgraphics:batik-all
+Implementation-Version: 1.11
+Implementation-Vendor-Id: org.apache.xmlgraphics
+Implementation-Vendor: Apache Software Foundation
+Main-Class: org.apache.batik.apps.svgbrowser.Main
+

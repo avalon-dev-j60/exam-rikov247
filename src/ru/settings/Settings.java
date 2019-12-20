@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
@@ -29,7 +30,7 @@ public class Settings {
 
     private File newDirectory = new File(getUserDataDirectory() + "TrafficClicker");
     private Document document;
-    private String defaultSettings = this.getClass().getResource("/resources/propertiesFile/Settings.xml").getPath();
+    private InputStream defaultSettings = this.getClass().getResourceAsStream("/resources/propertiesFile/Settings.xml");
 
     // Чтение значения из указанного тега (node)
     public String getValueNode(String nodeName) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {

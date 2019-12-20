@@ -12,7 +12,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -72,33 +72,33 @@ public class Overlay extends JWindow {
     private SimpleBackground panelDown;
     private SimpleBackground panelRight;
 
-    private String background1 = Overlay.class.getResource("/resources/icons/numbers/11.png").getPath();
-    private String background4 = Overlay.class.getResource("/resources/icons/numbers/44.png").getPath();
-    private String background3 = Overlay.class.getResource("/resources/icons/numbers/33.png").getPath();
-    private String background2 = Overlay.class.getResource("/resources/icons/numbers/22.png").getPath();
+    private BufferedImage background1;
+    private BufferedImage background4;
+    private BufferedImage background3;
+    private BufferedImage background2;
     // ИКОНКИ
     // Машина
-    private ImageIcon iconCar = new ImageIcon(this.getClass().getResource("/resources/icons/car/car.png"));
+    private ImageIcon iconCar = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/car.png")));
     // Грузовик
-    private ImageIcon iconTruck = new ImageIcon(this.getClass().getResource("/resources/icons/car/truck1.png"));
+    private ImageIcon iconTruck = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/truck1.png")));
     // Автобус
-    private ImageIcon iconBus = new ImageIcon(this.getClass().getResource("/resources/icons/car/bus1.png"));
+    private ImageIcon iconBus = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/bus1.png")));
     // Троллейбус
-    private ImageIcon iconTrolleybus = new ImageIcon(this.getClass().getResource("/resources/icons/car/trolleybus.png"));
+    private ImageIcon iconTrolleybus = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/trolleybus.png")));
     // Трамвай
-    private ImageIcon iconTram = new ImageIcon(this.getClass().getResource("/resources/icons/car/tram.png"));
+    private ImageIcon iconTram = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/tram.png")));
     // Автопоезд
-    private ImageIcon iconTrainBus = new ImageIcon(this.getClass().getResource("/resources/icons/car/trainBus.png"));
+    private ImageIcon iconTrainBus = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/car/trainBus.png")));
 
     // Иконки направления движения
-    private ImageIcon aroundIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/routing_around.png"));
-    private ImageIcon leftIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/routing_turn_left_90.png"));
-    private ImageIcon forwardIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/routing_forward.png"));
-    private ImageIcon rightIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/routing_turn_right_90.png"));
+    private ImageIcon aroundIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/routing_around.png")));
+    private ImageIcon leftIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/routing_turn_left_90.png")));
+    private ImageIcon forwardIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/routing_forward.png")));
+    private ImageIcon rightIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/routing_turn_right_90.png")));
 
     // Иконки пешехода и велосипедиста
-    private ImageIcon manIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/walk.png"));
-    private ImageIcon bikeIcon = new ImageIcon(this.getClass().getResource("/resources/icons/roads/bicycle.png"));
+    private ImageIcon manIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/walk.png")));
+    private ImageIcon bikeIcon = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/resources/icons/roads/bicycle.png")));
 
     // ИСПОЛЬЗУЕМЫЕ КОМПОНЕНТЫ
     // ВЕРХНЯЯ панель
@@ -447,6 +447,12 @@ public class Overlay extends JWindow {
         this.paths = paths;
         this.kindOfStatement = kindOfStatement;
         this.emp = emp;
+        // Определение Иконок
+        background1 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/11.png"));
+        background4 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/44.png"));
+        background3 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/33.png"));
+        background2 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/22.png"));
+
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
         overlayPanel.setOpaque(false); // прозрачность панели включена. На этой панели размещаем панели с кнопками
@@ -1169,16 +1175,11 @@ public class Overlay extends JWindow {
         panelRight = new SimpleBackground(numOfDir);
         panelLeft = new SimpleBackground(numOfDir);
 
-        try {
-            // Устанавливаем картинку на фон панели с кнопками
-            panelUp.setBackground(ImageIO.read(new File(background1)));
-            panelRight.setBackground(ImageIO.read(new File(background2)));
-            panelDown.setBackground(ImageIO.read(new File(background3)));
-            panelLeft.setBackground(ImageIO.read(new File(background4)));
-        } catch (IOException ex) {
-            Logger.getLogger(Overlay.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
+        // Устанавливаем картинку на фон панели с кнопками
+        panelUp.setBackground(background1);
+        panelRight.setBackground(background2);
+        panelDown.setBackground(background3);
+        panelLeft.setBackground(background4);
 
         // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
         // Конфигурируем и наполняем панели. Затем добавляем панель на overlay
@@ -1226,15 +1227,10 @@ public class Overlay extends JWindow {
         panelRight = new SimpleBackground(numOfDir);
 
         // Устанавливаем картинку на фон панели с кнопками
-        try {
-            panelUp.setBackground(ImageIO.read(new File(background1)));
-            panelLeft.setBackground(ImageIO.read(new File(background4)));
-            panelDown.setBackground(ImageIO.read(new File(background3)));
-            panelRight.setBackground(ImageIO.read(new File(background2)));
-        } catch (IOException ex) {
-            Logger.getLogger(Overlay.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
 
         // Конфигурируем и наполняем панели
         ChooseComponentsNow4 compUpNow4 = new ChooseComponentsNow4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
@@ -1273,15 +1269,10 @@ public class Overlay extends JWindow {
         panelRight = new SimpleBackground(numOfDir);
 
         // Устанавливаем картинку на фон панели с кнопками
-        try {
-            panelUp.setBackground(ImageIO.read(new File(background1)));
-            panelLeft.setBackground(ImageIO.read(new File(background4)));
-            panelDown.setBackground(ImageIO.read(new File(background3)));
-            panelRight.setBackground(ImageIO.read(new File(background2)));
-        } catch (IOException ex) {
-            Logger.getLogger(Overlay.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
 
         // Конфигурируем и наполняем панели
         ChooseComponentsFuture4 compUpFuture4 = new ChooseComponentsFuture4(paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
@@ -1320,15 +1311,10 @@ public class Overlay extends JWindow {
         panelRight = new SimpleBackground(numOfDir);
 
         // Устанавливаем картинку на фон панели с кнопками
-        try {
-            panelUp.setBackground(ImageIO.read(new File(background1)));
-            panelLeft.setBackground(ImageIO.read(new File(background4)));
-            panelDown.setBackground(ImageIO.read(new File(background3)));
-            panelRight.setBackground(ImageIO.read(new File(background2)));
-        } catch (IOException ex) {
-            Logger.getLogger(Overlay.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
 
         // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
         // Конфигурируем и наполняем панели. Затем добавляем панель на overlay

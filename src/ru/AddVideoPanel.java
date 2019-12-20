@@ -8,6 +8,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -15,14 +17,19 @@ import javax.swing.JPanel;
 
 public class AddVideoPanel {
 
-    private ImageIcon beforeIcon = new ImageIcon(this.getClass().getResource("/resources/icons/addVideo/before.png"));
-    private ImageIcon afterIcon = new ImageIcon(this.getClass().getResource("/resources/icons/addVideo/after.png"));
-    private JButton button = new JButton(beforeIcon);
+    private ImageIcon beforeIcon;
+    private ImageIcon afterIcon;
+    private JButton button = new JButton();
 
     // Основная overlay панель, на которую помечаются кнопки. LayoutManager = null
     private JPanel addVideoPanel = new JPanel(new BorderLayout());
 
-    public JPanel AddVideo() {
+    public JPanel AddVideo() throws IOException {
+        beforeIcon = new ImageIcon(ImageIO.read(AddVideoPanel.class.getResourceAsStream("/resources/icons/addVideo/before.png")));
+        afterIcon = new ImageIcon(ImageIO.read(AddVideoPanel.class.getResourceAsStream("/resources/icons/addVideo/after.png")));
+        
+        button.setIcon(beforeIcon); // устанавливаем в качестве иконки для кнопки картинку ДО
+        
         addVideoPanel.setBackground(Color.WHITE);
 
         // Настройка отображения самой кнопки
@@ -39,7 +46,7 @@ public class AddVideoPanel {
         bh.add(Box.createGlue()); // заполнитель "клей" - чтобы от краев отставала кнопка (СПРАВА)
         bv.add(bh); // добавляем горизонтальную коробку в вертикальную
         addVideoPanel.add(bv); // добавляем коробку с кнопкой  на экран
-        
+
         // Добавление слушателей
         button.addMouseListener(addVideoAdapter);
 

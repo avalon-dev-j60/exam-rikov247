@@ -70,7 +70,7 @@ public class InfoFromProject extends JPanel {
             String temp = sheet.getRow(rowStartOfTreePath + i).getCell(1).getStringCellValue();
             treePaths[i] = temp; // переносим данные
             // Если считываемый элемент не пустой или не null, то учитываем его
-            if (!temp.isBlank()) {
+            if (!temp.trim().isEmpty()) {
                 length++;
             }
         }

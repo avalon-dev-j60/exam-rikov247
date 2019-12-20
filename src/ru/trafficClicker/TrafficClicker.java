@@ -1,5 +1,6 @@
 package ru.trafficClicker;
 
+import com.sun.jna.NativeLibrary;
 import ru.settings.SettingsFrame;
 import ru.settings.Settings;
 import resources.FileChooserRus;
@@ -108,6 +109,7 @@ public class TrafficClicker extends AbstractFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Выполнение основной работы:
         setTitle("Traffic Clicker"); // установка названия окна
         setExtendedState(JFrame.MAXIMIZED_BOTH); // установка размера окна на максимально возможное (не полноэкранный режим, нижняя панель windows присутствует)
         setMinimumSize(new Dimension(1100, 700));
@@ -132,7 +134,7 @@ public class TrafficClicker extends AbstractFrame {
         // Добавление всплывающего меню
         emp.setComponentPopupMenu(popupMenu.createPopupMenu());
 
-        // Добавление панелейю configurationPanel создается внутри createdTabbedPane()
+        // Добавление панелей configurationPanel создается внутри createdTabbedPane()
         add(vPCPanel.createVPCPanel(), BorderLayout.SOUTH); // Контрольная панель видеоплеера (снизу)
         try {
             add(createTabbedPane(), BorderLayout.CENTER); // панель вкладок, внутри которой есть панели с разделением на области (SplitPanel) - видео, таблица
@@ -344,7 +346,7 @@ public class TrafficClicker extends AbstractFrame {
                 splitMain2Tab1.setLeftComponent(canvas); // на вкладку видео панели добавляем наше видео (canvas - подоснова для видео, на ней далее будет отображено видео)
 
                 splitMain1Tab1.setLeftComponent(leftPanelFromVideoPanel); // Так же добавляем панель с элементами урпавления видео и слоем кнопок
-
+                splitMain1Tab1.setDividerLocation(130); // положение разделительной вертикальной линии
                 // Подготавливаем новое видео         
                 prepareVideo(filePath);
             }
@@ -733,13 +735,13 @@ public class TrafficClicker extends AbstractFrame {
 
         // МИНИМАЛЬНЫЙ размер для левой (правой тоже) панели: по ширине = (ширина окна - ширина видео)/3 ; по высоте = такой же, как у видео  
         Dimension leftRightPanelMinimumSize = new Dimension(
-                (int) ((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3 + 25),
+                (int) (((this.getMinimumSize().getWidth() - canvas.getMinimumSize().getWidth()) / 3) + 27),
                 (int) (canvas.getMinimumSize().getHeight()));
 
         // Создание панели прокрутки для ЛЕВОЙ панели
         leftPanelFromVideoPanel = new JScrollPane(leftCPanel.createLeftCPanel(overlay, emp));
         leftPanelFromVideoPanel.setWheelScrollingEnabled(true); // Активация прокрутки панели колесом мыши
-        leftPanelFromVideoPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
+//        leftPanelFromVideoPanel.setMinimumSize(leftRightPanelMinimumSize); // Минимальный размер панели        
 
         // Создание панели прокрутки для ПРАВОЙ панели (видео + еще одна панель)
 //        JScrollPane rightPanel = new JScrollPane(rightCPanel.createRightCPanel());
@@ -748,7 +750,11 @@ public class TrafficClicker extends AbstractFrame {
         // Добавление компонент в разделяющуюся панель
         splitMain1Tab1.setLeftComponent(null); // левая панель
         splitMain1Tab1.setRightComponent(splitMain2Tab1); // в качестве парвой панели - еще две панели
-        splitMain2Tab1.setLeftComponent(addVideoPanel.AddVideo()); // панель с кнопкой добавления видео
+        try {
+            splitMain2Tab1.setLeftComponent(addVideoPanel.AddVideo()); // панель с кнопкой добавления видео
+        } catch (IOException ex) {
+            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
+        }
         splitMain2Tab1.setRightComponent(null); // правая конфигурационная панель. Если не нужна - ставим null
 
         // Добавление слушателей изменения положения разделительной линии (для правильного отображения overlay слоя (если он включен)

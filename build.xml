@@ -71,13 +71,31 @@
 
     -->
     
-    
-    
     <target name="YourBigJar" depends="-post-jar">
         <jar destfile="BigJar.jar">
             <zipfileset src="dist/VideoVLC.jar"/>
             <zipgroupfileset dir="./libr/"/>
         </jar>
     </target>
-    
+
+<target name="package-for-store" depends="jar">
+    <property name="store.jar.name" value="VideoVLC"/>
+    <property name="store.dir" value="store"/>
+    <property name="store.jar" value="${store.dir}/${store.jar.name}.jar"/>
+    <echo message="Packaging ${application.title} into a single JAR at ${store.jar}"/>
+    <delete dir="${store.dir}"/>
+    <mkdir dir="${store.dir}"/>
+    <jar destfile="${store.dir}/VideoVLC.jar" filesetmanifest="skip">
+        <zipgroupfileset dir="dist" includes="*.jar"/>
+        <zipgroupfileset dir="lib" includes="*.jar"/>
+        <manifest>
+            <attribute name="Main-Class" value="${main.class}"/>
+        </manifest>
+    </jar>
+    <zip destfile="${store.jar}">
+        <zipfileset src="${store.dir}/VideoVLC.jar"
+        excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA"/>
+    </zip>
+</target>
+
 </project>

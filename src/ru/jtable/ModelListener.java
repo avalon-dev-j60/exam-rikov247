@@ -94,7 +94,7 @@ public class ModelListener implements TableModelListener {
 
         // Если в ячейке удалить полностью текст, то запишется 0
         Object data = model.getValueAt(row, column);
-        if (String.valueOf(data).isBlank()) {
+        if (String.valueOf(data).trim().isEmpty()) {
             data = "0";
             model.setValueAt(data, row, column);
         }

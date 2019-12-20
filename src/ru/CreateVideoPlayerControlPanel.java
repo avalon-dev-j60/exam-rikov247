@@ -14,17 +14,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
-import ru.*;
-
 public class CreateVideoPlayerControlPanel {
 
     private JPanel vPCPanel = new JPanel(new GridLayout(2, 1)); // Панель управления видео
     private JPanel buttonsPanel = new JPanel(new FlowLayout());
     private JPanel timePanel = new JPanel(new BorderLayout());
 
-    private ImageIcon stopIcon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Stop24.gif"));
-    private ImageIcon pauseIcon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Pause24.gif"));
-    private ImageIcon playIcon = new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"));
+    private ImageIcon stopIcon = new ImageIcon(CreateVideoPlayerControlPanel.class.getResource("/toolbarButtonGraphics/media/Stop24.gif"));
+    private ImageIcon pauseIcon = new ImageIcon(CreateVideoPlayerControlPanel.class.getResource("/toolbarButtonGraphics/media/Pause24.gif"));
+    private ImageIcon playIcon = new ImageIcon(CreateVideoPlayerControlPanel.class.getResource("/toolbarButtonGraphics/media/Play24.gif"));
     private JButton b1 = new JButton(stopIcon);
     private JButton b2 = new JButton(playIcon);
 
