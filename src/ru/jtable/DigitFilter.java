@@ -1,7 +1,5 @@
 package ru.jtable;
 
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import javax.swing.JTextField;
 import javax.swing.text.*;
 
@@ -9,7 +7,7 @@ import javax.swing.text.*;
  * Этот класс фильтрует значения в ячейках таблицы. Разрешает вводить только
  * цифры и не более 4 символов (т.е. число не больше 9999).
  */
-class DigitFilter extends DocumentFilter {
+public class DigitFilter extends DocumentFilter {
 
     // текстовое поле, в котором будет проверятся количество символов
     private JTextField field = new JTextField();
@@ -19,6 +17,11 @@ class DigitFilter extends DocumentFilter {
     // конструктор данного класса, для получения текстового поля на проверку
     public DigitFilter(JTextField field) {
         this.field = field;
+    }
+
+    public DigitFilter(JTextField field, int limit) {
+        this.field = field;
+        this.limit = limit;
     }
 
     // Проверка вводимой информации

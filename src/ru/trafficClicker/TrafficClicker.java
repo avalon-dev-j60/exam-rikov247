@@ -99,6 +99,7 @@ public class TrafficClicker extends AbstractFrame {
 
     private Settings settings = new Settings(); // класс работы с файлом настроек;
     private SettingsFrame settingsFrame = new SettingsFrame(settings); // окно настроек
+    private Timer timerAutoSave;
 
     // Что происходит при создании окна
     @Override
@@ -283,6 +284,28 @@ public class TrafficClicker extends AbstractFrame {
                             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
+                    if (evt.getPropertyName().equalsIgnoreCase("AutoSaveChange")) {
+                        try {
+                            int minutes = settings.getValueNode("AutoSaveMinutes").trim().isEmpty() ? 0 : Integer.valueOf(settings.getValueNode("AutoSaveMinutes")) * 60 * 1000;
+                            int seconds = settings.getValueNode("AutoSaveSeconds").trim().isEmpty() ? 0 : Integer.valueOf(settings.getValueNode("AutoSaveSeconds")) * 1000;
+                            int time = minutes + seconds;
+                            // Если таймер сейчас работает, то останавливаем его
+                            if (timerAutoSave != null && timerAutoSave.isRunning()) {
+                                timerAutoSave.stop();
+                            }
+                            // Создаем новый таймер 
+                            timerAutoSave = new Timer(time, configurationPanel::onSaveButtonClick);
+                            // 
+                            if (settings.getValueNode("AutoSave").equalsIgnoreCase("Yes")) {
+                                timerAutoSave.start();
+                            }
+                            if (settings.getValueNode("AutoSave").equalsIgnoreCase("No")) {
+                                timerAutoSave.stop();
+                            }
+                        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
             }
         });
@@ -290,15 +313,21 @@ public class TrafficClicker extends AbstractFrame {
 
     // Подготовка видео, запуск и постановка на паузу. Также установка всплывающей панели
     private void prepareVideo(String filePath) {
-        // Подготавливаем видео, но не запускаем его
-        emp.mediaPlayer().media().prepare(filePath, (String) null);
-        // Запускаем видео
-        emp.mediaPlayer().controls().play();
-        // Устанавливаем паузу
-        emp.mediaPlayer().controls().setPause(true);
-        // Marguee (всплывающая) панель. Можно ей управлять и до и после включения видео
-        setMarqueeStart(filePath);
-        canvas.requestFocus(); // фокус на canvas (видео)
+        emp.mediaPlayer().controls().stop();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // Подготавливаем видео, но не запускаем его
+                emp.mediaPlayer().media().prepare(filePath, (String) null);
+                // Запускаем видео
+                emp.mediaPlayer().controls().play();
+                // Устанавливаем паузу
+                emp.mediaPlayer().controls().setPause(true);
+                // Marguee (всплывающая) панель. Можно ей управлять и до и после включения видео
+                setMarqueeStart(filePath);
+                canvas.requestFocus(); // фокус на canvas (видео)
+            }
+        });
     }
 
     // Нажатие кнопки СТОП.
@@ -541,16 +570,18 @@ public class TrafficClicker extends AbstractFrame {
                 @Override
                 public void run() {
                     // Связка из трех операций для правильного отображения времени на панели времени (и для правильного состояния видео)
-                    mediaPlayer.controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
-                    mediaPlayer.controls().play(); // запуск видео
-                    mediaPlayer.controls().setPause(true); // пауза
-                    vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
+                    prepareVideo(filePath);
+//                    mediaPlayer.controls().setPosition(0); // когда видео заканчивается, оно переходит в начальное состояние (stop)
+//                    mediaPlayer.controls().play(); // запуск видео
+//                    mediaPlayer.controls().setPause(true); // пауза
+//                    vPCPanel.getB2().setIcon(vPCPanel.getPlayIcon()); // иконка кнопки меняется на Play
                 }
             });
             // При окончании видео удаляем слушателей взаимодействия с полосой видео
             vPCPanel.getJs().removeMouseMotionListener(draggedVideo);
             vPCPanel.getJs().removeMouseListener(releasedVideo);
         }
+
     };
 
     // СЛУШАТЕЛЬ КОЛЕСА МЫШИ (если мышь на canvas = видео). Для изменения звука видео
@@ -819,7 +850,7 @@ public class TrafficClicker extends AbstractFrame {
         // Вкладка 2 (index = 1). Таблица данных
         // на вкладку таблицы добавляем левую панель с настройками и правую панель 
         configurationPanel = new CreateConfigurationPanel();
-        videoTabs.addTab("Таблица результатов подсчета", createWorkSplitTablePanel(configurationPanel.CreateLeftConfigurationPanel(), addTablePanel.AddTable(), configurationPanel.CreateRightConfigurationPanel()));
+        videoTabs.addTab("Таблицы результатов подсчета", createWorkSplitTablePanel(configurationPanel.CreateLeftConfigurationPanel(), addTablePanel.AddTable(), configurationPanel.CreateRightConfigurationPanel()));
 
         // Вкладка 3 (index = 2). Картограмма
         cartogramPane = cartogramPaneLink.createTabbedPane(
@@ -895,14 +926,12 @@ public class TrafficClicker extends AbstractFrame {
     }
 
     private void setMarquee(String text, int size, MarqueePosition position) {
+        emp.mediaPlayer().marquee().setText(text);
+        emp.mediaPlayer().marquee().setSize(size);
         emp.mediaPlayer().marquee().setColour(Color.WHITE);
         emp.mediaPlayer().marquee().setTimeout(2000);
-        emp.mediaPlayer().marquee().setOpacity(0.8f);
-
-        emp.mediaPlayer().marquee().setText(text); // получаем название файла из пути к нему
-        emp.mediaPlayer().marquee().setSize(size);
         emp.mediaPlayer().marquee().setPosition(position);
-
+        emp.mediaPlayer().marquee().setOpacity(0.8f);
         emp.mediaPlayer().marquee().enable(true);
     }
 
@@ -1003,8 +1032,8 @@ public class TrafficClicker extends AbstractFrame {
         }
 
         // НАСТРОЙКИ
-        // Overlay
         try {
+            // БОЛЬШОЙ ПУНКТ. Overlay
             // Пауза при нажатии на кнопки 
             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                 overlay.addMouseAndPopupListenerWithEMP();
@@ -1015,6 +1044,25 @@ public class TrafficClicker extends AbstractFrame {
             // Добавление слушателей клавиатуры для кнопок overlay слоя
             removeKeyListenerToCanvas();
             addKeyListenerToCanvas();
+
+            // БОЛЬШОЙ ПУНКТ. GeneralSettings
+            // AutoSave
+            int minutes = settings.getValueNode("AutoSaveMinutes").trim().isEmpty() ? 0 : Integer.valueOf(settings.getValueNode("AutoSaveMinutes")) * 60 * 1000;
+            int seconds = settings.getValueNode("AutoSaveSeconds").trim().isEmpty() ? 0 : Integer.valueOf(settings.getValueNode("AutoSaveSeconds")) * 1000;
+            int time = minutes + seconds;
+            // Если таймер сейчас работает, то останавливаем его
+            if (timerAutoSave != null && timerAutoSave.isRunning()) {
+                timerAutoSave.stop();
+            }
+            // Создаем новый таймер 
+            timerAutoSave = new Timer(time, configurationPanel::onSaveButtonClick);
+            // 
+            if (settings.getValueNode("AutoSave").equalsIgnoreCase("Yes")) {
+                timerAutoSave.start();
+            }
+            if (settings.getValueNode("AutoSave").equalsIgnoreCase("No")) {
+                timerAutoSave.stop();
+            }
         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
         }

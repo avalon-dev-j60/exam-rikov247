@@ -30,7 +30,7 @@ public class Settings {
 
     private File newDirectory = new File(getUserDataDirectory() + "TrafficClicker");
     private Document document;
-    private InputStream defaultSettings = this.getClass().getResourceAsStream("/resources/propertiesFile/Settings.xml");
+    private InputStream defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml");
 
     // Чтение значения из указанного тега (node)
     public String getValueNode(String nodeName) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
@@ -39,7 +39,8 @@ public class Settings {
         // Создается дерево DOM документа из файла
         try {
             document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
+            defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml"); // Открываем поток для предотвращения его закрытия
             document = documentBuilder.parse(defaultSettings);
         }
 
@@ -61,7 +62,8 @@ public class Settings {
         // Создается дерево DOM документа из файла
         try {
             document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
+            defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml");
             document = documentBuilder.parse(defaultSettings);
         }
 
@@ -77,9 +79,11 @@ public class Settings {
         try {
             Transformer tr = TransformerFactory.newInstance().newTransformer();
             DOMSource source = new DOMSource(document);
-            FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml"); // указание имени и дериктории нового файла xml (стараемся перезаписать)
-            StreamResult result = new StreamResult(fos);
-            tr.transform(source, result);
+            try (FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml")) // указание имени и дериктории нового файла xml (стараемся перезаписать)
+            {
+                StreamResult result = new StreamResult(fos);
+                tr.transform(source, result);
+            }
         } catch (TransformerConfigurationException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException | TransformerException ex) {
@@ -94,15 +98,18 @@ public class Settings {
             // Создается дерево DOM документа из файла
             try {
                 document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
+                defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml");
                 document = documentBuilder.parse(defaultSettings);
             }
             // Запись файла
             Transformer tr = TransformerFactory.newInstance().newTransformer();
             DOMSource source = new DOMSource(document);
-            FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml"); // указание имени и дериктории нового файла xml (стараемся перезаписать)
-            StreamResult result = new StreamResult(fos);
-            tr.transform(source, result);
+            try (FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml")) // указание имени и дериктории нового файла xml (стараемся перезаписать)
+            {
+                StreamResult result = new StreamResult(fos);
+                tr.transform(source, result);
+            }
         } catch (TransformerConfigurationException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException | TransformerException ex) {
@@ -122,7 +129,7 @@ public class Settings {
 
     // Создаем папку в папке пользователя
     public String getNewUserDirectory() {
-        newDirectory.mkdir(); // Создаем директорию 
+        newDirectory.mkdir(); // Создаем директорию F
         return (newDirectory.getPath() + File.separator); // Возвращаем новую папку со слешом "/"
     }
 }

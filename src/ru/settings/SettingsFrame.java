@@ -33,7 +33,10 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableColumn;
+import javax.swing.text.PlainDocument;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import net.miginfocom.swing.MigLayout;
@@ -47,6 +50,7 @@ import org.quinto.swing.table.view.JBroTable;
 import org.quinto.swing.table.view.JBroTableHeader;
 import org.quinto.swing.table.view.JBroTableUI;
 import org.xml.sax.SAXException;
+import ru.jtable.DigitFilter;
 import ru.jtable.HeaderRenderer;
 
 /**
@@ -64,6 +68,13 @@ public class SettingsFrame {
     private JFrame frame;
     private JButton okButton, acceptButton, cancelButton;
     private JCheckBox activePlayPauseCheckBox = new JCheckBox("Play/pause по нажатию");
+    private JCheckBox autoSaveCheckBox = new JCheckBox("Автосохранение");
+    private JTextField timeMinutesField = new JTextField(3);
+    private JTextField timeSecondsField = new JTextField(2);
+    private JLabel labelText = new JLabel("Каждые: ");
+    private JLabel labelMinutes = new JLabel("минут");
+    private JLabel labelSeconds = new JLabel("секунд");
+    private JPanel panelAutoSaveTextFields;
     private JBroTable hotKeyTable;
 
     private Settings settings;
@@ -106,6 +117,14 @@ public class SettingsFrame {
         // Вкладка 2 (index = 1).
         tableTabs.addTab("Панель видео", new JPanel());
 
+        JPanel panelOfGeneralSettings = new JPanel(new MigLayout());
+        panelOfGeneralSettings.setBackground(Color.white);
+
+        panelOfGeneralSettings.add(createAutoSaveSettingPanel(), "growx, push, wrap");
+        panelOfGeneralSettings.add(createOkAcceptCancelPanel(), "newline push, align right");
+        // Вкладка 3 (index = 2).
+        tableTabs.addTab("Общие настройки", panelOfGeneralSettings);
+
         // При изменении вкладки перекидываем фокус куда нужно
         tableTabs.addChangeListener(new ChangeListener() {
             @Override
@@ -135,6 +154,90 @@ public class SettingsFrame {
         return panelOfButtons;
     }
 
+    // Панель общих настроек
+    private JPanel createAutoSaveSettingPanel() {
+        JPanel panelOfAutoSave = new JPanel(new MigLayout());
+        panelOfAutoSave.setBackground(Color.white);
+        Border border = BorderFactory.createTitledBorder("Автосохранение");
+        panelOfAutoSave.setBorder(border);
+
+        // Текстовое поле с установкой минут
+        timeMinutesField.setBackground(Color.white);
+        PlainDocument documentMinutes = (PlainDocument) timeMinutesField.getDocument(); // получаем документ текстового поля таблицы
+        DigitFilter digitFilterMinutes = new DigitFilter(timeMinutesField, 4); // создаем экземпляр Фильтра по Цифрам и передаем текстовое поле для проверки
+        documentMinutes.setDocumentFilter(digitFilterMinutes);
+        // Слушатель изменения значения 
+        documentMinutes.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changeMinutesAutoSave(timeMinutesField);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changeMinutesAutoSave(timeMinutesField);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                changeMinutesAutoSave(timeMinutesField);
+            }
+        });
+        // Текстовое поле с установкой секунд
+        timeSecondsField.setBackground(Color.white);
+        PlainDocument documentSeconds = (PlainDocument) timeSecondsField.getDocument(); // получаем документ текстового поля таблицы
+        DigitFilter digitFilterSeconds = new DigitFilter(timeSecondsField, 2); // создаем экземпляр Фильтра по Цифрам и передаем текстовое поле для проверки
+        documentSeconds.setDocumentFilter(digitFilterSeconds);
+        // Слушатель изменения значения 
+        documentSeconds.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changeSecondsAutoSave(timeSecondsField);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changeSecondsAutoSave(timeSecondsField);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                changeSecondsAutoSave(timeSecondsField);
+            }
+        });
+
+        // Настройка чекбокса настройки Автосохранения
+        autoSaveCheckBox.setBackground(Color.white);
+        autoSaveCheckBox.setFocusable(false);
+
+        // Панель, на которой размещаются лэйблы (текст) и текстовые поля для ввода информации
+        panelAutoSaveTextFields = new JPanel();
+        panelAutoSaveTextFields.setBackground(Color.white);
+        panelAutoSaveTextFields.add(labelText);
+        panelAutoSaveTextFields.add(timeMinutesField);
+        panelAutoSaveTextFields.add(labelMinutes);
+        panelAutoSaveTextFields.add(timeSecondsField);
+        panelAutoSaveTextFields.add(labelSeconds);
+
+        // Заполняем основную панель
+        panelOfAutoSave.add(autoSaveCheckBox, "wrap");
+        panelOfAutoSave.add(panelAutoSaveTextFields, "wrap");
+        // Скрываем панель установки времени, если настройка не активна
+        autoSaveCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (autoSaveCheckBox.isSelected()) {
+                    panelAutoSaveTextFields.setVisible(true);
+                }
+                if (!autoSaveCheckBox.isSelected()) {
+                    panelAutoSaveTextFields.setVisible(false);
+                }
+            }
+        });
+
+        return panelOfAutoSave;
+    }
+
     // Панель с кнопками: ОК, Отмена и Применить
     private JPanel createOkAcceptCancelPanel() {
         JPanel okAcceptCancelPanel = new JPanel(new MigLayout());
@@ -143,6 +246,7 @@ public class SettingsFrame {
         okButton = new JButton("ОК"); // Применяем и выходим из настроек
         okButton.setFocusable(false);
         okButton.addActionListener(activePlayPauseCheckBoxListener);
+        okButton.addActionListener(autoSaveCheckBoxListener);
         okButton.addActionListener(closeWindow);
 
         cancelButton = new JButton("Отменить"); // Выходим из настроек ничего не делая
@@ -152,6 +256,7 @@ public class SettingsFrame {
         acceptButton = new JButton("Применить"); // Применяем изменения и остаемся в настройках
         acceptButton.setFocusable(false);
         acceptButton.addActionListener(activePlayPauseCheckBoxListener);
+        acceptButton.addActionListener(autoSaveCheckBoxListener);
         okAcceptCancelPanel.add(okButton);
         okAcceptCancelPanel.add(cancelButton);
         okAcceptCancelPanel.add(acceptButton);
@@ -416,6 +521,63 @@ public class SettingsFrame {
         }
     };
 
+    private ActionListener autoSaveCheckBoxListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String oldValue = ""; // старое значение 
+            String newValue = ""; // новое значение 
+            if (autoSaveCheckBox.isSelected()) {
+                try {
+                    oldValue = settings.getValueNode("AutoSave"); // Считываем значение "ДО"
+                    settings.setValueNode("AutoSave", "Yes");
+                    settings.writeDocument();
+                    newValue = settings.getValueNode("AutoSave"); // Считываем значение "ПОСЛЕ"
+                } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                    Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (!autoSaveCheckBox.isSelected()) {
+                try {
+                    oldValue = settings.getValueNode("AutoSave"); // Считываем значение "ДО"
+                    settings.setValueNode("AutoSave", "No");
+                    settings.writeDocument();
+                    newValue = settings.getValueNode("AutoSave"); // Считываем значение "ПОСЛЕ"
+                } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+                    Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            pcs.firePropertyChange("AutoSaveChange", oldValue, newValue); // Если значение этой настройки в файле изменилось, то сообщаем об этом куда нужно
+        }
+    };
+
+    private void changeMinutesAutoSave(JTextField textField) {
+        String oldValue = ""; // старое значение 
+        String newValue = ""; // новое значение 
+        try {
+            oldValue = settings.getValueNode("AutoSaveMinutes"); // Считываем значение "ДО"
+            settings.setValueNode("AutoSaveMinutes", textField.getText());
+            settings.writeDocument();
+            newValue = settings.getValueNode("AutoSaveMinutes"); // Считываем значение "ПОСЛЕ"
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pcs.firePropertyChange("AutoSaveChange", oldValue, newValue); // Если значение этой настройки в файле изменилось, то сообщаем об этом куда нужно
+    }
+
+    private void changeSecondsAutoSave(JTextField textField) {
+        String oldValue = ""; // старое значение 
+        String newValue = ""; // новое значение 
+        try {
+            oldValue = settings.getValueNode("AutoSaveSeconds"); // Считываем значение "ДО"
+            settings.setValueNode("AutoSaveSeconds", textField.getText());
+            settings.writeDocument();
+            newValue = settings.getValueNode("AutoSaveSeconds"); // Считываем значение "ПОСЛЕ"
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
+            Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pcs.firePropertyChange("AutoSaveChange", oldValue, newValue); // Если значение этой настройки в файле изменилось, то сообщаем об этом куда нужно
+    }
+
 //    private ActionListener hoyKeyListener = new ActionListener() {
 //        @Override
 //        public void actionPerformed(ActionEvent e) {
@@ -437,7 +599,8 @@ public class SettingsFrame {
     // Метод считывания исходных настроек из файла настроек (если его нет, то из дефолтного файла настроек)
     private void firstInitialize() {
         try {
-            // CheckBox
+            // БОЛЬШОЙ ПУНКТ. OverlayButton
+            // Малый пункт. ActionPlayPauseCheckBox
             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                 activePlayPauseCheckBox.setSelected(true);
             }
@@ -449,6 +612,23 @@ public class SettingsFrame {
             hotKeyInitialize(bigDirections[1]);
             hotKeyInitialize(bigDirections[2]);
             hotKeyInitialize(bigDirections[3]);
+            // БОЛЬШОЙ ПУНКТ. GeneralSettings
+            // Малый пункт. AutoSave
+            if (settings.getValueNode("AutoSave").equalsIgnoreCase("Yes")) {
+                autoSaveCheckBox.setSelected(true);
+            }
+            if (settings.getValueNode("AutoSave").equalsIgnoreCase("No")) {
+                autoSaveCheckBox.setSelected(false);
+            }
+            timeMinutesField.setText(settings.getValueNode("AutoSaveMinutes"));
+            timeSecondsField.setText(settings.getValueNode("AutoSaveSeconds"));
+            // Отображение текстовых панелей с установкой периода для автосохранения
+            if (autoSaveCheckBox.isSelected()) {
+                panelAutoSaveTextFields.setVisible(true);
+            }
+            if (!autoSaveCheckBox.isSelected()) {
+                panelAutoSaveTextFields.setVisible(false);
+            }
         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
         }

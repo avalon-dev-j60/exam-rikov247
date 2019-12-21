@@ -77,4 +77,9 @@
             </LeftButtons>
         </KeyListener>
     </OverlayButton>
+    <GeneralSetting>
+       <AutoSave>No</AutoSave>
+       <AutoSaveMinutes>10</AutoSaveMinutes>
+       <AutoSaveSeconds>0</AutoSaveSeconds>
+    </GeneralSetting>
 </Settings>
