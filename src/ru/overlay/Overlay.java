@@ -12,6 +12,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -602,13 +603,11 @@ public class Overlay extends JWindow {
         for (int i = 0; i < buttonsUp.length; i++) {
             // Удаляем слушатели кликов по кнопкам
             if (buttonsUp[i].getComponentPopupMenu() == null) {
-                buttonsUp[i].removeMouseListener(clickWithEMPUp);
-                buttonsUp[i].removeMouseListener(clickWithoutEMPUp);
-//                MouseListener mTemp = buttonsUp[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
-//                for (int j = 0; j < buttonsUp[i].getMouseListeners().length; j++) {
-//                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
-//                }
-//                buttonsUp[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
+                MouseListener mTemp = buttonsUp[i].getMouseListeners()[0]; // спасаем базовый слушатель мыши, чтобы работали все ActionListenerЫ (которые считают количество кликов в таблицу)
+                for (int j = 0; j < buttonsUp[i].getMouseListeners().length; j++) {
+                    buttonsUp[i].removeMouseListener(buttonsUp[i].getMouseListeners()[j]); // удаляем все слушатели мыши на кнопке
+                }
+                buttonsUp[i].addMouseListener(mTemp); // добавляем спасенный базовый слушатель мыши обратно на кнопку
             }
             // Если у кнопки есть всплывающее меню (popupMenu)
             if (buttonsUp[i].getComponentPopupMenu() != null) {

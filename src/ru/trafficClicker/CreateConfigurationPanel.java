@@ -882,12 +882,6 @@ public class CreateConfigurationPanel {
             } catch (IOException | URISyntaxException ex) {
                 Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            // Делаем паузу для потока (это предотвращает ошибки работы с SVG) перед каждым сохранением картограммы
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-            }
             // Сохраняем новые картограммы
             cartogramMorning.saveChangeValue();
             cartogramDay.saveChangeValue();
@@ -905,16 +899,22 @@ public class CreateConfigurationPanel {
     private void createTable(IModelFieldGroup[] modelGroup, String kindOfStatement, String typeOfDirection) {
         // ТАБЛИЦЫ (модели таблиц)
         // Утро
+        Table tableSumMorningModel = new Table();
+        this.tableSumMorningModel = tableSumMorningModel;
         Table table15MorningModel = new Table();
         Table table30MorningModel = new Table();
         Table table45MorningModel = new Table();
         Table table60MorningModel = new Table();
         // День
+        Table tableSumDayModel = new Table();
+        this.tableSumDayModel = tableSumDayModel;
         Table table15DayModel = new Table();
         Table table30DayModel = new Table();
         Table table45DayModel = new Table();
         Table table60DayModel = new Table();
-        // День
+        // Вечер
+        Table tableSumEveningModel = new Table();
+        this.tableSumEveningModel = tableSumEveningModel;
         Table table15EveningModel = new Table();
         Table table30EveningModel = new Table();
         Table table45EveningModel = new Table();
@@ -996,6 +996,7 @@ public class CreateConfigurationPanel {
         } catch (NullPointerException ee) {
             // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
             JOptionPane.showMessageDialog(cartogramPanelMorning, "Сохранить не получилось! Попробуйте еще раз.");
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ee);
         } catch (FileNotFoundException e) { // FileNotFoundException входит в IOException, которые отлавливаем дальше
             String message = e.getMessage().substring(e.getMessage().lastIndexOf("(") - 1).trim(); // сообщение с ошибкой
             if (message.equals("(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)")) {

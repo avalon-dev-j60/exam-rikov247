@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
@@ -38,8 +40,8 @@ public class Settings {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         // Создается дерево DOM документа из файла
         try {
-            document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-        } catch (Exception e) {
+            document = documentBuilder.parse(getNewUserDirectoryToUri() + "Settings.xml");
+        } catch (FileNotFoundException e) {
             defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml"); // Открываем поток для предотвращения его закрытия
             document = documentBuilder.parse(defaultSettings);
         }
@@ -61,9 +63,13 @@ public class Settings {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         // Создается дерево DOM документа из файла
         try {
-            document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-        } catch (Exception e) {
-            defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml");
+            document = documentBuilder.parse(getNewUserDirectoryToUri() + "Settings.xml");
+        } //        catch (MalformedURLException malfURL) {
+        //            newDirectory = new File(getUserDataDirectoryWithPrefix() + "TrafficClicker");
+        //            document = documentBuilder.parse(getNewUserDirectoryToUri() + "Settings.xml");
+        //        } 
+        catch (FileNotFoundException e) {
+            defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml"); // Открываем поток для предотвращения его закрытия
             document = documentBuilder.parse(defaultSettings);
         }
 
@@ -79,7 +85,7 @@ public class Settings {
         try {
             Transformer tr = TransformerFactory.newInstance().newTransformer();
             DOMSource source = new DOMSource(document);
-            try (FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml")) // указание имени и дериктории нового файла xml (стараемся перезаписать)
+            try ( FileOutputStream fos = new FileOutputStream(getNewUserDirectory() + "Settings.xml")) // указание имени и дериктории нового файла xml (стараемся перезаписать)
             {
                 StreamResult result = new StreamResult(fos);
                 tr.transform(source, result);
@@ -97,9 +103,9 @@ public class Settings {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             // Создается дерево DOM документа из файла
             try {
-                document = documentBuilder.parse(getNewUserDirectory() + "Settings.xml");
-            } catch (Exception e) {
-                defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml");
+                document = documentBuilder.parse(getNewUserDirectoryToUri() + "Settings.xml");
+            } catch (FileNotFoundException e) {
+                defaultSettings = Settings.class.getResourceAsStream("/resources/propertiesFile/Settings.xml"); // Открываем поток для предотвращения его закрытия
                 document = documentBuilder.parse(defaultSettings);
             }
             // Запись файла
@@ -122,14 +128,21 @@ public class Settings {
         return System.getProperty("user.home") + File.separator;
     }
 
+//    public String getUserDataDirectoryWithPrefix() throws MalformedURLException {
+//        return System.getProperty("user.home") + File.separator;
+//    }
     // Получаем директорию Рабочего стола Пользователя
     public String getUserTableDirectory() {
         return System.getProperty("user.home") + File.separator + "Desktop" + File.separator;
     }
 
-    // Создаем папку в папке пользователя
-    public String getNewUserDirectory() {
+    // Создаем папку в папке пользователя (каждый раз)
+    public String getNewUserDirectoryToUri() {
         newDirectory.mkdir(); // Создаем директорию F
-        return (newDirectory.getPath() + File.separator); // Возвращаем новую папку со слешом "/"
+        return (newDirectory.toURI() + File.separator); // Возвращаем новую папку со слешом "/"
+    }
+
+    public String getNewUserDirectory() {
+        return (newDirectory + File.separator); // Возвращаем новую папку со слешом "/"
     }
 }

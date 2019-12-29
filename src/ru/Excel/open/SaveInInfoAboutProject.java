@@ -81,14 +81,13 @@ public class SaveInInfoAboutProject extends JPanel {
     }
 
     // Переносим данные в таблицу, соответствующую нынешней (старой) ведомости: названия направлений
-    private void copyDataToExcel(HSSFSheet hssfSheet, XSSFSheet xsssfSheet) {
-
+    private void copyDataToExcel(HSSFSheet hssfSheet, XSSFSheet xssfSheet) {
         Sheet sheet = new XSSFWorkbook().createSheet();
         if (hssfSheet != null) {
             sheet = hssfSheet;
         }
-        if (xsssfSheet != null) {
-            sheet = xsssfSheet;
+        if (xssfSheet != null) {
+            sheet = xssfSheet;
         }
 
         // Переносим данные в файл excel

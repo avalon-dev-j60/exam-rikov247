@@ -266,6 +266,7 @@ public class TrafficClicker extends AbstractFrame {
                 if (overlay != null) {
                     if (evt.getPropertyName().equalsIgnoreCase("ActionPlayPauseChange")) {
                         try {
+                            
                             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                                 overlay.addMouseAndPopupListenerWithEMP();
                             }
@@ -278,7 +279,7 @@ public class TrafficClicker extends AbstractFrame {
                     }
                     if (evt.getPropertyName().equalsIgnoreCase("HotKeyChanged")) {
                         try {
-                            removeKeyListenerToCanvas(); // Удаляем старые слушатели клавиатуры на canvas 
+                            removeKeyListenerFromCanvas(); // Удаляем старые слушатели клавиатуры на canvas 
                             addKeyListenerToCanvas(); // Добавляем слушателей клавиатуры на canvas 
                         } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
                             Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -973,7 +974,8 @@ public class TrafficClicker extends AbstractFrame {
             deregisterOldListenerMovePanel();
             // Удаляем все слушатели клавиатуры
             try {
-                removeKeyListenerToCanvas();
+                removeKeyListenerFromCanvas();
+                removeKeyListenerFromCanvas();
             } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException ex) {
                 Logger.getLogger(SettingsFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -993,7 +995,7 @@ public class TrafficClicker extends AbstractFrame {
             emp.mediaPlayer().overlay().set(overlay);
             emp.mediaPlayer().overlay().enable(false);
         }
-        // Добавление слушателей ПЕРЕМЕЩЕНИ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
+        // Добавление слушателей ПЕРЕМЕЩЕНИЯ ПАНЕЛЕЙ с кнопками к Лэйблам (направление движения транспорта)
         regiterNewListenerMovePanel();
 
         // ТАБЛИЦЫ (получение сконфигурированных таблиц)
@@ -1042,7 +1044,8 @@ public class TrafficClicker extends AbstractFrame {
                 overlay.addMouseListenerWithoutEMP();
             }
             // Добавление слушателей клавиатуры для кнопок overlay слоя
-            removeKeyListenerToCanvas();
+            removeKeyListenerFromCanvas();
+            removeKeyListenerFromCanvas();
             addKeyListenerToCanvas();
 
             // БОЛЬШОЙ ПУНКТ. GeneralSettings
@@ -1327,7 +1330,7 @@ public class TrafficClicker extends AbstractFrame {
         canvas.addKeyListener(bRightLeftCarListener);
     }
 
-    private void removeKeyListenerToCanvas() throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+    private void removeKeyListenerFromCanvas() throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
         // Удаляем все слушатели клавиатуры (далее их инициализируем и затем добавляем)
         canvas.removeKeyListener(overlay.getRepaintOverlayPanel());
 

@@ -23,7 +23,7 @@ public class ButtonKeyListenerWithoutEMP extends KeyAdapter {
     private int keyCode2;
     private boolean temp = true;
     
-    // Каждые 10 секунд таймер срабатывает и убирает закраску области вокруг кнопки
+    // Каждые 10 милисекунд таймер срабатывает и убирает закраску области вокруг кнопки
     private Timer timer = new Timer(10, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {

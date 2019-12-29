@@ -168,7 +168,7 @@ public class Table {
             table.getModel().removeTableModelListener(modelListener);  // удаляем старый слушатель (так как используем одну и туже таблицу
             modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
         } else {
-            // Если картограмма не преедана (значит это 15 минутные таблицы - не итоговая), тогда Если передали Итоговую таблицу и массив таблиц по 15 минут, то
+            // Если картограмма не передана (значит это 15 минутные таблицы - не итоговая), тогда Если передали Итоговую таблицу и массив таблиц по 15 минут, то
             if (arrayTable != null && totalTable != null) {
                 // Передаем их дальше, чтобы эти таблицы передали информацию в Итоговую таблицу
                 modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, totalTable, arrayTable);
@@ -202,7 +202,7 @@ public class Table {
         }
 
         // Таблица
-        ModelData data = new ModelData(groups); // Установка header
+        ModelData data = new ModelData(modelGroup); // Установка header
         data.setRows(rows); // Установка данных в ячейки
         table.setData(data); // Добавление header и ячеек в таблицу
 

@@ -27,7 +27,7 @@ public class ButtonKeyListenerWithEMP extends KeyAdapter {
     private boolean temp = true;
     private boolean switchBoolean = false; // логическая переменная для возможность динамически включат и выключать видео
 
-    // Каждые 10 секунд таймер срабатывает и убирает закраску области вокруг кнопки
+    // Каждые 10 милисекунд таймер срабатывает и убирает закраску области вокруг кнопки
     private Timer timer = new Timer(10, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {

@@ -79,10 +79,11 @@ public class TotalSumLastColumns {
                 || columnToModelField.getIdentifier().startsWith("ФЕ Итого2")
                 || columnToModelField.getIdentifier().startsWith("ФЕ Итого3")
                 || columnToModelField.getIdentifier().startsWith("ФЕ Итого4")) {
-            value1 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого1"))));
-            value2 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого2"))));
-            value3 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого3"))));
-            value4 = Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого4"))));
+            
+            value1 = getColumnFromIdentifier(table, "ФЕ Итого1") > 0 ? Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого1")))) : 0;
+            value2 = getColumnFromIdentifier(table, "ФЕ Итого2") > 0 ? Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого2")))) : 0;
+            value3 = getColumnFromIdentifier(table, "ФЕ Итого3") > 0 ? Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого3")))) : 0;
+            value4 = getColumnFromIdentifier(table, "ФЕ Итого4") > 0 ? Integer.valueOf(String.valueOf(model.getValueAt(row, getColumnFromIdentifier(table, "ФЕ Итого4")))) : 0;
             sum = (value1 + value2 + value3 + value4);
             model.setValueAt(
                     String.valueOf(fmt(sum * pe.getCoefficient(table, row, typeOfStatement))),
@@ -103,7 +104,7 @@ public class TotalSumLastColumns {
 
     // Получаем столбец по его идентификатору
     private int getColumnFromIdentifier(JBroTable table, String columnIdentifier) {
-        int columnTemp = 0;
+        int columnTemp = -1;
         for (int i = 0; i < table.getData().getFieldsCount(); i++) {
             if (table.getData().getFields()[i].getIdentifier().startsWith(columnIdentifier)) {
                 columnTemp = i;
