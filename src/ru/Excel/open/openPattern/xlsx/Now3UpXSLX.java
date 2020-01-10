@@ -40,7 +40,7 @@ public class Now3UpXSLX {
         // ПЕРЕБОР СТРОКИ таблицы (112 - строка начала таблицы; 17 - столбец начала таблицы)
         int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
-            int column = columnStart + 10; // это столбец внутри Excel файла
+            int column = columnStart; // это столбец внутри Excel файла
             // ПЕРЕБОР СТОЛБЦОВ Java
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ИТОГО (чтобы сохранить Excel формулы)
@@ -59,10 +59,10 @@ public class Now3UpXSLX {
                     if (i == 2) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
                         column = column + 2;
                     }
-                    if (i == 12) {
-                        column = column + 2;
+                    if (i == 8) {
+                        column = column + 12;
                     }
-                    if (i == 16) {
+                    if (i == 20) {
                         column = column + 2;
                     }
                     int valueInt = (int) sheet.getRow(j + row).getCell(i + column).getNumericCellValue();

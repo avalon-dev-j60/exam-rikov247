@@ -64,11 +64,6 @@ public class CountingOneDirectionFuture {
                 TotalOutside(cartogram, "Down_around", "Right_left", "Up_forward", "Left_right");
                 TotalOutside(cartogram, "Left_around", "Down_left", "Right_forward", "Up_right");
                 // сохраняем все изменения!
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 cartogram.saveChangeValue();
             }
         }

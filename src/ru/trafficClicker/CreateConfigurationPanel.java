@@ -38,14 +38,13 @@ import org.quinto.swing.table.view.JBroTable;
 import ru.Excel.Save.templates.FileSaveWithPattern;
 import ru.Excel.Save.templates.savePattern.SaveInExistingFile;
 import ru.Excel.open.InfoFromProject;
-import ru.Excel.open.SaveInInfoAboutProject;
+import ru.Excel.Save.SaveInInfoAboutProject;
 import ru.Excel.open.excelOpen;
 import ru.Excel.open.openPattern.FromExcelToCartogram;
 import ru.JCheckBoxTree;
 import ru.cartogram.CreateCartogram;
 import ru.jtable.Table;
 import ru.jtable.model.*;
-import ru.jtable.modelListener.cartogram.CountingOneDirectionNow;
 
 /**
  * Класс для создания Панели (в виде таблицы) Настройки подсчета.<n>
@@ -558,7 +557,7 @@ public class CreateConfigurationPanel {
         horizSplit1.setLeftComponent(sc);
 
         // ComboBox
-        String[] items = {"3 вправо", "3 вверх", "4", "4 кольцо"};
+        String[] items = {"3 вверх", "3 вправо", "3 вниз", "3 влево", "4", "4 кольцо"};
         comboBox1 = new JComboBox(items);
         comboBox1.setSelectedItem("4");
         comboBox1.setFocusable(false);
@@ -746,11 +745,11 @@ public class CreateConfigurationPanel {
         if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вправо")) {
             saveExcelAndCreateTable(new TRightRoadModel().getModel(), "3Right");
         }
-        // Если выбрано 3 направления вправо, то:
+        // Если выбрано 3 направления вниз, то:
         if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 вниз")) {
             saveExcelAndCreateTable(new TDownRoadModel().getModel(), "3Down");
         }
-        // Если выбрано 3 направления вправо, то:
+        // Если выбрано 3 направления влево, то:
         if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 влево")) {
             saveExcelAndCreateTable(new TLeftRoadModel().getModel(), "3Left");
         }
@@ -768,7 +767,7 @@ public class CreateConfigurationPanel {
 
         String projectName = null;
         excelOpen openProject = null;
-        // Если был открыть хоть один какой либо проект ранее, то выбрасываем сообщение с выбором
+        // Если был открыт хоть один какой либо проект ранее, то выбрасываем сообщение с выбором
         if (getFullName() != null) {
             int ret = JOptionPane.showConfirmDialog(table0_15, "У вас уже открыт проект. Сохранить его?", "Сохранение проекта, перед открытием нового", JOptionPane.YES_NO_CANCEL_OPTION);
             // И обрабатываем варианты выбора,  
@@ -849,10 +848,43 @@ public class CreateConfigurationPanel {
             }
         }
     }
+    
+    // Предложение сохранения открытого проекта при закрытии приложения
+    public void onExitProgramButtonClick() {
+        // Если был открыт хоть один какой либо проект ранее, то выбрасываем сообщение с выбором
+        String oldValue = "Открыто";
+        String newValue = "Закрыто";
+        if (getFullName() != null) {
+            int ret = JOptionPane.showConfirmDialog(table0_15, "У вас открыт проект. Сохранить его?", "Сохранение проекта, перед закрытием приложения", JOptionPane.YES_NO_CANCEL_OPTION);
+            // И обрабатываем варианты выбора, 
+            // Отмена или закрытие окна
+            if (ret == JOptionPane.CANCEL_OPTION) {
+            }
+            // Открываем новый проект без сохранения
+            if (ret == JOptionPane.NO_OPTION) {
+                pcs.firePropertyChange("closeProgram", oldValue, newValue); // уведомляем об изменении пути к файлу
+                System.exit(0);
+            }
+            // Сохраняем прошлый проект и открываем новый
+            if (ret == JOptionPane.OK_OPTION) {
+                onSaveButtonClick(); // Сохраняем ранее открытый проект
+                pcs.firePropertyChange("closeProgram", oldValue, newValue); // уведомляем об изменении пути к файлу
+                System.exit(0);
+            }
+            // Если ранее открытых проектов не было, то предлагаем выбрать свой проект
+        } else {
+            pcs.firePropertyChange("closeProgram", oldValue, newValue); // уведомляем об изменении пути к файлу
+            System.exit(0);
+        }
+    }
 
     private int[] rowTableNow = {12, 33, 54, 75};
     private int[] rowTableFuture = {11, 38, 65, 92};
 
+    public void onSaveButtonClick() {
+        saveAllTableInExcel();
+    }
+    
     public void onSaveButtonClick(ActionEvent e) {
         saveAllTableInExcel();
     }
@@ -959,8 +991,14 @@ public class CreateConfigurationPanel {
                 createTable(modelGroup, kindOfStatement, typeOfDirection); // создаем новые таблицы
                 fullName = fullFileName;
             }
+        } catch (NullPointerException ee) {
+            // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
+            JOptionPane.showMessageDialog(fileSaveWithPattern, "Сохранить не получилось! Попробуйте еще раз.");
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ee);
+        } catch (FileNotFoundException e) { // FileNotFoundException входит в IOException, которые отлавливаем дальше
+            JOptionPane.showMessageDialog(fileSaveWithPattern, "(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)" + ". Закройте его и повторите сохранение.");
+            Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, e);
         } catch (IOException ex) {
-            JOptionPane.showInputDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
             JOptionPane.showMessageDialog(fileSaveWithPattern, ex.getMessage().substring(ex.getMessage().lastIndexOf("(") - 1));
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -995,12 +1033,12 @@ public class CreateConfigurationPanel {
             new SaveInExistingFile(getFullName(), table60Evening, kindOfStatement, typeOfDirection, page, rowTable[3]);
         } catch (NullPointerException ee) {
             // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
-            JOptionPane.showMessageDialog(cartogramPanelMorning, "Сохранить не получилось! Попробуйте еще раз.");
+            JOptionPane.showMessageDialog(table15Morning, "Сохранить не получилось! Попробуйте еще раз.");
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ee);
         } catch (FileNotFoundException e) { // FileNotFoundException входит в IOException, которые отлавливаем дальше
             String message = e.getMessage().substring(e.getMessage().lastIndexOf("(") - 1).trim(); // сообщение с ошибкой
             if (message.equals("(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)")) {
-                JOptionPane.showMessageDialog(cartogramPanelMorning, message + ". Закройте его и повторите сохранение.");
+                JOptionPane.showMessageDialog(table15Morning, "(Процесс не может получить доступ к файлу, так как этот файл занят другим процессом)" + ". Закройте его и повторите сохранение.");
             }
         } catch (IOException ex) {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);

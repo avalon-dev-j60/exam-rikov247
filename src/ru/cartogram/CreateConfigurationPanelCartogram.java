@@ -26,10 +26,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import ru.trafficClicker.TrafficClicker;
 
 /**
@@ -191,6 +187,14 @@ public class CreateConfigurationPanelCartogram {
         if (typeOfDirection.equalsIgnoreCase("3Right")) {
             leftPanel1 = createLabelPanel(direction1label, direction2label, direction3label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction2, direction3, streetHoriz, streetVertic);
+        }
+        if (typeOfDirection.equalsIgnoreCase("3Down")) {
+            leftPanel1 = createLabelPanel(direction2label, direction3label, direction4label, streetHorizlabel, streetVerticlabel);
+            rightPanel1 = createTextFieldPanel(direction2, direction3, direction4, streetHoriz, streetVertic);
+        }
+        if (typeOfDirection.equalsIgnoreCase("3Left")) {
+            leftPanel1 = createLabelPanel(direction1label, direction3label, direction4label, streetHorizlabel, streetVerticlabel);
+            rightPanel1 = createTextFieldPanel(direction1, direction3, direction4, streetHoriz, streetVertic);
         }
         createHorizPanel(horizSplit1, leftPanel1, rightPanel1);
         // Создаем вторую горизонтальную панель (с двумя половинами, разделенными вертикальной линией)
@@ -648,8 +652,10 @@ public class CreateConfigurationPanelCartogram {
         direction2.setText(cartogram.getFullValue("StreetName_Right"));
         direction3.setText(cartogram.getFullValue("StreetName_Down"));
         direction4.setText(cartogram.getFullValue("StreetName_Left"));
-        streetHoriz.setText(cartogram.getFullValue("StreetName_Horizontal1"));
-        streetVertic.setText(cartogram.getFullValue("StreetName_Vertical1"));
+        String horizText = cartogram.getFullValue("StreetName_Horizontal1").trim().isEmpty() ? cartogram.getFullValue("StreetName_Horizontal2") : cartogram.getFullValue("StreetName_Horizontal1");
+        streetHoriz.setText(horizText);
+        String verticText = cartogram.getFullValue("StreetName_Vertical1").trim().isEmpty() ? cartogram.getFullValue("StreetName_Vertical2") : cartogram.getFullValue("StreetName_Vertical1");
+        streetVertic.setText(verticText);
 
         sectionOrIntersection.setText(cartogram.getValueTspan2("SectionOrIntersection"));
         date.setText(cartogram.getValueTspan2("Date"));

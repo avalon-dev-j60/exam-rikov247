@@ -109,10 +109,11 @@ public class SumInOneDirectionInOneRowPE {
         return columnTemp;
     }
 
-    // Округление до двух чисел после запятой
+    // Округление
     private String fmt(double d) {
-        double dFormat = (double) Math.round(d * 100) / 100;
-        return String.valueOf(dFormat);
+        double dFormat = (double) Math.round(d * 100) / 100; // Округление до двух чисел после запятой
+        int iFormat = (int) Math.ceil(dFormat);
+        return String.valueOf(iFormat);
     }
 
 }

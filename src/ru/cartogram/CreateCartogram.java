@@ -80,6 +80,12 @@ public class CreateCartogram {
         if (typeOfDirection.equalsIgnoreCase("3Up")) {
             uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3up.svg").toURI().toString();
         }
+        if (typeOfDirection.equalsIgnoreCase("3Down")) {
+            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3down.svg").toURI().toString();
+        }
+        if (typeOfDirection.equalsIgnoreCase("3Left")) {
+            uriPattern = this.getClass().getResource("/resources/cartogram/cartogram3left.svg").toURI().toString();
+        }
         // Парсим его (читаем) и сохраняем в новый файл - который в дальнейшем будет использоваться
         doc = f.createDocument(uriPattern); // парсим передаваемый файл и создаем из него документ (то есть таким образом его выводим)
         svgGenerator = new SVGGraphics2D(doc);

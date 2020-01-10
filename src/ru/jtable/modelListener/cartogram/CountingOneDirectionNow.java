@@ -62,11 +62,6 @@ public class CountingOneDirectionNow {
                 TotalOutside(cartogram, "Down_around", "Right_left", "Up_forward", "Left_right");
                 TotalOutside(cartogram, "Left_around", "Down_left", "Right_forward", "Up_right");
                 // сохраняем все изменения!
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 cartogram.saveChangeValue();
             }
         }
@@ -199,11 +194,12 @@ public class CountingOneDirectionNow {
                 String.valueOf(sumFE),
                 " (" + String.valueOf(fmt(sumPE)) + ")");
     }
-
-    // Округление до одного числа после запятой
+    
+    // Округление
     private String fmt(double d) {
-        double dFormat = (double) Math.round(d * 10) / 10;
-        return String.valueOf(dFormat);
+        double dFormat = (double) Math.round(d * 10) / 10; // Округление до одного числа после запятой
+        int iFormat = (int) Math.ceil(dFormat);
+        return String.valueOf(iFormat);
     }
 
     // Определяем положение нужных строк
@@ -312,5 +308,5 @@ public class CountingOneDirectionNow {
             idName = "Left";
         }
     }
-
+    
 }

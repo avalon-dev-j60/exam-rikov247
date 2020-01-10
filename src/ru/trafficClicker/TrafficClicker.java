@@ -46,7 +46,6 @@ import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.fullscreen.adaptive.AdaptiveFullScreenStrategy;
 
 public class TrafficClicker extends AbstractFrame {
-// ПОХОЖЕ, ЧТО ПРОБЛЕМА java.lang.stackoverflow java.awt.awteventmulticaster.mousemoved вызвана Component Mover !!! (двигает панель с кнопками)!!!
 
     private Overlay overlay; // слой кнопок поверх видео
     private AddVideoPanel addVideoPanel = new AddVideoPanel(); // панель с кнопкой добавления видео
@@ -249,6 +248,14 @@ public class TrafficClicker extends AbstractFrame {
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramDay(), "Day");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramEvening(), "Evening");
                 }
+                // Если решили закрыть приложение, то нужно освободить ресурсы
+                if (evt.getPropertyName().equalsIgnoreCase("closeProgram")) {
+                    emp.mediaPlayer().release();
+                    emp.mediaPlayerFactory().release();
+                    if (overlay != null) {
+                        overlay.dispose();
+                    }
+                }
             }
         });
 
@@ -266,7 +273,7 @@ public class TrafficClicker extends AbstractFrame {
                 if (overlay != null) {
                     if (evt.getPropertyName().equalsIgnoreCase("ActionPlayPauseChange")) {
                         try {
-                            
+
                             if (settings.getValueNode("ActionPlayPause").equalsIgnoreCase("Yes")) {
                                 overlay.addMouseAndPopupListenerWithEMP();
                             }
@@ -616,13 +623,10 @@ public class TrafficClicker extends AbstractFrame {
 
     // ЗАКРЫТИЕ ОКНА (освобождение ресурсов)
     WindowAdapter winAdapter = new WindowAdapter() {
+
         @Override
         public void windowClosing(WindowEvent e) {
-            emp.mediaPlayer().release();
-            emp.mediaPlayerFactory().release();
-            if (overlay != null) {
-                overlay.dispose();
-            }
+            configurationPanel.onExitProgramButtonClick();
         }
     };
 

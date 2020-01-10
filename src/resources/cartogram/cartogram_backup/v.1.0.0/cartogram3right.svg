@@ -1,0 +1,229 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="53.01384353637695 21.52940559387207 973.2922973632812 939.6082153320312" width="549px" height="530px" >
+    <rect id="svgEditorBackground" x="326.6813531551721" y="640.70849609375" width="486.43506895821054" height="468.74652099609375" style="fill:none; stroke: none;"/>
+    <defs id="svgEditorDefs">
+        <polygon id="svgEditorShapeDefs" style="fill:rosybrown;stroke:black;vector-effect:non-scaling-stroke;stroke-width:1px;"/>
+    </defs>
+    <defs>
+        <path d="" id="dxt0pp92r"/>
+        <path d="M246.24 251.21L246.24 86.67" id="afM8RxwbQ"/>
+        <path d="M379.65 251.21L379.65 86.67" id="cfjMfgChV"/>
+        <path d="M422.27 284.61L589.65 284.61" id="b5OxVNm4Y"/>
+        <path d="M422.27 382.55L589.65 382.55" id="g77ZzNZA1"/>
+        <path d="M246.24 587.45L246.24 422.91" id="f23XxzPdA"/>
+        <path d="M379.65 587.45L379.65 422.91" id="dkQXXSdND"/>
+        <path d="" id="bz9rRvdM"/>
+        <path d="M379.65 422.91C383 396.95 397.21 383.5 422.27 382.55" id="afaO7SXaT"/>
+        <path d="M379.65 251.21C383 272.69 397.21 283.83 422.27 284.61" id="cvbV071s0"/>
+        <path d="M203.62 284.61L36.24 284.61" id="a5f9AhvgKh"/>
+        <path d="M246.24 251.21C242.88 272.69 228.68 283.83 203.62 284.61" id="a2ZFH71Etu"/>
+        <path d="M203.62 384.75L36.24 384.75" id="b1oZZ1esgB"/>
+        <path d="" id="b27HAQObv"/>
+        <path d="M246.24 425.11C242.88 399.15 228.68 385.7 203.62 384.75" id="a81I8t4SQv"/>
+    </defs>
+    <g transform="matrix(1.6488 0 0 1.6488 -12.9192 -114.197)">
+        <g>
+            <g>
+                <g>
+                    <use xlink:href="#dxt0pp92r" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            
+            <g transform="matrix(1 0 0 1 49.167 0)">
+                <g>
+                    <use xlink:href="#cfjMfgChV" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            <g transform="matrix(1 0 0 1 49.167 0)">
+                <g>
+                    <use xlink:href="#b5OxVNm4Y" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            <g transform="matrix(1 0 0 1 49.167 60.8119)">
+                <g>
+                    <use xlink:href="#g77ZzNZA1" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            
+            <g transform="matrix(1 0 0 1 49.167 60.8119)">
+                <g>
+                    <use xlink:href="#dkQXXSdND" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            <g>
+                <g>
+                    <use xlink:href="#bz9rRvdM" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            <g transform="matrix(1 0 0 1 49.167 60.8119)">
+                <g>
+                    <use xlink:href="#afaO7SXaT" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            <g transform="matrix(1 0 0 1 49.167 0)">
+                <g>
+                    <use xlink:href="#cvbV071s0" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            
+            
+            
+            <g>
+                <g>
+                    <use xlink:href="#b27HAQObv" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-opacity="1"/>
+                </g>
+            </g>
+            
+        </g>
+    </g>
+    <path d="M3.2804971134340315,0.12408909115598024v-1.9999999999999991l3.158420390304358,3.999999999999999l-3.158420390304359,4.0000000000000036v-2.0000000000000036h-4.841579609695643v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Right_Arrow" transform="matrix(10.7734 0 0 3.71202 924.512 560.544)"/>
+    <path d="M-4.794733837820497,-45.612184651600195v-2l3.1584203903043595,4l-3.1584203903043595,4v-2h-4.841579609695644v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Right_Arrow" transform="matrix(-10.7734 -0.0302691 0.0104293 -3.71201 885.97 257.813)"/>
+    
+    
+    <path d="M-38.59541278669259,-86.4606283929405v-2l3.158420390304329,4l-3.158420390304329,4v-2h-4.841579609695671v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Up_Arrow" transform="matrix(-0.012489 10.7734 -3.71202 -0.00430312 135.955 541.563)"/>
+    <path d="M36.73079421646982,53.922593146664866v-2l3.1584203903043715,4l-3.1584203903043715,4v-1.9962106732048142h-4.841579609695643v-4.003789326795186Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Up_Arrow" transform="matrix(0.042758 -10.7734 3.712 0.0147324 434.675 503.372)"/>
+    <path d="M31.37458479419651,-84.71182243840553v-2l3.158420390304361,4l-3.1584203903043573,4v-2h-4.841579609695646v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_outside_Down_Arrow" transform="matrix(-0.012489, 10.7734, -3.71202, -0.00430312, 131.899, 541.563)"/>
+    <path d="M-33.074169779571235,55.45756108844132v-2l3.1584203903043786,4l-3.1584203903043786,4.000000000000028v-2.0000000000000497h-4.841579609695657v-3.9999999999999787Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Down_Arrow" transform="matrix(0.042758 -10.7734 3.712 0.0147324 434.675 503.372)"/>
+    <path d="M-5.35036710235727,0.8243878203275339a1.8,1.8,0,1,0,0,-3.600000000000003h-2v1.0000000000000009l-1.2500000000000018,-1.6250000000000009l1.2500000000000018,-1.625v1h2a2.25,2.25,0,0,1,0,6.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_around_Arrow" transform="matrix(-5.91968 -0.0231282 0.0231282 -5.91968 711.879 549.504)"/>
+    <path d="M-1.7118875078132825,4.532457860209789l1.2499999999999987,-1.5624999999999973v1.2499999999999991a8,8,0,0,1,5.8610641385977456,5.5138214499033325a149.210846,149.210846,0,0,0,-2.6874364113161295,-0.05564137445023043a4.17042,4.17042,0,0,0,-3.1736277272816165,-4.7081800754530985v1.2500000000000018Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_left_Arrow" transform="matrix(-0.0000480079 -5.48499 5.48499 -0.0000480079 710.721 492.634)"/>
+    
+    <path d="M6.593052504479644,2.1547982797705316l-1.2499999999999964,-1.5624999999999998v1.2500000000000004a8,8,0,0,0,-5.9543058429192,5.621660721341285a37.569937,37.569937,0,0,1,2.7523917764229555,0.0412530926139123a4.304151,4.304151,0,0,1,3.201914066496246,-4.912913813955197v1.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Right_right_Arrow" transform="matrix(-0.110469 -5.55234 5.55234 -0.110469 722.79 427.256)"/>
+    <path d="M30.72226212231557,-19.32688015589777a1.8,1.8,0,1,0,0,-3.6000000000000014h-2v1l-1.25,-1.625l1.25,-1.625v1h2a2.25,2.25,0,0,1,0,6.25Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Down_around_Arrow" transform="matrix(0.00918477 -5.91972 5.91972 0.00918477 608.432 841.395)"/>
+    
+    <path d="M39.478154919604556,-115.61692953336241v-2l3.1584203903043715,4l-3.1584203903043715,4v-2h-4.8415796096956285v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Down_forward_Arrow" transform="matrix(0.00311775 -6.86452 2.36519 0.00107421 823.895 930.519)"/>
+    <path d="M-13.972322664322888,-36.487216614015054l-1.25,-1.562500000000007v1.250000000000007a8,8,0,0,0,-5.954305842919197,5.621660721341279a37.569937,37.569937,0,0,1,2.7523917764229537,0.04125309261392118a4.304151,4.304151,0,0,1,3.201914066496249,-4.912913813955207v1.250000000000007Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="e25" transform="matrix(5.55206 -0.123547 0.123547 5.55206 730.705 852.018)"/>
+    <path d="M28.346254503651632,16.90940716137827a1.8,1.8,0,1,0,0,-3.599999999999998h-2v1l-1.25,-1.6250000000000036l1.25,-1.6249999999999964v1h2a2.25,2.25,0,0,1,0,6.2499999999999964Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_around_Arrow" transform="matrix(-0.0203657 5.91969 -5.91969 -0.0203657 704.572 134.067)"/>
+    <path d="M15.467068587428237,-31.765920928582933l1.25,-1.5625000000000107v1.25a8,8,0,0,1,5.86106413859774,5.51382144990335a149.210846,149.210846,0,0,0,-2.6874364113161278,-0.05564137445023576a4.17042,4.17042,0,0,0,-3.1736277272816125,-4.708180075453107v1.250000000000007Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_left_Arrow" transform="matrix(-5.48499 0.00260761 -0.00260761 -5.48499 647.703 135.251)"/>
+    <path d="M37.92377870326419,4.302698098738304v-2l3.1584203903043644,3.9999999999999982l-3.1584203903043644,4.000000000000002v-2h-4.841579609695643v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Up_forward_Arrow" transform="matrix(-0.0160832 6.8645 -2.36518 -0.00554151 489.279 44.5352)"/>
+    
+    
+    
+    
+    
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e4_text"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e2_text" transform="matrix(1 0 0 1 -225.972 62.5768)"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e6_text"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e8_text"/>
+    <!-- Стрелка В перекресток. Значения сверху  -->
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="473.42291259765625" y="115.83833312988281" id="Total_inside_Up" transform="matrix(-0.012085, -0.999927, 0.999927, -0.012085, 314.185, 608.746)">
+        <tspan x="446.8866271972656" id="Total_inside_Up" style="font-size:18px;">0-0-0</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="1289.3831787109375" y="-48.15892028808594" id="Total_inside_Right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1289.3831787109375" id="Total_inside_Right" style="font-size:18px;">0-0-0</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="458.1480712890625" y="314.2958679199219" id="Total_inside_Down" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 316.503 1345.76)">
+        <tspan x="433.48187255859375" id="Total_inside_Down" style="font-size:18px;">0-0-0</tspan>
+    </text>
+    
+    <!-- Стрелка ИЗ перекрестка. Значения сверху  -->
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="472.25909423828125" y="313.774658203125" id="Total_outside_Up" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="442.5503845214844" id="Total_outside_Up" style="font-size:18px;">0-0-0</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="1244.122314453125" y="106.35125732421875" id="Total_outside_Right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1294.122314453125" id="Total_outside_Right" style="font-size:18px;">0-0-0</tspan>
+    </text>
+    
+    
+    <!-- Маленькие стрелки  -->
+    <!-- Группа разворота  -->
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="344.572265625" y="310.2978820800781" id="Up_around" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="344.572265625" id="Up_around_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Up_around_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="1175.1878662109375" y="121.11869812011719" id="Right_around" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1175.1878662109375" id="Right_around_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Right_around_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="-193.63185119628906" y="168.86306762695312" id="Down_around" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="-193.63185119628906" id="Down_around_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Down_around_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <!-- Группа правого поворота  -->
+    
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="1171.5760498046875" y="-10.08382797241211" id="Right_right" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1171.5760498046875" id="Right_right_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Right_right_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="-196.5288848876953" y="318.4224853515625" id="Down_right" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="-196.5288848876953" id="Down_right_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Down_right_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <!-- Группа прямого проезда  -->
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="346.2666320800781" y="170.1154327392578" id="Up_forward" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="346.2666320800781" id="Up_forward_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Up_forward_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="-170.8682098388672" y="245.410400390625" id="Down_forward" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="-198.65716552734375" id="Down_forward_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Down_forward_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <!-- Группа поворота направо  -->
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="345.3235168457031" y="242.40792846679688" id="Up_left" transform="matrix(-0.012085 -0.999927 0.999927 -0.012085 314.185 608.746)">
+        <tspan x="345.3235168457031" id="Up_Left_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Up_Left_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="1174.0196533203125" y="53.58617401123047" id="Right_left" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1174.0196533203125" id="Right_Left_tspan2">0-0-0 </tspan>
+        <tspan dx="0" id="Right_Left_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    
+    
+    <!-- Стрелка В перекресток. Значения снизу  -->
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="510.4317321777344" y="93.39720153808594" id="TotalSum_inside_Up" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
+        <tspan x="510.4317321777344" id="TotalSum_inside_Up_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_inside_Up_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="1307.4407958984375" y="-173.64833068847656" id="TotalSum_inside_Right" transform="matrix(0.999922 0.0125281 -0.0125281 0.999922 -407.109 616.955)">
+        <tspan x="1307.4407958984375" id="TotalSum_inside_Right_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_inside_Right_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="-239.96420288085938" y="282.0859375" id="TotalSum_inside_Down" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
+        <tspan x="-239.96420288085938" id="TotalSum_inside_Down_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_inside_Down_tspan2" fill="red">(0)</tspan>
+    </text>  
+    
+    <!-- Стрелка ИЗ перекрестка. Значения снизу  -->
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="506.4599609375" y="286.2164001464844" id="TotalSum_outside_Up" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
+        <tspan x="506.4599609375" id="TotalSum_outside_Up_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_outside_Up_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="1309.0408935546875" y="-28.126102447509766" id="TotalSum_outside_Right" transform="matrix(0.999922 0.0125281 -0.0125281 0.999922 -407.109 616.955)">
+        <tspan x="1309.0408935546875" id="TotalSum_outside_Right_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_outside_Right_tspan2" fill="red">(0)</tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="-240.3098907470703" y="75.96041870117188" id="TotalSum_outside_Down" transform="matrix(-0.00908829 -0.999959 0.999959 -0.00908829 397.429 669.029)">
+        <tspan x="-240.3098907470703" id="TotalSum_outside_Down_tspan1">0 </tspan>
+        <tspan dx="0" id="TotalSum_outside_Down_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <!-- Названия направлений  -->
+    <text style="fill:black;font-family:Arial;font-size:18px;" text-anchor="middle" x="42.5%" y="618.9735717773438" id="StreetName_Up" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Направление 1</text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" text-anchor="middle" x="35.5%" y="1008.0" id="StreetName_Right" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Направление 2</text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" text-anchor="middle" x="42.5%" y="1515.5980224609375" id="StreetName_Down" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Направление 3</text>
+    
+    <!-- Пересекаемые улицы  -->
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="259.368" y="345.082" id="StreetName_Vertical1" transform="matrix(-0.00269868, -0.999996, 0.999996, -0.00269868, 15.4245, 835.533)">Улица вертикальная</text>
+    <text style="fill:black;font-family:Arial;font-size:18px;" x="642.6860961914062" y="1226.1728515625" id="StreetName_Horizontal2" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
+    <!-- Дополнительная информация  -->
+    <text style="fill:black;font-family:Arial;font-size:14px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
+        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Участок/перекресток: </tspan>
+        <tspan dx="0" id="SectionOrIntersection_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.88630676269531" y="906.0911254882812" id="Date">
+        <tspan x="52.88630676269531" id="Date_tspan1" style="font-weight: bold;">Дата: </tspan>
+        <tspan dx="0" id="Date_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
+        <tspan x="52.36008071899414" id="DayOfWeek_tspan1" style="font-weight: bold;">День недели: </tspan>
+        <tspan dx="0" id="DayOfWeek_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.22282028198242" y="947.8796997070312" id="Time">
+        <tspan x="52.22282028198242" id="Time_tspan1" style="font-weight: bold;">Время: </tspan>
+        <tspan dx="0" id="Time_tspan2"> </tspan>
+    </text>
+    <line id="e3_line" x1="393.037" y1="28.6701" x2="393.054" y2="954.644" style="stroke:black;fill:none;stroke-width:2px;"/>
+</svg>

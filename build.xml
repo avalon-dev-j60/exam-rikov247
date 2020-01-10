@@ -72,9 +72,9 @@
     -->
     
     <target name="YourBigJar" depends="-post-jar">
-        <jar destfile="BigJar.jar">
+        <jar destfile="TrafficClicker.jar">
             <zipfileset src="dist/VideoVLC.jar"/>
-            <zipgroupfileset dir="./libr/"/>
+            <zipgroupfileset dir="./lib/"/>
         </jar>
     </target>
 

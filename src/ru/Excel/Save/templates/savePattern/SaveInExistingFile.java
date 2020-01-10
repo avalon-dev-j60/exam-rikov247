@@ -7,8 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -21,9 +19,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.quinto.swing.table.view.JBroTable;
 import ru.Excel.Save.templates.AsHSSFwithPattern;
 import ru.Excel.Save.templates.AsXSSFwithPattern;
-import ru.Excel.Save.templates.FileSaveWithPattern;
 import ru.cartogram.CreateCartogram;
-import ru.jtable.modelListener.cartogram.CountingOneDirectionNow;
 
 /**
  * В данном классе реализовано сохранение данных из Java таблицы в Excel
@@ -103,16 +99,17 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Now3Right(table, hssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Now3Down(table, hssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Now3Left(table, hssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(hssfSheet, null, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
                     copyStreetToExcel(hssfSheet, null, cartogram, rowDirectionNow, columnDirectionNow);
                     // сохраняем все изменения!
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                     cartogram.saveChangeValue();
                 }
             }
@@ -129,16 +126,17 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Future3Right(table, hssfSheet, rowStart, columnStartFutureTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Future3Down(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Future3Left(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(hssfSheet, null, cartogram, columnStartFutureData, sectionOrIntersectionFuture, rowTimeFuture);
                     copyStreetToExcel(hssfSheet, null, cartogram, rowDirectionFuture, columnDirectionFuture);
                     // сохраняем все изменения!
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                     cartogram.saveChangeValue();
                 }
             }
@@ -157,16 +155,17 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Now3RightXSLX(table, xssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Now3DownXSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Now3LeftXSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(null, xssfSheet, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
                     copyStreetToExcel(null, xssfSheet, cartogram, rowDirectionNow, columnDirectionNow);
                     // сохраняем все изменения!
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                     cartogram.saveChangeValue();
                 }
             }
@@ -183,16 +182,17 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Future3RightXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Future3DownXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Future3LeftXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(null, xssfSheet, cartogram, columnStartFutureData, sectionOrIntersectionFuture, rowTimeFuture);
                     copyStreetToExcel(null, xssfSheet, cartogram, rowDirectionFuture, columnDirectionFuture);
                     // сохраняем картограмму
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(CountingOneDirectionNow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                     cartogram.saveChangeValue();
                 }
             }

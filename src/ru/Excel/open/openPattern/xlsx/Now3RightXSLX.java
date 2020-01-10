@@ -39,7 +39,7 @@ public class Now3RightXSLX {
         // ПЕРЕБОР СТРОКИ таблицы (row - строка начала таблицы; column - столбец начала таблицы)
         int row = rowStart;
         for (int j = 0; j < table.getRowCount() - 1; j++) {
-            int column = columnStart + 2; // это столбец внутри Excel файла
+            int column = columnStart; // это столбец внутри Excel файла
             // ПЕРЕБОР СТОЛБЦОВ Java
             for (int i = 0; i < table.getColumnCount() - 2; i++) { // цикл по столбцам таблицы Java (JTable) в выбранной строке
                 // ПРЕСЕКАЕМ ПЕРЕНОС значений подсчитанных в Java table в Excel table из столбцов ИТОГО (чтобы сохранить Excel формулы)
@@ -55,11 +55,11 @@ public class Now3RightXSLX {
                     // Пропускаем столбцы в Excel, которые не участвуют в подсчете (их нет в java таблице)
                     // i - столбец в Java. column - в Excel таблице
                     // Этот выбор зависит от типа Т перекрестка
-                    if (i == 12) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                    if (i == 4) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
                         column = column + 2;
                     }
-                    if (i == 16) {
-                        column = column + 10;
+                    if (i == 8) {
+                        column = column + 2;
                     }
                     if (i == 18) {
                         column = column + 2;
