@@ -557,7 +557,7 @@ public class CreateConfigurationPanel {
         horizSplit1.setLeftComponent(sc);
 
         // ComboBox
-        String[] items = {"3 вверх", "3 вправо", "3 вниз", "3 влево", "4", "4 кольцо"};
+        String[] items = {"2", "3 вверх", "3 вправо", "3 вниз", "3 влево", "4", "4 кольцо"};
         comboBox1 = new JComboBox(items);
         comboBox1.setSelectedItem("4");
         comboBox1.setFocusable(false);
@@ -752,6 +752,10 @@ public class CreateConfigurationPanel {
         // Если выбрано 3 направления влево, то:
         if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("3 влево")) {
             saveExcelAndCreateTable(new TLeftRoadModel().getModel(), "3Left");
+        }
+        // Если выбрано 2 направления, то:
+        if (((String) (comboBox1.getSelectedItem())).equalsIgnoreCase("2")) {
+            saveExcelAndCreateTable(new SectionModel().getModel(), "2");
         }
 
         // Переносим в файл Excel идентифицирующую информацию о созданном проекте

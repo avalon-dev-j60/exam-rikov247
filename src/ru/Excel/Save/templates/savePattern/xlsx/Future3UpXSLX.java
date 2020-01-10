@@ -56,12 +56,22 @@ public class Future3UpXSLX {
                     // i - столбец в Java. column - в Excel таблице
                     // Этот выбор зависит от типа Т перекрестка
                     if (i == 2) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                        // Делаем скрытыми столбцы (в них записаны нули, но значение не видно), в которые ничего не заполняем
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
-                    if (i == 8) {
+                    if (i == 8) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                        for (int y = 0; y < 12; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 12;
                     }
                     if (i == 20) {
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
                     // Перенос чисел из Java table в Excel table

@@ -196,6 +196,10 @@ public class CreateConfigurationPanelCartogram {
             leftPanel1 = createLabelPanel(direction1label, direction3label, direction4label, streetHorizlabel, streetVerticlabel);
             rightPanel1 = createTextFieldPanel(direction1, direction3, direction4, streetHoriz, streetVertic);
         }
+        if (typeOfDirection.equalsIgnoreCase("2")) {
+            leftPanel1 = createLabelPanel(direction2label, direction4label, streetHorizlabel, streetVerticlabel);
+            rightPanel1 = createTextFieldPanel(direction2, direction4, streetHoriz, streetVertic);
+        }
         createHorizPanel(horizSplit1, leftPanel1, rightPanel1);
         // Создаем вторую горизонтальную панель (с двумя половинами, разделенными вертикальной линией)
         createHorizPanel(horizSplit2,

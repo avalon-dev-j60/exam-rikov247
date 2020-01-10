@@ -9,7 +9,7 @@ import org.quinto.swing.table.view.JBroTable;
  * шаблону. 3 направления вправо.
  */
 public class Now3Right {
-    
+
     public Now3Right(JBroTable table, HSSFSheet sheet, int rowStart, int columnStart) {
         // Определяем столбцы, куда не переносим данные (чтобы сохранить Excel формулы)
         int[] columnTotal = new int[3]; // массив для хранения столбцов "Итого"
@@ -56,12 +56,25 @@ public class Now3Right {
                     // i - столбец в Java. column - в Excel таблице
                     // Этот выбор зависит от типа Т перекрестка
                     if (i == 4) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
                     if (i == 8) {
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
                     if (i == 18) {
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
+                        // Для сокрытия последнего направления полностью
+                        for (int y = 0; y < 10; y++) {
+                            sheet.setColumnHidden(i + column + 8 + y, true);
+                        }
                         column = column + 2;
                     }
                     // Перенос чисел из Java table в Excel table

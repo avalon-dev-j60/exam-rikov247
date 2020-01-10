@@ -450,9 +450,9 @@ public class Overlay extends JWindow {
         this.emp = emp;
         // Определение Иконок
         background1 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/11.png"));
-        background4 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/44.png"));
-        background3 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/33.png"));
         background2 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/22.png"));
+        background3 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/33.png"));
+        background4 = ImageIO.read(Overlay.class.getResourceAsStream("/resources/icons/numbers/44.png"));
 
         // установка прозрачности overlay панели
         setBackground(new Color(0, 0, 0, 0));
@@ -509,6 +509,10 @@ public class Overlay extends JWindow {
             if (typeOfDirection.equalsIgnoreCase("3Left")) {
                 config3DirectionNow("WithoutLeft", "", "WithoutRight", "WithoutForward");
             }
+            // 2 Направления
+            if (typeOfDirection.equalsIgnoreCase("2")) {
+                config2DirectionNow();
+            }
 
         }
 
@@ -532,6 +536,10 @@ public class Overlay extends JWindow {
             // 3 Направления влево
             if (typeOfDirection.equalsIgnoreCase("3Left")) {
                 config3DirectionFuture("WithoutLeft", "", "WithoutRight", "WithoutForward");
+            }
+            // 2 Направления
+            if (typeOfDirection.equalsIgnoreCase("2")) {
+                config2DirectionFuture();
             }
         }
     }
@@ -914,7 +922,9 @@ public class Overlay extends JWindow {
         }
         ////////////////////////////////////////////////////////////////////////
         // Устанавливаем размеры панели с кнопками, исходя из компонентов в них находящихся
-        int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][1]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
+        System.out.println(containerComponents.length);
+//        int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][1]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
+        int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][0]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
         int panelHeight = ((JLabel) containerComponents[0][0]).getIcon().getIconHeight() + (int) (((JLabel) containerComponents[0][0]).getIcon().getIconHeight() / 4);
         for (int q = 1; q < containerComponents.length; q++) {
             for (int a = 0; a < containerComponents[0].length - 1; a++) {
@@ -924,6 +934,11 @@ public class Overlay extends JWindow {
                 if (a == 0) {
                     panelHeight += ((JButton) containerComponents[q][a]).getIcon().getIconHeight();
                 }
+            }
+            // Для варианта только с одним малым направлением (2 направления - сечение). Работает только так
+            if (containerComponents[0].length == 1) {
+                panelHeight += ((JButton) containerComponents[q][0]).getIcon().getIconHeight();
+                panelWidth = (int) (((JButton) containerComponents[q][0]).getIcon().getIconWidth()*2);
             }
         }
         // Настройка панели
@@ -1163,6 +1178,68 @@ public class Overlay extends JWindow {
         }
     }
 
+    private void config2DirectionNow() {
+        int numOfDir = 1;
+        // Конфигурируем 1 столбец и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
+
+        // Конфигурируем и наполняем панели
+        ChooseComponentsNow2 compLeftNow2 = new ChooseComponentsNow2(paths, forwardLeftLabel, bForwardLeftCar, bForwardLeftBus, bForwardLeftTruck, bForwardLeftTrolleyBus, bForwardLeftTram);
+        componentsLeft = compLeftNow2.chooseCompNow2();
+        row = compLeftNow2.getRow();
+        createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+        panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+
+        ChooseComponentsNow2 compRightNow2 = new ChooseComponentsNow2(paths, forwardRightLabel, bForwardRightCar, bForwardRightBus, bForwardRightTruck, bForwardRightTrolleyBus, bForwardRightTram);
+        componentsRight = compRightNow2.chooseCompNow2();
+        row = compRightNow2.getRow();
+        createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+        panelRight.setLocation(650, 0); // установка изначального местоположения панели
+
+        overlayPanel.add(panelLeft);
+        overlayPanel.add(panelRight);
+    }
+
+    private void config2DirectionFuture() {
+        int numOfDir = 1;
+        // Конфигурируем 1 столбец и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
+
+        // Конфигурируем и наполняем панели
+        ChooseComponentsFuture2 compLeftFuture2 = new ChooseComponentsFuture2(paths, forwardLeftLabel, bForwardLeftCar, bForwardLeftBus, bForwardLeftTruck, bForwardLeftTrainBus, bForwardLeftTrolleyBus, bForwardLeftTram);
+        componentsLeft = compLeftFuture2.chooseComponentsFuture2();
+        row = compLeftFuture2.getRow();
+        createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+        panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+
+        ChooseComponentsFuture2 compRightFuture2 = new ChooseComponentsFuture2(paths, forwardRightLabel, bForwardRightCar, bForwardRightBus, bForwardRightTruck, bForwardRightTrainBus, bForwardRightTrolleyBus, bForwardRightTram);
+        componentsRight = compRightFuture2.chooseComponentsFuture2();
+        row = compRightFuture2.getRow();
+        createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+        panelRight.setLocation(650, 0); // установка изначального местоположения панели
+
+        overlayPanel.add(panelLeft);
+        overlayPanel.add(panelRight);
+    }
+
     // Конфигурируем панель кнопок для 3 направлений, указывая для какого направление 
     // какие малые (налево, прямо, направо) направления не учитывать. Указываем это фразой "Without.." ("WithoutForward" например)
     // Если этого большого направления нет вообще, то в качестве ID пишем пустую строку ""
@@ -1216,6 +1293,54 @@ public class Overlay extends JWindow {
             row = compLeftNow3.getRow();
             createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
             panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+        }
+
+    }
+
+    private void config3DirectionFuture(String UpID, String RightID, String DownID, String LeftID) {
+        int numOfDir = 3;
+        // Конфигурируем столбцы и сколько нужно строк
+        panelUp = new SimpleBackground(numOfDir);
+        panelLeft = new SimpleBackground(numOfDir);
+        panelDown = new SimpleBackground(numOfDir);
+        panelRight = new SimpleBackground(numOfDir);
+
+        // Устанавливаем картинку на фон панели с кнопками
+        panelUp.setBackground(background1);
+        panelLeft.setBackground(background4);
+        panelDown.setBackground(background3);
+        panelRight.setBackground(background2);
+
+        // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
+        // Конфигурируем и наполняем панели. Затем добавляем панель на overlay
+        if (!UpID.isEmpty()) {
+            ChooseComponentsFuture3 compUpFuture3 = new ChooseComponentsFuture3(UpID, paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
+            componentsUp = compUpFuture3.chooseComponentsFuture3();
+            row = compUpFuture3.getRow();
+            createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
+            panelUp.setLocation(200, 0); // установка изначального местоположения панели
+            overlayPanel.add(panelUp);
+        }
+        if (!RightID.isEmpty()) {
+            ChooseComponentsFuture3 compRightFuture3 = new ChooseComponentsFuture3(RightID, paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
+            componentsRight = compRightFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
+            panelRight.setLocation(650, 0); // установка изначального местоположения панели
+            overlayPanel.add(panelRight);
+        }
+        if (!DownID.isEmpty()) {
+            ChooseComponentsFuture3 compDownFuture3 = new ChooseComponentsFuture3(DownID, paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
+            componentsDown = compDownFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
+            panelDown.setLocation(500, 400); // установка изначального местоположения панели
+            overlayPanel.add(panelDown);
+        }
+        if (!LeftID.isEmpty()) {
+            ChooseComponentsFuture3 compLeftFuture3 = new ChooseComponentsFuture3(LeftID, paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
+            componentsLeft = compLeftFuture3.chooseComponentsFuture3();
+            createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
+            panelLeft.setLocation(0, 100); // установка изначального местоположения панели
+            overlayPanel.add(panelLeft);
         }
 
     }
@@ -1302,54 +1427,6 @@ public class Overlay extends JWindow {
         overlayPanel.add(panelLeft);
         overlayPanel.add(panelDown);
         overlayPanel.add(panelRight);
-    }
-
-    private void config3DirectionFuture(String UpID, String RightID, String DownID, String LeftID) {
-        int numOfDir = 3;
-        // Конфигурируем столбцы и сколько нужно строк
-        panelUp = new SimpleBackground(numOfDir);
-        panelLeft = new SimpleBackground(numOfDir);
-        panelDown = new SimpleBackground(numOfDir);
-        panelRight = new SimpleBackground(numOfDir);
-
-        // Устанавливаем картинку на фон панели с кнопками
-        panelUp.setBackground(background1);
-        panelLeft.setBackground(background4);
-        panelDown.setBackground(background3);
-        panelRight.setBackground(background2);
-
-        // ID указывает, какой малое направление (налево, прямо, разворот) убрать из общего направления)
-        // Конфигурируем и наполняем панели. Затем добавляем панель на overlay
-        if (!UpID.isEmpty()) {
-            ChooseComponentsFuture3 compUpFuture3 = new ChooseComponentsFuture3(UpID, paths, labelsUp, bUpCar, bUpBus, bUpTruck, bUpTrainBus, bUpTrolleybus, bUpTram); // в зависимости от переданных узлов (видов транспорта, которые считаем) конфигурируем компонентную панель
-            componentsUp = compUpFuture3.chooseComponentsFuture3();
-            row = compUpFuture3.getRow();
-            createPanelOfButtons(panelUp, row, numOfDir, componentsUp); // заполнение панели нужными элементами из собранного контейнера (componentsUp)
-            panelUp.setLocation(200, 0); // установка изначального местоположения панели
-            overlayPanel.add(panelUp);
-        }
-        if (!RightID.isEmpty()) {
-            ChooseComponentsFuture3 compRightFuture3 = new ChooseComponentsFuture3(RightID, paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
-            componentsRight = compRightFuture3.chooseComponentsFuture3();
-            createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
-            panelRight.setLocation(650, 0); // установка изначального местоположения панели
-            overlayPanel.add(panelRight);
-        }
-        if (!DownID.isEmpty()) {
-            ChooseComponentsFuture3 compDownFuture3 = new ChooseComponentsFuture3(DownID, paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
-            componentsDown = compDownFuture3.chooseComponentsFuture3();
-            createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
-            panelDown.setLocation(500, 400); // установка изначального местоположения панели
-            overlayPanel.add(panelDown);
-        }
-        if (!LeftID.isEmpty()) {
-            ChooseComponentsFuture3 compLeftFuture3 = new ChooseComponentsFuture3(LeftID, paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
-            componentsLeft = compLeftFuture3.chooseComponentsFuture3();
-            createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
-            panelLeft.setLocation(0, 100); // установка изначального местоположения панели
-            overlayPanel.add(panelLeft);
-        }
-
     }
 
     public JLabel[] getLabelsUp() {

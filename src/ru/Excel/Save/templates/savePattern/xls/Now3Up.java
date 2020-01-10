@@ -1,7 +1,9 @@
 package ru.Excel.Save.templates.savePattern.xls;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.quinto.swing.table.view.JBroTable;
 
 /**
@@ -56,12 +58,22 @@ public class Now3Up {
                     // i - столбец в Java. column - в Excel таблице
                     // Этот выбор зависит от типа Т перекрестка
                     if (i == 2) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                        // Делаем скрытыми столбцы (в них записаны нули, но значение не видно), в которые ничего не заполняем
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
                     if (i == 8) { // если дошли до столбца в Java, который нужно пропустить в Excel, в Excel переходим на 2 столбца вправо
+                        for (int y = 0; y < 12; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 12;
                     }
                     if (i == 20) {
+                        for (int y = 0; y < 2; y++) {
+                            sheet.setColumnHidden(i + column + y, true);
+                        }
                         column = column + 2;
                     }
                     // Перенос чисел из Java table в Excel table
@@ -74,6 +86,23 @@ public class Now3Up {
             }
         }
         sheet.setForceFormulaRecalculation(true); // Пересчет всех формул на странице
+    }
+
+    // Делаем скрытыми ячейки (в них записаны нули, но значение не видно), в которые ничего не заполняем
+    private CellStyle hiddenStyle(HSSFSheet sheet, int row, int column) {
+        // Устанавливаем формат сокрытия значения для ячейки
+        CellStyle hiddenStyle = sheet.getWorkbook().createCellStyle();
+        hiddenStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat(";;;"));
+        // Сохранение границы
+        hiddenStyle.setBorderBottom(sheet.getRow(row).getCell(column).getCellStyle().getBorderBottom());
+        hiddenStyle.setBorderLeft(sheet.getRow(row).getCell(column).getCellStyle().getBorderLeft());
+        hiddenStyle.setBorderRight(sheet.getRow(row).getCell(column).getCellStyle().getBorderRight());
+        hiddenStyle.setBorderTop(sheet.getRow(row).getCell(column).getCellStyle().getBorderTop());
+        // Сохранение цветовой заливки ячейки
+        hiddenStyle.setFillForegroundColor(sheet.getRow(row).getCell(column).getCellStyle().getFillForegroundColorColor().getIndex());
+        hiddenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        return hiddenStyle;
     }
 
 }

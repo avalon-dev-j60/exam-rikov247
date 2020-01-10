@@ -1,11 +1,10 @@
 package ru.overlay;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 
 /**
  * Класс для заполнения переданного массива компонентами в нужном количестве и в
- * нужном порядке. Для 4 направлений!
+ * нужном порядке. Для 3 направлений!
  */
 public class doComponents3 {
 
