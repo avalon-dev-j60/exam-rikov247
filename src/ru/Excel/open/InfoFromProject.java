@@ -100,6 +100,9 @@ public class InfoFromProject extends JPanel {
     // Получаем информацию о количестве направлений подсчета
     public String getTypeOfDirection() {
         String typeOfDirection = sheet.getRow(rowTypeOfDirection).getCell(1).getStringCellValue();
+        if (typeOfDirection.equalsIgnoreCase("2")) {
+            return "2 (сечение)";
+        }
         if (typeOfDirection.equalsIgnoreCase("3Up")) {
             return "3 вверх";
         }

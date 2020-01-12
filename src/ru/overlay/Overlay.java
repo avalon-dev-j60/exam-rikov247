@@ -922,7 +922,6 @@ public class Overlay extends JWindow {
         }
         ////////////////////////////////////////////////////////////////////////
         // Устанавливаем размеры панели с кнопками, исходя из компонентов в них находящихся
-        System.out.println(containerComponents.length);
 //        int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][1]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
         int panelWidth = containerComponents.length > 1 ? ((JButton) containerComponents[1][0]).getIcon().getIconWidth() : ((JLabel) containerComponents[0][0]).getIcon().getIconWidth();
         int panelHeight = ((JLabel) containerComponents[0][0]).getIcon().getIconHeight() + (int) (((JLabel) containerComponents[0][0]).getIcon().getIconHeight() / 4);
@@ -1324,6 +1323,7 @@ public class Overlay extends JWindow {
         if (!RightID.isEmpty()) {
             ChooseComponentsFuture3 compRightFuture3 = new ChooseComponentsFuture3(RightID, paths, labelsRight, bRightCar, bRightBus, bRightTruck, bRightTrainBus, bRightTrolleybus, bRightTram);
             componentsRight = compRightFuture3.chooseComponentsFuture3();
+            row = compRightFuture3.getRow();
             createPanelOfButtons(panelRight, row, numOfDir, componentsRight); // заполнение панели нужными элементами
             panelRight.setLocation(650, 0); // установка изначального местоположения панели
             overlayPanel.add(panelRight);
@@ -1331,6 +1331,7 @@ public class Overlay extends JWindow {
         if (!DownID.isEmpty()) {
             ChooseComponentsFuture3 compDownFuture3 = new ChooseComponentsFuture3(DownID, paths, labelsDown, bDownCar, bDownBus, bDownTruck, bDownTrainBus, bDownTrolleybus, bDownTram);
             componentsDown = compDownFuture3.chooseComponentsFuture3();
+            row = compDownFuture3.getRow();
             createPanelOfButtons(panelDown, row, numOfDir, componentsDown); // заполнение панели нужными элементами
             panelDown.setLocation(500, 400); // установка изначального местоположения панели
             overlayPanel.add(panelDown);
@@ -1338,6 +1339,7 @@ public class Overlay extends JWindow {
         if (!LeftID.isEmpty()) {
             ChooseComponentsFuture3 compLeftFuture3 = new ChooseComponentsFuture3(LeftID, paths, labelsLeft, bLeftCar, bLeftBus, bLeftTruck, bLeftTrainBus, bLeftTrolleybus, bLeftTram);
             componentsLeft = compLeftFuture3.chooseComponentsFuture3();
+            row = compLeftFuture3.getRow();
             createPanelOfButtons(panelLeft, row, numOfDir, componentsLeft); // заполнение панели нужными элементами
             panelLeft.setLocation(0, 100); // установка изначального местоположения панели
             overlayPanel.add(panelLeft);

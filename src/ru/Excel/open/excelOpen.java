@@ -17,6 +17,8 @@ public class excelOpen extends JPanel {
     private JFileChooser excelOpen = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory()); // создаем объект ВыбораФайлов с первоначальным месторасположением на РАБОЧЕМ СТОЛЕ
     private String[] extensions = new String[]{"xls", "xlsx"};
     private FileNameExtensionFilter excelFilter = new FileNameExtensionFilter("Файлы excel", extensions); // Фильтр: название фильтра, Расширения файлов которые видны
+    private FileNameExtensionFilter xlsFilter = new FileNameExtensionFilter("Книга Excel 97—2003 (*.xls)", "xls"); // Фильтр: название фильтра, Расширения файлов которые видны
+    private FileNameExtensionFilter xlsxFilter = new FileNameExtensionFilter("Книга Excel (*.xlsx)", "xlsx"); // Фильтр: название фильтра, Расширения файлов которые видны
     private File file = null; // если была открыто какое то видео, то в следующий раз FileChooser откроет эту же директорию (в котором было это видео)
 
     // Отключение возможности редактирования текстового поля (JTextField) JFileChooser
@@ -46,6 +48,9 @@ public class excelOpen extends JPanel {
     public String getSelectExcelFile() {
         excelOpen.setFileSelectionMode(JFileChooser.FILES_ONLY); // Выбор только файлов (не директорий)
         excelOpen.setAcceptAllFileFilterUsed(false); // Убираем фильтр всех файлов
+        excelOpen.addChoosableFileFilter(excelFilter); // добавляем фильтры, которые были
+        excelOpen.addChoosableFileFilter(xlsFilter);
+        excelOpen.addChoosableFileFilter(xlsxFilter);
         excelOpen.setFileFilter(excelFilter);
         if (file == null) { // если еще никакой файл не был открыт, то открывается Рабочий стол
             excelOpen.setCurrentDirectory(FileSystemView.getFileSystemView().getHomeDirectory()); // рабочий стол

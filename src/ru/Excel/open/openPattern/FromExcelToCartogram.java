@@ -127,11 +127,13 @@ public class FromExcelToCartogram extends JPanel {
         // Направление 1-3  
         String value13Direction = sheet.getRow(rowDirection).getCell(columnDirection13).getStringCellValue().trim();
         cartogram.changeValueWithoutSave("StreetName_Vertical1", value13Direction);
-        cartogram.changeValueWithoutSave("StreetName_Vertical1", value13Direction, value13Direction);
+        cartogram.changeValueWithoutSave("StreetName_Vertical2", value13Direction);
+//        cartogram.changeValueWithoutSave("StreetName_Vertical1", value13Direction, value13Direction);
         // Направление 2-4
         String value24Direction = sheet.getRow(rowDirection).getCell(columnDirection24).getStringCellValue().trim();
         cartogram.changeValueWithoutSave("StreetName_Horizontal1", value24Direction);
-        cartogram.changeValueWithoutSave("StreetName_Horizontal1", value24Direction, value24Direction);
+        cartogram.changeValueWithoutSave("StreetName_Horizontal2", value24Direction);
+//        cartogram.changeValueWithoutSave("StreetName_Horizontal1", value24Direction, value24Direction);
         // Направление 1
         String value1Direction = sheet.getRow(rowDirection + 1).getCell(columnDirection1).getStringCellValue().trim();
         cartogram.changeValueWithoutSave("StreetName_Up", value1Direction);
@@ -180,6 +182,15 @@ public class FromExcelToCartogram extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Now3Right(table, hssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Now3Down(table, hssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Now3Left(table, hssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Now2(table, hssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataFromExcel(hssfSheet, null, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
@@ -200,6 +211,15 @@ public class FromExcelToCartogram extends JPanel {
                 }
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Future3Right(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Future3Down(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Future3Left(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Future2(table, hssfSheet, rowStart, columnStartFutureTable);
                 }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
@@ -224,6 +244,15 @@ public class FromExcelToCartogram extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Now3RightXSLX(table, xssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Now3DownXSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Now3LeftXSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Now2XSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataFromExcel(null, xssfSheet, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
@@ -244,6 +273,15 @@ public class FromExcelToCartogram extends JPanel {
                 }
                 if (typeOfDirection.equalsIgnoreCase("3Right")) {
                     new Future3RightXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Down")) {
+                    new Future3DownXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("3Left")) {
+                    new Future3LeftXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Future2XSLX(table, xssfSheet, rowStart, columnStartFutureTable);
                 }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {

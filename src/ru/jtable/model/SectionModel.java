@@ -41,7 +41,7 @@ public class SectionModel {
             .withChild(new ModelField("ПЕ Итого4", "ПЕ"))
             )
             ),
-            new ModelFieldGroup("Итого за перекресток", "Всего за перекресток").withManageable(false)
+            new ModelFieldGroup("Итого за перекресток", "Всего за сечение").withManageable(false)
             .withChild(new ModelField("ФЕ Всего", "ФЕ").withDefaultWidth(60))
             .withChild(new ModelField("ПЕ Всего", "ПЕ").withDefaultWidth(60))
         };

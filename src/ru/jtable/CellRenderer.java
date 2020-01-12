@@ -139,7 +139,7 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
         Color thirdColor = new Color(255, 203, 209, 80); // розовый
         Color fourthColor = new Color(127, 255, 0, 80); // салатовый
         Color fifthColor = new Color(0, 191, 255, 80); // бирюзовый
-        Color sixColor = new Color(0, 191, 191, 80); 
+        Color sixColor = new Color(227, 227, 51, 80); // желто-зеленый
         Color sevenColor = Color.white; // белый
 
         if (row == 0) {

@@ -105,6 +105,9 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Left")) {
                     new Now3Left(table, hssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Now2(table, hssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(hssfSheet, null, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
@@ -131,6 +134,9 @@ public class SaveInExistingFile extends JPanel {
                 }
                 if (typeOfDirection.equalsIgnoreCase("3Left")) {
                     new Future3Left(table, hssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Future2(table, hssfSheet, rowStart, columnStartFutureTable);
                 }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
@@ -161,6 +167,9 @@ public class SaveInExistingFile extends JPanel {
                 if (typeOfDirection.equalsIgnoreCase("3Left")) {
                     new Now3LeftXSLX(table, xssfSheet, rowStart, columnStartNowTable);
                 }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Now2XSLX(table, xssfSheet, rowStart, columnStartNowTable);
+                }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {
                     copyDataToExcel(null, xssfSheet, cartogram, columnStartNowData, sectionOrIntersectionNow, rowTimeNow);
@@ -187,6 +196,9 @@ public class SaveInExistingFile extends JPanel {
                 }
                 if (typeOfDirection.equalsIgnoreCase("3Left")) {
                     new Future3LeftXSLX(table, xssfSheet, rowStart, columnStartFutureTable);
+                }
+                if (typeOfDirection.equalsIgnoreCase("2")) {
+                    new Future2XSLX(table, xssfSheet, rowStart, columnStartFutureTable);
                 }
                 // Записываем данные с картограммы в Excel файл
                 if (cartogram != null) {

@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="52.848175048828125 22.41229248046875 973.6235961914062 937.8424682617188" width="549px" height="530px" >
+    <rect id="svgEditorBackground" x="393.74776948173087" y="-276.63543701171875" width="972.8701379164211" height="937.4930419921875" style="fill:none; stroke: none;"/>
+    <defs id="svgEditorDefs">
+        <polygon id="svgEditorShapeDefs" style="fill:rosybrown;stroke:black;vector-effect:non-scaling-stroke;stroke-width:1px;"/>
+    </defs>
+    <defs>
+        <path d="" id="dxt0pp92r"/>
+        <path d="M246.24 251.21L246.24 86.67" id="afM8RxwbQ"/>
+        <path d="M379.65 251.21L379.65 86.67" id="cfjMfgChV"/>
+        <path d="M422.27 284.61L589.65 284.61" id="b5OxVNm4Y"/>
+        <path d="M422.27 382.55L589.65 382.55" id="g77ZzNZA1"/>
+        <path d="M246.24 587.45L246.24 422.91" id="f23XxzPdA"/>
+        <path d="M379.65 587.45L379.65 422.91" id="dkQXXSdND"/>
+        <path d="" id="bz9rRvdM"/>
+        <path d="M379.65 422.91C383 396.95 397.21 383.5 422.27 382.55" id="afaO7SXaT"/>
+        <path d="M379.65 251.21C383 272.69 397.21 283.83 422.27 284.61" id="cvbV071s0"/>
+        <path d="M203.62 284.61L36.24 284.61" id="a5f9AhvgKh"/>
+        <path d="M246.24 251.21C242.88 272.69 228.68 283.83 203.62 284.61" id="a2ZFH71Etu"/>
+        <path d="M203.62 384.75L36.24 384.75" id="b1oZZ1esgB"/>
+        <path d="" id="b27HAQObv"/>
+        <path d="M246.24 425.11C242.88 399.15 228.68 385.7 203.62 384.75" id="a81I8t4SQv"/>
+    </defs>
+    
+    
+    <path d="M27.35354506662541,-48.62539913664241v-2l3.1584203903043573,4l-3.1584203903043573,4v-2h-4.84157960969565v-4Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Right_Arrow" transform="matrix(-19.6364 -0.0551708 0.0190092 -6.76579 1329.03 94.3685)"/>
+    <path d="M-63.25856107011482,-11.72539594006294v-1.9999999999999911l3.158420390304343,3.9999999999999964l-3.158420390304343,3.9999999999999964v-1.9999999999999964h-4.841579609695657v-4.0000000000000036Z" style="fill:black; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="Total_inside_Left_Arrow" transform="matrix(19.6855 0 0 6.78273 1509.01 605.222)"/>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e4_text"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e2_text" transform="matrix(1 0 0 1 -225.972 62.5768)"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e6_text"/>
+    <text dy="-0.5em" style="fill:black;font-family:Arial;font-size:20px;" id="e8_text"/>
+    <!-- Стрелка В перекресток. Значения сверху  -->
+    
+    
+    
+    
+    <!-- Стрелка ИЗ перекрестка. Значения сверху  -->
+    
+    
+    
+    
+    <!-- Маленькие стрелки  -->
+    <!-- Группа разворота  -->
+    
+    
+    
+    
+    <!-- Группа правого поворота  -->
+    
+    
+    
+    
+    <!-- Группа прямого проезда  -->
+    
+    <text style="fill:black;font-family:Arial;font-size:20px;" x="1080.67724609375" y="32.92784118652344" id="Right_forward" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="1167" id="Right_forward_tspan2">0-0-0 </tspan>
+        <tspan dx="0" id="Right_forward_tspan2" fill="red">(0)</tspan>
+    </text>
+    
+    <text style="fill:black;font-family:Arial;font-size:20px;" text-anchor="middle" x="590.89990234375" y="162.843017578125" id="Left_forward" transform="matrix(0.999945 0.010533 -0.010533 0.999945 -383.479 426.137)">
+        <tspan x="620" id="Left_forward_tspan1">0-0-0 </tspan>
+        <tspan dx="0" id="Left_forward_tspan2" fill="red">(0)</tspan>
+    </text>
+    <!-- Группа поворота налево  -->
+    
+    
+    
+    
+    
+    <!-- Стрелка В перекресток. Значения снизу  -->
+    
+    
+      
+    
+    <!-- Стрелка ИЗ перекрестка. Значения снизу  -->
+    
+    
+    
+    
+    <!-- Названия направлений  -->
+    
+    <text style="fill:black;font-family:Arial;font-size:18px;" text-anchor="middle" x="35.5%" y="992.9337768554688" id="StreetName_Right" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Направление 2</text>
+    
+    <text style="fill:black;font-family:Arial;font-size:18px;" text-anchor="middle" x="35.5%" y="63.43230438232422" id="StreetName_Left" transform="matrix(-0.00269868 -0.999996 0.999996 -0.00269868 15.4245 835.533)">Направление 4</text>
+    <!-- Пересекаемые улицы  -->
+    
+    
+    <text style="fill:black;font-family:Arial;font-size:20px;" text-anchor="middle" x="43%" y="1220.0185546875" id="StreetName_Horizontal1" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
+    
+    <!-- Дополнительная информация  -->
+    <text style="fill:black;font-family:Arial;font-size:14px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
+        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Участок/перекресток: </tspan>
+        <tspan dx="0" id="SectionOrIntersection_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.88630676269531" y="906.0911254882812" id="Date">
+        <tspan x="52.88630676269531" id="Date_tspan1" style="font-weight: bold;">Дата: </tspan>
+        <tspan dx="0" id="Date_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
+        <tspan x="52.36008071899414" id="DayOfWeek_tspan1" style="font-weight: bold;">День недели: </tspan>
+        <tspan dx="0" id="DayOfWeek_tspan2"> </tspan>
+    </text>
+    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.22282028198242" y="947.8796997070312" id="Time">
+        <tspan x="52.22282028198242" id="Time_tspan1" style="font-weight: bold;">Время: </tspan>
+        <tspan dx="0" id="Time_tspan2"> </tspan>
+    </text>
+<line id="e1_line" x1="46.846189512442386" y1="355.0119712241523" x2="1040.3771815677203" y2="355.0119712241523" style="stroke:black;fill:none;stroke-width:2px;"/><line id="e2_line" x1="46.846107482910156" y1="620.5447387695312" x2="1040.3763427734375" y2="620.5447387695312" style="stroke:black;fill:none;stroke-width:2px;"/></svg>
