@@ -144,7 +144,7 @@ public class Table {
         }
     };
 
-    public JBroTable doTable(IModelFieldGroup[] modelGroup, String typeOfStatement, CreateCartogram cartogram, JBroTable totalTable, JBroTable[] arrayTable) throws Exception {
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String typeOfStatement, CreateCartogram cartogram, JBroTable totalTable, JBroTable totalDayTable, JBroTable[] arrayTable) throws Exception {
         // Создаем переменную класса, в котором для таблицы создается требуемый хэдер
         groups = modelGroup; // создаем требуемый хэдер и передаем его
 
@@ -172,6 +172,9 @@ public class Table {
             if (arrayTable != null && totalTable != null) {
                 // Передаем их дальше, чтобы эти таблицы передали информацию в Итоговую таблицу
                 modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, totalTable, arrayTable);
+                if (totalDayTable != null) {
+                    modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, totalTable, totalDayTable, arrayTable);
+                }
             } else {
                 // Если не передали, то это просто стандартная таблица (ни на картограмму, ни в другие таблицы ничего не передает)
                 modelListener = new ModelListener(table, kindOfTransport, typeOfStatement);
@@ -267,15 +270,19 @@ public class Table {
 
     // Если картограмму не указывать, то с создаваемой таблицей не будет ассоциироваться никакой картограммы
     public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement) throws Exception {
-        return doTable(modelGroup, kindOfStatement, null, null, null);
+        return doTable(modelGroup, kindOfStatement, null, null, null, null);
     }
 
     public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, CreateCartogram cartogram) throws Exception {
-        return doTable(modelGroup, kindOfStatement, cartogram, null, null);
+        return doTable(modelGroup, kindOfStatement, cartogram, null, null, null);
     }
 
     public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, JBroTable totalTable, JBroTable[] arrayTable) throws Exception {
-        return doTable(modelGroup, kindOfStatement, null, totalTable, arrayTable);
+        return doTable(modelGroup, kindOfStatement, null, totalTable, null, arrayTable);
+    }
+    
+    public JBroTable doTable(IModelFieldGroup[] modelGroup, String kindOfStatement, JBroTable totalTable, JBroTable totalDayTable, JBroTable[] arrayTable) throws Exception {
+        return doTable(modelGroup, kindOfStatement, null, totalTable, totalDayTable, arrayTable);
     }
 
     public void setGroups(IModelFieldGroup[] groups) {
@@ -300,7 +307,7 @@ public class Table {
         modelListener = new ModelListener(table, kindOfTransport, typeOfStatement, cartogram);
         table.getModel().addTableModelListener(modelListener);
     }
-    
+
     public void setModelListener(String typeOfStatement) {
         modelListener = new ModelListener(table, kindOfTransport, typeOfStatement);
         table.getModel().addTableModelListener(modelListener);

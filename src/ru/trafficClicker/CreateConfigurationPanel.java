@@ -57,9 +57,11 @@ public class CreateConfigurationPanel {
     private JPanel cartogramPanelMorning;
     private JPanel cartogramPanelDay;
     private JPanel cartogramPanelEvening;
+    private JPanel cartogramPanelTotalDay;
     private CreateCartogram cartogramMorning;
     private CreateCartogram cartogramDay;
     private CreateCartogram cartogramEvening;
+    private CreateCartogram cartogramTotalDay;
 
     private FileSaveWithPattern fileSaveAsWithPattern;
     private FileSaveWithPattern fileSaveWithPattern;
@@ -71,25 +73,38 @@ public class CreateConfigurationPanel {
     private Table tableSumMorningModel = new Table();
     private Table tableSumDayModel = new Table();
     private Table tableSumEveningModel = new Table();
+    private Table tableSumTotalDayModel = new Table();
 
     private JBroTable table15Morning = new JBroTable(); // Таблица
     private JBroTable table30Morning = new JBroTable(); // Таблица
     private JBroTable table45Morning = new JBroTable(); // Таблица
     private JBroTable table60Morning = new JBroTable(); // Таблица
-    private JBroTable[] tablesMorning = {table15Morning, table30Morning, table45Morning, table60Morning};
+    private JBroTable[] tablesMorning = {
+        table15Morning, table30Morning, table45Morning, table60Morning,
+        null, null, null, null,
+        null, null, null, null};
     private JBroTable tableSumMorning = new JBroTable(); // Таблица
     private JBroTable table15Day = new JBroTable(); // Таблица
     private JBroTable table30Day = new JBroTable(); // Таблица
     private JBroTable table45Day = new JBroTable(); // Таблица
     private JBroTable table60Day = new JBroTable(); // Таблица
-    private JBroTable[] tablesDay = {table15Day, table30Day, table45Day, table60Day};
+    private JBroTable[] tablesDay = {
+        table15Day, table30Day, table45Day, table60Day,
+        null, null, null, null,
+        null, null, null, null};
     private JBroTable tableSumDay = new JBroTable(); // Таблица
     private JBroTable table15Evening = new JBroTable(); // Таблица
     private JBroTable table30Evening = new JBroTable(); // Таблица
     private JBroTable table45Evening = new JBroTable(); // Таблица
     private JBroTable table60Evening = new JBroTable(); // Таблица
-    private JBroTable[] tablesEvening = {table15Evening, table30Evening, table45Evening, table60Evening};
+    private JBroTable[] tablesEvening = {
+        table15Evening, table30Evening, table45Evening, table60Evening,
+        null, null, null, null,
+        null, null, null, null};
     private JBroTable tableSumEvening = new JBroTable(); // Таблица
+
+    private JBroTable tableSumTotalDay = new JBroTable(); // Таблица
+    private JBroTable[] tablesTotalDay = {tableSumMorning, tableSumDay, tableSumEvening};
 
     private JComboBox comboBox1;
     private JComboBox comboBox3;
@@ -852,7 +867,7 @@ public class CreateConfigurationPanel {
             }
         }
     }
-    
+
     // Предложение сохранения открытого проекта при закрытии приложения
     public void onExitProgramButtonClick() {
         // Если был открыт хоть один какой либо проект ранее, то выбрасываем сообщение с выбором
@@ -888,7 +903,7 @@ public class CreateConfigurationPanel {
     public void onSaveButtonClick() {
         saveAllTableInExcel();
     }
-    
+
     public void onSaveButtonClick(ActionEvent e) {
         saveAllTableInExcel();
     }
@@ -911,10 +926,12 @@ public class CreateConfigurationPanel {
             cartogramMorning = new CreateCartogram(fullFileName, typeOfDirection, "cartogramMorning");
             cartogramDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramDay");
             cartogramEvening = new CreateCartogram(fullFileName, typeOfDirection, "cartogramEvening");
+            cartogramTotalDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramTotalDay");
             try {
                 this.cartogramPanelMorning = cartogramMorning.initialize();
                 this.cartogramPanelDay = cartogramDay.initialize();
                 this.cartogramPanelEvening = cartogramEvening.initialize();
+                this.cartogramPanelTotalDay = cartogramTotalDay.initialize();
             } catch (IOException | URISyntaxException ex) {
                 Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -922,10 +939,12 @@ public class CreateConfigurationPanel {
             cartogramMorning.saveChangeValue();
             cartogramDay.saveChangeValue();
             cartogramEvening.saveChangeValue();
+            cartogramTotalDay.saveChangeValue();
             // Указываем таблицам, что нужно сохранять информацию в новые картограммы
             tableSumMorningModel.removeAndSetModelListener(kindOfStatement, cartogramMorning);
             tableSumDayModel.removeAndSetModelListener(kindOfStatement, cartogramDay);
             tableSumEveningModel.removeAndSetModelListener(kindOfStatement, cartogramEvening);
+            tableSumTotalDayModel.removeAndSetModelListener(kindOfStatement, cartogramTotalDay);
 
             pcs.firePropertyChange("cartogramChange", oldValue, fullFileName); // уведомляем об изменении пути к файлу
         }
@@ -955,32 +974,40 @@ public class CreateConfigurationPanel {
         Table table30EveningModel = new Table();
         Table table45EveningModel = new Table();
         Table table60EveningModel = new Table();
+        // Весь день
+        Table tableSumTotalDayModel = new Table();
+        this.tableSumTotalDayModel = tableSumTotalDayModel;
+        // КАРТОГРАММЫ
         cartogramMorning = new CreateCartogram(fullFileName, typeOfDirection, "cartogramMorning");
         cartogramDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramDay");
         cartogramEvening = new CreateCartogram(fullFileName, typeOfDirection, "cartogramEvening");
+        cartogramTotalDay = new CreateCartogram(fullFileName, typeOfDirection, "cartogramTotalDay");
         try {
             this.cartogramPanelMorning = cartogramMorning.initialize();
             this.cartogramPanelDay = cartogramDay.initialize();
             this.cartogramPanelEvening = cartogramEvening.initialize();
+            this.cartogramPanelTotalDay = cartogramTotalDay.initialize();
             // ТАБЛИЦЫ
+            // Весь день
+            tableSumTotalDay = tableSumTotalDayModel.doTable(modelGroup, kindOfStatement, cartogramTotalDay);
             // Утро
-            tableSumMorning = tableSumMorningModel.doTable(modelGroup, kindOfStatement, cartogramMorning);
-            tablesMorning[0] = table15Morning = table15MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
-            tablesMorning[1] = table30Morning = table30MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
-            tablesMorning[2] = table45Morning = table45MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
-            tablesMorning[3] = table60Morning = table60MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tablesMorning);
+            tablesTotalDay[0] = tableSumMorning = tableSumMorningModel.doTable(modelGroup, kindOfStatement, cartogramMorning);
+            tablesMorning[0] = tablesDay[4] = tablesEvening[4] = table15Morning = table15MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tableSumTotalDay, tablesMorning);
+            tablesMorning[1] = tablesDay[5] = tablesEvening[5] = table30Morning = table30MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tableSumTotalDay, tablesMorning);
+            tablesMorning[2] = tablesDay[6] = tablesEvening[6] = table45Morning = table45MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tableSumTotalDay, tablesMorning);
+            tablesMorning[3] = tablesDay[7] = tablesEvening[7] = table60Morning = table60MorningModel.doTable(modelGroup, kindOfStatement, tableSumMorning, tableSumTotalDay, tablesMorning);
             // День
-            tableSumDay = tableSumDayModel.doTable(modelGroup, kindOfStatement, cartogramDay);
-            tablesDay[0] = table15Day = table15DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
-            tablesDay[1] = table30Day = table30DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
-            tablesDay[2] = table45Day = table45DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
-            tablesDay[3] = table60Day = table60DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tablesDay);
+            tablesTotalDay[1] = tableSumDay = tableSumDayModel.doTable(modelGroup, kindOfStatement, cartogramDay);
+            tablesDay[0] = tablesMorning[4] = tablesEvening[8] = table15Day = table15DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tableSumTotalDay, tablesDay);
+            tablesDay[1] = tablesMorning[5] = tablesEvening[9] = table30Day = table30DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tableSumTotalDay, tablesDay);
+            tablesDay[2] = tablesMorning[6] = tablesEvening[10] = table45Day = table45DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tableSumTotalDay, tablesDay);
+            tablesDay[3] = tablesMorning[7] = tablesEvening[11] = table60Day = table60DayModel.doTable(modelGroup, kindOfStatement, tableSumDay, tableSumTotalDay, tablesDay);
             // Вечер
-            tableSumEvening = tableSumEveningModel.doTable(modelGroup, kindOfStatement, cartogramEvening);
-            tablesEvening[0] = table15Evening = table15EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
-            tablesEvening[1] = table30Evening = table30EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
-            tablesEvening[2] = table45Evening = table45EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
-            tablesEvening[3] = table60Evening = table60EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tablesEvening);
+            tablesTotalDay[2] = tableSumEvening = tableSumEveningModel.doTable(modelGroup, kindOfStatement, cartogramEvening);
+            tablesEvening[0] = tablesMorning[8] = tablesDay[8] = table15Evening = table15EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tableSumTotalDay, tablesEvening);
+            tablesEvening[1] = tablesMorning[9] = tablesDay[9] = table30Evening = table30EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tableSumTotalDay, tablesEvening);
+            tablesEvening[2] = tablesMorning[10] = tablesDay[10] = table45Evening = table45EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tableSumTotalDay, tablesEvening);
+            tablesEvening[3] = tablesMorning[11] = tablesDay[11] = table60Evening = table60EveningModel.doTable(modelGroup, kindOfStatement, tableSumEvening, tableSumTotalDay, tablesEvening);
         } catch (Exception ex) {
             Logger.getLogger(CreateConfigurationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1035,6 +1062,8 @@ public class CreateConfigurationPanel {
             new SaveInExistingFile(getFullName(), table30Evening, kindOfStatement, typeOfDirection, page, rowTable[1]);
             new SaveInExistingFile(getFullName(), table45Evening, kindOfStatement, typeOfDirection, page, rowTable[2]);
             new SaveInExistingFile(getFullName(), table60Evening, kindOfStatement, typeOfDirection, page, rowTable[3]);
+            page = 3;
+            new SaveInExistingFile(getFullName(), tableSumTotalDay, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramTotalDay);
         } catch (NullPointerException ee) {
             // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
             JOptionPane.showMessageDialog(table15Morning, "Сохранить не получилось! Попробуйте еще раз.");
@@ -1066,11 +1095,13 @@ public class CreateConfigurationPanel {
         tableSumMorningModel.removeModelListener();
         tableSumDayModel.removeModelListener();
         tableSumEveningModel.removeModelListener();
+        tableSumTotalDayModel.removeModelListener();
 
         // Указываем, что в Итоговых таблицах тоже нужно обновлять данные
         tableSumMorningModel.setModelListener(kindOfStatement);
         tableSumDayModel.setModelListener(kindOfStatement);
         tableSumEveningModel.setModelListener(kindOfStatement);
+        tableSumTotalDayModel.setModelListener(kindOfStatement);
         try {
             page = 0;
             FromExcelToCartogram fromExcelToCartogramTable15Morning = new FromExcelToCartogram(projectName, table15Morning, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramMorning);
@@ -1101,6 +1132,11 @@ public class CreateConfigurationPanel {
             fromExcelToCartogramTable45Evening.doCount();
             FromExcelToCartogram fromExcelToCartogramTable60Evening = new FromExcelToCartogram(projectName, table60Evening, kindOfStatement, typeOfDirection, page, rowTable[3]);
             fromExcelToCartogramTable60Evening.doCount();
+
+            page = 3;
+            FromExcelToCartogram fromExcelToCartogramTableTotalDay = new FromExcelToCartogram(projectName, tableSumTotalDay, kindOfStatement, typeOfDirection, page, rowTable[0], cartogramTotalDay);
+            fromExcelToCartogramTableTotalDay.doCount();
+
         } catch (NullPointerException ee) {
             // Если файл excel удалили во время работы в программе и не захотели создавать новый, то выбрасываем сообщение и все!
             JOptionPane.showMessageDialog(cartogramPanelMorning, "Сохранить не получилось! Попробуйте еще раз.");
@@ -1117,16 +1153,19 @@ public class CreateConfigurationPanel {
         tableSumMorningModel.removeModelListener();
         tableSumDayModel.removeModelListener();
         tableSumEveningModel.removeModelListener();
+        tableSumTotalDayModel.removeModelListener();
 
         // Указываем, что в Итоговых таблицах тоже нужно обновлять данные и картограммы
         tableSumMorningModel.setModelListener(kindOfStatement, cartogramMorning);
         tableSumDayModel.setModelListener(kindOfStatement, cartogramDay);
         tableSumEveningModel.setModelListener(kindOfStatement, cartogramEvening);
+        tableSumTotalDayModel.setModelListener(kindOfStatement, cartogramTotalDay);
 
         // Тригерим слушатель модели - обновляем картограммы
         tableSumMorningModel.getTable().setValueAt(tableSumMorningModel.getTable().getValueAt(0, 0), 0, 0);
         tableSumDayModel.getTable().setValueAt(tableSumDayModel.getTable().getValueAt(0, 0), 0, 0);
         tableSumEveningModel.getTable().setValueAt(tableSumEveningModel.getTable().getValueAt(0, 0), 0, 0);
+        tableSumTotalDayModel.getTable().setValueAt(tableSumEveningModel.getTable().getValueAt(0, 0), 0, 0);
     }
 
     // Метод добавляющий слушатель изменения свойств в этот класс
@@ -1210,6 +1249,10 @@ public class CreateConfigurationPanel {
         return tableSumEvening;
     }
 
+    public JBroTable getTableSumTotalDay() {
+        return tableSumTotalDay;
+    }
+
     private String getFullName() {
         if (fullFileName != null) {
             this.fullName = fullFileName;
@@ -1243,6 +1286,10 @@ public class CreateConfigurationPanel {
         return cartogramEvening;
     }
 
+    public CreateCartogram getCartogramTotalDay() {
+        return cartogramTotalDay;
+    }
+
     public JPanel getCartogramPanelMorning() {
         return cartogramPanelMorning;
     }
@@ -1253,6 +1300,10 @@ public class CreateConfigurationPanel {
 
     public JPanel getCartogramPanelEvening() {
         return cartogramPanelEvening;
+    }
+
+    public JPanel getCartogramPanelTotalDay() {
+        return cartogramPanelTotalDay;
     }
 
     public JButton getTable0_15() {

@@ -40,6 +40,7 @@ public class CreateConfigurationPanelCartogram {
     private CreateCartogram cartogramMorning;
     private CreateCartogram cartogramDay;
     private CreateCartogram cartogramEvening;
+    private CreateCartogram cartogramTotalDay;
     private CreateCartogram[] cartograms; // массив с картограммами
     private String typeOfDirection; // получаем количество направлений движения
 
@@ -63,11 +64,13 @@ public class CreateConfigurationPanelCartogram {
     private JFormattedTextField timeMorning = new JFormattedTextField();
     private JFormattedTextField timeDay = new JFormattedTextField();
     private JFormattedTextField timeEvening = new JFormattedTextField();
+    private JFormattedTextField timeTotalDay = new JFormattedTextField();
 
     private DateDocumentListener dateListener;
     private TimeDocumentListener timeMorningListener;
     private TimeDocumentListener timeDayListener;
     private TimeDocumentListener timeEveningListener;
+    private TimeDocumentListener timeTotalDayListener;
 
     private String[] items = {"понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"};
     private JComboBox comboBox = new JComboBox(items);
@@ -78,6 +81,7 @@ public class CreateConfigurationPanelCartogram {
     private JLabel timeMorninglabel = new JLabel();
     private JLabel timeDaylabel = new JLabel();
     private JLabel timeEveninglabel = new JLabel();
+    private JLabel timeTotalDaylabel = new JLabel();
 
     private JSplitPane vertSplit1; // (вертикальная панель с разделением по горизонтали) - вертикальная потому что она вытянута по вертикали
     private JSplitPane vertSplit2;
@@ -99,6 +103,15 @@ public class CreateConfigurationPanelCartogram {
         this.cartogramMorning = cartogramMorning;
         this.cartogramDay = cartogramDay;
         this.cartogramEvening = cartogramEvening;
+        this.typeOfDirection = typeOfDirection;
+    }
+    
+    public CreateConfigurationPanelCartogram(CreateCartogram cartogramMorning, CreateCartogram cartogramDay, CreateCartogram cartogramEvening, CreateCartogram cartogramTotalDay, String typeOfDirection) {
+        cartograms = new CreateCartogram[]{cartogramMorning, cartogramDay, cartogramEvening, cartogramTotalDay};
+        this.cartogramMorning = cartogramMorning;
+        this.cartogramDay = cartogramDay;
+        this.cartogramEvening = cartogramEvening;
+        this.cartogramTotalDay = cartogramTotalDay;
         this.typeOfDirection = typeOfDirection;
     }
 
@@ -142,6 +155,7 @@ public class CreateConfigurationPanelCartogram {
         createLabel(timeMorninglabel, "Время утро: ");
         createLabel(timeDaylabel, "Время день: ");
         createLabel(timeEveninglabel, "Время вечер: ");
+        createLabel(timeTotalDaylabel, "Время всего дня: ");
 
         // Конфигурируем Текстовые поля
         // Для первого блока
@@ -159,15 +173,18 @@ public class CreateConfigurationPanelCartogram {
         timeMorningListener = new TimeDocumentListener(timeMorning, cartograms[0]);
         timeDayListener = new TimeDocumentListener(timeDay, cartograms[1]);
         timeEveningListener = new TimeDocumentListener(timeEvening, cartograms[2]);
+        timeTotalDayListener = new TimeDocumentListener(timeTotalDay, cartograms[3]);
 
         createFormattedTextFieldDataTime(timeMorning, "Morning");
         createFormattedTextFieldDataTime(timeDay, "Day");
         createFormattedTextFieldDataTime(timeEvening, "Evening");
+        createFormattedTextFieldDataTime(timeTotalDay, "TotalDay");
 
         // Первоначальная установка значений с картограммы!
         setValuesOnConfigPanelFromCartogram(cartogramMorning, "Morning");
         setValuesOnConfigPanelFromCartogram(cartogramDay, "Day");
         setValuesOnConfigPanelFromCartogram(cartogramEvening, "Evening");
+        setValuesOnConfigPanelFromCartogram(cartogramTotalDay, "TotalDay");
 
         JScrollPane leftPanel1 = new JScrollPane();
         JScrollPane rightPanel1 = new JScrollPane();
@@ -203,8 +220,8 @@ public class CreateConfigurationPanelCartogram {
         createHorizPanel(horizSplit1, leftPanel1, rightPanel1);
         // Создаем вторую горизонтальную панель (с двумя половинами, разделенными вертикальной линией)
         createHorizPanel(horizSplit2,
-                createLabelPanel(sectionOrIntersectionlabel, datelabel, dayOfWeeklabel, timeMorninglabel, timeDaylabel, timeEveninglabel),
-                createTextFieldPanel(sectionOrIntersection, date, createComboboxDayOfWeek(), timeMorning, timeDay, timeEvening));
+                createLabelPanel(sectionOrIntersectionlabel, datelabel, dayOfWeeklabel, timeMorninglabel, timeDaylabel, timeEveninglabel, timeTotalDaylabel),
+                createTextFieldPanel(sectionOrIntersection, date, createComboboxDayOfWeek(), timeMorning, timeDay, timeEvening, timeTotalDay));
 
         vertSplit1.setTopComponent(horizSplit1);
         vertSplit1.setBottomComponent(vertSplit2);
@@ -244,28 +261,32 @@ public class CreateConfigurationPanelCartogram {
 
     // Конструкторы для возможности добавления на панель меньше, чем исходное количество направлений (6)
     private JScrollPane createTextFieldPanel(JComponent tF1) {
-        return createTextFieldPanel(tF1, null, null, null, null, null);
+        return createTextFieldPanel(tF1, null, null, null, null, null, null);
     }
 
     private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2) {
-        return createTextFieldPanel(tF1, tF2, null, null, null, null);
+        return createTextFieldPanel(tF1, tF2, null, null, null, null, null);
     }
 
     private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3) {
-        return createTextFieldPanel(tF1, tF2, tF3, null, null, null);
+        return createTextFieldPanel(tF1, tF2, tF3, null, null, null, null);
     }
 
     private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3, JComponent tF4) {
-        return createTextFieldPanel(tF1, tF2, tF3, tF4, null, null);
+        return createTextFieldPanel(tF1, tF2, tF3, tF4, null, null, null);
     }
 
     private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3, JComponent tF4, JComponent tF5) {
-        return createTextFieldPanel(tF1, tF2, tF3, tF4, tF5, null);
+        return createTextFieldPanel(tF1, tF2, tF3, tF4, tF5, null, null);
+    }
+    
+    private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3, JComponent tF4, JComponent tF5, JComponent tF6) {
+        return createTextFieldPanel(tF1, tF2, tF3, tF4, tF5, tF6, null);
     }
 
     // Конфигурируем группу текстовых полей
     private JScrollPane createTextFieldPanel(JComponent tF1, JComponent tF2, JComponent tF3,
-            JComponent tF4, JComponent tF5, JComponent tF6) {
+            JComponent tF4, JComponent tF5, JComponent tF6, JComponent tF7) {
         // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
         JScrollBar scrollBar = new JScrollBar(JScrollBar.VERTICAL) {
             @Override
@@ -278,7 +299,7 @@ public class CreateConfigurationPanelCartogram {
         p.setBackground(Color.WHITE);
 
         // Добавляем только те компоненты, которые существуют (не null)
-        JComponent[] components = {tF1, tF2, tF3, tF4, tF5, tF6};
+        JComponent[] components = {tF1, tF2, tF3, tF4, tF5, tF6, tF7};
         for (int i = 0; i < components.length; i++) {
             if (components[i] != null) {
                 p.add(components[i]);
@@ -302,27 +323,31 @@ public class CreateConfigurationPanelCartogram {
 
     // Конструкторы для возможности добавления на панель меньше, чем исходное количество направлений (6)
     private JScrollPane createLabelPanel(JComponent c1) {
-        return createLabelPanel(c1, null, null, null, null, null);
+        return createLabelPanel(c1, null, null, null, null, null, null);
     }
 
     private JScrollPane createLabelPanel(JComponent c1, JComponent c2) {
-        return createLabelPanel(c1, c2, null, null, null, null);
+        return createLabelPanel(c1, c2, null, null, null, null, null);
     }
 
     private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3) {
-        return createLabelPanel(c1, c2, c3, null, null, null);
+        return createLabelPanel(c1, c2, c3, null, null, null, null);
     }
-
+    
     private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3, JComponent c4) {
-        return createLabelPanel(c1, c2, c3, c4, null, null);
+        return createLabelPanel(c1, c2, c3, c4, null, null, null);
     }
 
     private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3, JComponent c4, JComponent c5) {
-        return createLabelPanel(c1, c2, c3, c4, c5, null);
+        return createLabelPanel(c1, c2, c3, c4, c5, null, null);
+    }
+
+    private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3, JComponent c4, JComponent c5, JComponent c6) {
+        return createLabelPanel(c1, c2, c3, c4, c5, c6, null);
     }
 
     // Конфигурируем группу текстовых полей
-    private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3, JComponent c4, JComponent c5, JComponent c6) {
+    private JScrollPane createLabelPanel(JComponent c1, JComponent c2, JComponent c3, JComponent c4, JComponent c5, JComponent c6, JComponent c7) {
         // Для сокрытия прокручивающей полоски, но оставления функции прокрутки содержимого панели колесом (обманываем scrollBar)
         JScrollBar scrollBar = new JScrollBar(JScrollBar.VERTICAL) {
             @Override
@@ -335,7 +360,7 @@ public class CreateConfigurationPanelCartogram {
         p.setBackground(Color.WHITE);
 
         // Добавляем только те компоненты, которые существуют (не null)
-        JComponent[] components = {c1, c2, c3, c4, c5, c6};
+        JComponent[] components = {c1, c2, c3, c4, c5, c6, c7};
         for (int i = 0; i < components.length; i++) {
             if (components[i] != null) {
                 p.add(components[i]);
@@ -503,6 +528,9 @@ public class CreateConfigurationPanelCartogram {
         }
         if (ID.equalsIgnoreCase("Evening")) {
             textField.getDocument().addDocumentListener(timeEveningListener);
+        }
+        if (ID.equalsIgnoreCase("TotalDay")) {
+            textField.getDocument().addDocumentListener(timeTotalDayListener);
         }
         return textField;
     }
@@ -672,6 +700,9 @@ public class CreateConfigurationPanelCartogram {
         if (Identifier.equalsIgnoreCase("Evening")) {
             timeEvening.setText(cartogram.getValueTspan2("Time"));
         }
+        if (Identifier.equalsIgnoreCase("TotalDay")) {
+            timeTotalDay.setText(cartogram.getValueTspan2("Time"));
+        }
         comboBox.setSelectedItem(cartogram.getValueTspan2("DayOfWeek"));
     }
 
@@ -680,6 +711,7 @@ public class CreateConfigurationPanelCartogram {
         setValuesOnCartogramFromConfigPanel(cartogramMorning, "Morning");
         setValuesOnCartogramFromConfigPanel(cartogramDay, "Day");
         setValuesOnCartogramFromConfigPanel(cartogramEvening, "Evening");
+        setValuesOnCartogramFromConfigPanel(cartogramTotalDay, "TotalDay");
     }
 
     // Первоначальная установка значений для одной передаваемой картограмм. Значения берутся из панели конфигураций
@@ -706,6 +738,9 @@ public class CreateConfigurationPanelCartogram {
         if (Identifier.equalsIgnoreCase("Evening")) {
             cartogram.changeValueWithoutSaveTspan2("Time", timeEvening.getText());
         }
+        if (Identifier.equalsIgnoreCase("TotalDay")) {
+            cartogram.changeValueWithoutSaveTspan2("Time", timeTotalDay.getText());
+        }
         cartogram.changeValueWithoutSaveTspan2("DayOfWeek", String.valueOf(comboBox.getSelectedItem()));
         try {
             Thread.sleep(10);
@@ -724,6 +759,19 @@ public class CreateConfigurationPanelCartogram {
         addAndRemoveTimeListener(timeMorning, timeMorningListener, cartograms[0]);
         addAndRemoveTimeListener(timeDay, timeDayListener, cartograms[1]);
         addAndRemoveTimeListener(timeEvening, timeEveningListener, cartograms[2]);
+    }
+    
+    public void setCartogram(CreateCartogram cartogramMorning, CreateCartogram cartogramDay, CreateCartogram cartogramEvening, CreateCartogram cartogramTotalDay) {
+        cartograms[0] = this.cartogramMorning = cartogramMorning;
+        cartograms[1] = this.cartogramDay = cartogramDay;
+        cartograms[2] = this.cartogramEvening = cartogramEvening;
+        cartograms[3] = this.cartogramTotalDay = cartogramTotalDay;
+
+        // Обновляем слушателя изменения времени в картограмму
+        addAndRemoveTimeListener(timeMorning, timeMorningListener, cartograms[0]);
+        addAndRemoveTimeListener(timeDay, timeDayListener, cartograms[1]);
+        addAndRemoveTimeListener(timeEvening, timeEveningListener, cartograms[2]);
+        addAndRemoveTimeListener(timeTotalDay, timeTotalDayListener, cartograms[3]);
     }
 
     // Обновляние слушателя изменения времени в картограмму

@@ -18,6 +18,7 @@ public class ModelListener implements TableModelListener {
 
     private JBroTable table;
     private JBroTable totalTable;
+    private JBroTable totalDayTable;
     private JBroTable[] arrayTable;
     private String[] kindOfTransport; // массив с названиями строк (для последующей идентификации строк)
     private String typeOfStatement; // тип ведомости (старый или новый)
@@ -27,7 +28,18 @@ public class ModelListener implements TableModelListener {
     private int value2;
     private int value3;
     private int value4;
+
+    private int value5;
+    private int value6;
+    private int value7;
+    private int value8;
+
+    private int value9;
+    private int value10;
+    private int value11;
+    private int value12;
     private int sum; // переменная для хранения суммы расчета внутри одного направления
+    private int sumTotalDay;
 
     // Переменные для инициализации подсчета суммы по каждой строке отдельно
     private SumInAllDirectionInRow carNumber1 = new SumInAllDirectionInRow();
@@ -76,10 +88,27 @@ public class ModelListener implements TableModelListener {
         this.cartogram = cartogram;
     }
 
+    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, CreateCartogram cartogram, JBroTable totalTable) {
+        this.table = table;
+        this.kindOfTransport = kindOfTransport;
+        this.typeOfStatement = typeOfStatement;
+        this.cartogram = cartogram;
+        this.totalTable = totalTable;
+    }
+
     public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, JBroTable totalTable, JBroTable[] arrayTable) {
         this.table = table;
         this.kindOfTransport = kindOfTransport;
         this.typeOfStatement = typeOfStatement;
+        this.totalTable = totalTable;
+        this.arrayTable = arrayTable;
+    }
+
+    public ModelListener(JBroTable table, String[] kindOfTransport, String typeOfStatement, JBroTable totalTable, JBroTable totalDayTable, JBroTable[] arrayTable) {
+        this.table = table;
+        this.kindOfTransport = kindOfTransport;
+        this.typeOfStatement = typeOfStatement;
+        this.totalDayTable = totalDayTable;
         this.totalTable = totalTable;
         this.arrayTable = arrayTable;
     }
@@ -114,6 +143,30 @@ public class ModelListener implements TableModelListener {
                     sum = value1 + value2 + value3 + value4; // рассчитываем значение суммы
 
                     totalTable.getModel().setValueAt(sum, row, column); // записываем значение в Итоговую таблицу
+
+                    // Если нужно передать в итоговую таблицу вообще по всем временам дня (утро, день, вечер)
+                    if (totalDayTable != null) {
+                        // Считываем данные с ячейки, в которой изменилась информация, во всех таблицах и получаем суммарное значение для записи в эту же ячейку в таблице Итого
+                        value1 = Integer.valueOf(String.valueOf(arrayTable[0].getModel().getValueAt(row, column))); // переводим значение из текста в числовой формат
+                        value2 = Integer.valueOf(String.valueOf(arrayTable[1].getModel().getValueAt(row, column)));
+                        value3 = Integer.valueOf(String.valueOf(arrayTable[2].getModel().getValueAt(row, column)));
+                        value4 = Integer.valueOf(String.valueOf(arrayTable[3].getModel().getValueAt(row, column)));
+
+                        value5 = Integer.valueOf(String.valueOf(arrayTable[4].getModel().getValueAt(row, column))); // переводим значение из текста в числовой формат
+                        value6 = Integer.valueOf(String.valueOf(arrayTable[5].getModel().getValueAt(row, column)));
+                        value7 = Integer.valueOf(String.valueOf(arrayTable[6].getModel().getValueAt(row, column)));
+                        value8 = Integer.valueOf(String.valueOf(arrayTable[7].getModel().getValueAt(row, column)));
+                        
+                        value9 = Integer.valueOf(String.valueOf(arrayTable[8].getModel().getValueAt(row, column))); // переводим значение из текста в числовой формат
+                        value10 = Integer.valueOf(String.valueOf(arrayTable[9].getModel().getValueAt(row, column)));
+                        value11 = Integer.valueOf(String.valueOf(arrayTable[10].getModel().getValueAt(row, column)));
+                        value12 = Integer.valueOf(String.valueOf(arrayTable[11].getModel().getValueAt(row, column)));
+                        sumTotalDay = value1 + value2 + value3 + value4
+                                + value5 + value6 + value7 + value8
+                                + value9 + value10 + value11 + value12; // рассчитываем значение суммы
+
+                        totalDayTable.getModel().setValueAt(sumTotalDay, row, column); // записываем значение в Итоговую таблицу
+                    }
                 }
             }
         }
@@ -126,7 +179,7 @@ public class ModelListener implements TableModelListener {
 
         totalSumRow.getSum(table, column); // Подсчет суммы по всем транспортным средствам в данном направлении в данном варианте движения (налево, направо и т.п)
         totalSumColumns.getSum(table, row, column, typeOfStatement); // Подсчет суммы по конкретному транспортному средству по всем столбцам в данной строке
-
+        
         // Изменяем картограмму, в соответствии с изменениями в Таблице по всем 4 направлениям
         if (cartogram != null) {
             if (typeOfStatement.equalsIgnoreCase("Now")) {
@@ -141,7 +194,7 @@ public class ModelListener implements TableModelListener {
                 countingOneDirectionFuture.counting(table, row, column, "Направление 3", cartogram);
                 countingOneDirectionFuture.counting(table, row, column, "Направление 4", cartogram);
             }
-        }
+        }  
     }
 
 }

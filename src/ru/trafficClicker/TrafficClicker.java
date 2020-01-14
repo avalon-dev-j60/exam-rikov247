@@ -69,6 +69,8 @@ public class TrafficClicker extends AbstractFrame {
     private JBroTable table45Evening = new JBroTable();
     private JBroTable table60Evening = new JBroTable();
     private JBroTable tableSumEvening = new JBroTable();
+    // Весь день
+    private JBroTable tableSumTotalDay = new JBroTable();
     // Ссылки на перемещатели панелей с кнопками
     ComponentMover componentMoverUp;
     ComponentMover componentMoverLeft;
@@ -247,6 +249,7 @@ public class TrafficClicker extends AbstractFrame {
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramMorning(), "Morning");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramDay(), "Day");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramEvening(), "Evening");
+                    configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramTotalDay(), "TotalDay");
                 }
                 // Если решили закрыть приложение, то нужно освободить ресурсы
                 if (evt.getPropertyName().equalsIgnoreCase("closeProgram")) {
@@ -861,6 +864,7 @@ public class TrafficClicker extends AbstractFrame {
         cartogramPane = cartogramPaneLink.createTabbedPane(
                 new AddCartogramPanel().AddMap(),
                 new AddCartogramPanel().AddMap(),
+                new AddCartogramPanel().AddMap(),
                 new AddCartogramPanel().AddMap()); // инициализируем панель вкладок, на которую помещаем разделенную панель с картограммой и панелбю управления ею
         videoTabs.addTab("Картограмма", cartogramPanel.createCartogramSplitPanel(new JLabel("Панель"), cartogramPane, new JLabel("Панель")));
 
@@ -886,29 +890,16 @@ public class TrafficClicker extends AbstractFrame {
                     }
                     // обновляем SVGCanvas
                     if (configurationPanel.getCartogramMorning() != null) {
-                        // Делаем паузу для потока на Х мс перед обновлением SVGCanvas (перед каждым сохранением)
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         configurationPanel.getCartogramMorning().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
                     if (configurationPanel.getCartogramDay() != null) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         configurationPanel.getCartogramDay().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
                     if (configurationPanel.getCartogramEvening() != null) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         configurationPanel.getCartogramEvening().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
+                    }
+                    if (configurationPanel.getCartogramTotalDay() != null) {
+                        configurationPanel.getCartogramTotalDay().saveChangeValue(); // обновляем SVGCanvas таким образом (для предотвращения смещения картинки в сторону при ее добавлении)
                     }
                     cartogramPane.getSelectedComponent().requestFocus(); // переключаем фокус на canvas
                 }
@@ -931,6 +922,8 @@ public class TrafficClicker extends AbstractFrame {
     }
 
     private void setMarquee(String text, int size, MarqueePosition position) {
+        emp.mediaPlayer().marquee().enable(false);
+        emp.mediaPlayer().marquee().enable(true);
         emp.mediaPlayer().marquee().setText(text);
         emp.mediaPlayer().marquee().setSize(size);
         emp.mediaPlayer().marquee().setColour(Color.WHITE);
@@ -1020,13 +1013,15 @@ public class TrafficClicker extends AbstractFrame {
                 configurationPanel.getCartogramMorning(),
                 configurationPanel.getCartogramDay(),
                 configurationPanel.getCartogramEvening(),
+                configurationPanel.getCartogramTotalDay(),
                 typeOfDirection);
         cartogramPanel.getSplitTab1().setLeftComponent(configPanelCartogram.CreateConfigurationPanel()); // Добавляем Панель конфигурации на панель
         cartogramPane.removeAll(); // удаляем ранее добавленные вкладки
         cartogramPane = cartogramPaneLink.createTabbedPane(
                 configurationPanel.getCartogramPanelMorning(),
                 configurationPanel.getCartogramPanelDay(),
-                configurationPanel.getCartogramPanelEvening()
+                configurationPanel.getCartogramPanelEvening(),
+                configurationPanel.getCartogramPanelTotalDay()
         ); // Добавляем нужные вкладки с картограммами
 
         // ПРОЧЕЕ
@@ -1142,7 +1137,8 @@ public class TrafficClicker extends AbstractFrame {
             cartogramPane = cartogramPaneLink.createTabbedPane(
                     configurationPanel.getCartogramPanelMorning(),
                     configurationPanel.getCartogramPanelDay(),
-                    configurationPanel.getCartogramPanelEvening());
+                    configurationPanel.getCartogramPanelEvening(),
+                    configurationPanel.getCartogramPanelTotalDay());
         } catch (IOException ex) {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1151,14 +1147,16 @@ public class TrafficClicker extends AbstractFrame {
         tableSumMorning.setValueAt(tableSumMorning.getValueAt(0, 0), 0, 0);
         tableSumDay.setValueAt(tableSumDay.getValueAt(0, 0), 0, 0);
         tableSumEvening.setValueAt(tableSumEvening.getValueAt(0, 0), 0, 0);
+        tableSumTotalDay.setValueAt(tableSumTotalDay.getValueAt(0, 0), 0, 0);
 
         // Инициализация панели конфигурации картограммы - данные считываются с загруженной картограммы (предварительно туда переносят из старой)
-        configPanelCartogram.setCartogram(configurationPanel.getCartogramMorning(), configurationPanel.getCartogramDay(), configurationPanel.getCartogramEvening());
+        configPanelCartogram.setCartogram(configurationPanel.getCartogramMorning(), configurationPanel.getCartogramDay(), configurationPanel.getCartogramEvening(), configurationPanel.getCartogramTotalDay());
 
         // Переносим данные с панели конфигурации для картограммы на картограмму
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramMorning(), "Morning");
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramDay(), "Day");
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramEvening(), "Evening");
+        configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramTotalDay(), "TotalDay");
     }
 
     // Получаем таблицы из конфигурационной панели (в которой они создаются)
@@ -1181,6 +1179,8 @@ public class TrafficClicker extends AbstractFrame {
         table30Evening = configurationPanel.getTable30Evening();
         table45Evening = configurationPanel.getTable45Evening();
         table60Evening = configurationPanel.getTable60Evening();
+        // Весь день
+        tableSumTotalDay = configurationPanel.getTableSumTotalDay();
     }
 
     // Формирование и наполнение вкладок Таблиц
@@ -1200,7 +1200,7 @@ public class TrafficClicker extends AbstractFrame {
         // Весь день
         TabbedPaneTableAllDay tablePaneAllDayLink = new TabbedPaneTableAllDay(); // Панель вкладок для всего дня
         JTabbedPane tablePaneAllDay = tablePaneAllDayLink.createTabbedPane(
-                tablePaneMorning, tablePaneDay, tablePaneEvening);
+                tablePaneMorning, tablePaneDay, tablePaneEvening, tableSumTotalDay.getScrollPane());
 
         return tablePaneAllDay;
     }
