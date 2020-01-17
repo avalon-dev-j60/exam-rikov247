@@ -19,6 +19,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.basic.BasicSliderUI;
+import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -35,7 +36,10 @@ import ru.videoOpen;
 import ru.overlay.Overlay;
 import ru.AbstractFrame;
 import ru.cartogram.AddCartogramPanel;
+import ru.cartogram.CreateCartogram;
 import ru.cartogram.CreateConfigurationPanelCartogram;
+import ru.jtable.modelListener.cartogram.CountingOneDirectionFuture;
+import ru.jtable.modelListener.cartogram.CountingOneDirectionNow;
 import ru.overlay.ButtonKeyListenerWithEMP;
 import ru.overlay.ButtonKeyListenerWithoutEMP;
 
@@ -244,12 +248,17 @@ public class TrafficClicker extends AbstractFrame {
                 if (evt.getPropertyName().equalsIgnoreCase("cartogramChange") && evt.getNewValue() != null) {
                     updateCartogramPanels();
                 }
-                // Если поменяли картограммы (файлы картограммы) - например Сохранили как, то приходит уведомление и мы пытаемся обновить картограммы на панели
+                // Если поменяли картограммы (файлы картограммы) - например Открыли проект, то приходит уведомление и мы пытаемся обновить картограммы на панели
                 if (evt.getPropertyName().equalsIgnoreCase("openProjectDoCartogramConfigPanel") && evt.getNewValue() != null) {
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramMorning(), "Morning");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramDay(), "Day");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramEvening(), "Evening");
                     configPanelCartogram.setValuesOnConfigPanelFromCartogram(configurationPanel.getCartogramTotalDay(), "TotalDay");
+                    // Таким образом ОБНОВЛЯЕМ таблицы (чтобы сработал ModelListener, который перенесет данные из старых таблиц в новые картограммы)
+                    updateTable(tableSumMorning, configurationPanel.getCartogramMorning());
+                    updateTable(tableSumDay, configurationPanel.getCartogramDay());
+                    updateTable(tableSumEvening, configurationPanel.getCartogramEvening());
+                    updateTable(tableSumTotalDay, configurationPanel.getCartogramTotalDay());
                 }
                 // Если решили закрыть приложение, то нужно освободить ресурсы
                 if (evt.getPropertyName().equalsIgnoreCase("closeProgram")) {
@@ -1143,11 +1152,11 @@ public class TrafficClicker extends AbstractFrame {
             Logger.getLogger(TrafficClicker.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // Таким образом ОБНОВЛЯЕМ таблицы (чтобы сработал ModelListener, который перенесет данные из старых таблиц в новые картограммы)
-        tableSumMorning.setValueAt(tableSumMorning.getValueAt(0, 0), 0, 0);
-        tableSumDay.setValueAt(tableSumDay.getValueAt(0, 0), 0, 0);
-        tableSumEvening.setValueAt(tableSumEvening.getValueAt(0, 0), 0, 0);
-        tableSumTotalDay.setValueAt(tableSumTotalDay.getValueAt(0, 0), 0, 0);
+        // Обновление данных на картограмме исходя из данных в таблице
+        updateTable(tableSumMorning, configurationPanel.getCartogramMorning());
+        updateTable(tableSumDay, configurationPanel.getCartogramDay());
+        updateTable(tableSumEvening, configurationPanel.getCartogramEvening());
+        updateTable(tableSumTotalDay, configurationPanel.getCartogramTotalDay());
 
         // Инициализация панели конфигурации картограммы - данные считываются с загруженной картограммы (предварительно туда переносят из старой)
         configPanelCartogram.setCartogram(configurationPanel.getCartogramMorning(), configurationPanel.getCartogramDay(), configurationPanel.getCartogramEvening(), configurationPanel.getCartogramTotalDay());
@@ -1157,6 +1166,30 @@ public class TrafficClicker extends AbstractFrame {
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramDay(), "Day");
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramEvening(), "Evening");
         configPanelCartogram.setValuesOnCartogramFromConfigPanel(configurationPanel.getCartogramTotalDay(), "TotalDay");
+    }
+
+    // Обновление данных на картограмме исходя из данных в таблице
+    private void updateTable(JBroTable table, CreateCartogram cartogram) {
+        int unAccountedColumns = table.getData().getFieldsCount() - table.getColumnModel().getColumnCount(); // считаем неучитываемые столбцы (либо фиксированный, либо не отображаемые) 
+        for (int i = unAccountedColumns; i < table.getColumnCount() - unAccountedColumns; i++) {
+            for (int j = 0; j < table.getRowCount(); j++) {
+                CountingOneDirectionNow countingOneDirectionNow = new CountingOneDirectionNow();
+                CountingOneDirectionFuture countingOneDirectionFuture = new CountingOneDirectionFuture();
+                if (configurationPanel.getKindOfStatement().equalsIgnoreCase("Now")) {
+                    countingOneDirectionNow.counting(table, j, i, "Направление 1", cartogram);
+                    countingOneDirectionNow.counting(table, j, i, "Направление 2", cartogram);
+                    countingOneDirectionNow.counting(table, j, i, "Направление 3", cartogram);
+                    countingOneDirectionNow.counting(table, j, i, "Направление 4", cartogram);
+                }
+                if (configurationPanel.getKindOfStatement().equalsIgnoreCase("Future")) {
+                    countingOneDirectionFuture.counting(table, j, i, "Направление 1", cartogram);
+                    countingOneDirectionFuture.counting(table, j, i, "Направление 2", cartogram);
+                    countingOneDirectionFuture.counting(table, j, i, "Направление 3", cartogram);
+                    countingOneDirectionFuture.counting(table, j, i, "Направление 4", cartogram);
+                }
+            }
+        }
+
     }
 
     // Получаем таблицы из конфигурационной панели (в которой они создаются)

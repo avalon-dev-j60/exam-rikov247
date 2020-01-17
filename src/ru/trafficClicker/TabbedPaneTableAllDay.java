@@ -78,7 +78,7 @@ public class TabbedPaneTableAllDay {
         tableTabs.addTab("Таблицы вечер", panes[2]);
 
         // Вкладка 4 (index = 3).
-        tableTabs.addTab("Таблицы итог", panes[3]);
+        tableTabs.addTab("Таблица итог", panes[3]);
 
         // При изменении вкладки перекидываем фокус куда нужно
         tableTabs.addChangeListener(new ChangeListener() {

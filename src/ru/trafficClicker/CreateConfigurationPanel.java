@@ -815,21 +815,19 @@ public class CreateConfigurationPanel {
         // Получаем данные о видах подсчитываемого в проекте транспорта из EXCEL
         if (projectName != null) {
             // Кидаем вспомогательное сообщение
-            JOptionPane.showMessageDialog(openProject, "Сохраните свой новый проект, создаваемый из старого");
-            // Считываем исходные значения натроек проекта
-            String tempKindOfStatement = comboBox3.getSelectedItem().toString();
-            String tempTypeOfDirection = comboBox1.getSelectedItem().toString();
-            TreePath[] tempTreePath = checkBox.getCheckedPaths();
-            // АНАЛИЗ ДОКУМЕНТА ПРОЕКТА
+//            JOptionPane.showMessageDialog(openProject, "Сохраните свой новый проект, создаваемый из старого");
+//            // Считываем исходные значения настроек проекта
+//            String tempKindOfStatement = comboBox3.getSelectedItem().toString();
+//            String tempTypeOfDirection = comboBox1.getSelectedItem().toString();
+//            TreePath[] tempTreePath = checkBox.getCheckedPaths();
+            // АНАЛИЗ ОТКРЫВАЕМОГО ПРОЕКТА
             // Создаем переменную для получения данных из выбранного excel файла проекта
             InfoFromProject infoProject = new InfoFromProject(projectName);
 
             // Считываем вид ведомости
             comboBox3.setSelectedItem(infoProject.getKindOfStatement());
-
             // Считываем тип перекрестка
             comboBox1.setSelectedItem(infoProject.getTypeOfDirection());
-
             // Считываем данные по УЧИТЫВАЕМЫМ ЕДИНИЦАМ ТРАНСПОРТА (TreePath)
             // Перебираем виды подсчитываемого транспорта из Excel 
             for (int i = 0; i < infoProject.getTreePath().length; i++) {
@@ -843,23 +841,24 @@ public class CreateConfigurationPanel {
                 }
             }
             // Пытаемся создать проект. Но если не получилось/отказались, то ничего не меняем в настройках (оставить прежние)
-            onCreateProjectButtonClick(e); // Создается пустой проект, теперь его надо наполнить информацией из excel файла
-            // Если сохранить новый проект(создаваемый из старого) не получилось/не захотели, то ничего не происходит и выкидываем сообщение
-            if (fullFileName == null) {
-                JOptionPane.showMessageDialog(openProject, "Проект не открылся. Если не сохранить ваш новый проект (созданный из старого), то и работать с ним не получится.");
-                // Возвращаем все обратно
-                comboBox3.setSelectedItem(tempKindOfStatement);
-                comboBox1.setSelectedItem(tempTypeOfDirection);
-                for (int i = 0; i < tempTreePath.length; i++) {
-                    // Перебираем все элементы checkBox
-                    String tempComponent = tempTreePath[i].getLastPathComponent().toString();
-                    for (int j = 0; j < checkBox.getRowCount(); j++) {
-                        if (tempComponent.equalsIgnoreCase(checkBox.getPath(j)) && !tempComponent.equalsIgnoreCase("Учитываемые единицы")) {
-                            checkBox.setCheckedPaths(j, true);
-                        }
-                    }
-                }
-            }
+//            onCreateProjectButtonClick(e); // Создается пустой проект, теперь его надо наполнить информацией из excel файла
+//            // Если сохранить новый проект(создаваемый из старого) не получилось/не захотели, то ничего не происходит и выкидываем сообщение
+//            if (fullFileName == null) {
+//                JOptionPane.showMessageDialog(openProject, "Проект не открылся. Если не сохранить ваш новый проект (созданный из старого), то и работать с ним не получится.");
+//                // Возвращаем все обратно
+//                comboBox3.setSelectedItem(tempKindOfStatement);
+//                comboBox1.setSelectedItem(tempTypeOfDirection);
+//                for (int i = 0; i < tempTreePath.length; i++) {
+//                    // Перебираем все элементы checkBox
+//                    String tempComponent = tempTreePath[i].getLastPathComponent().toString();
+//                    for (int j = 0; j < checkBox.getRowCount(); j++) {
+//                        if (tempComponent.equalsIgnoreCase(checkBox.getPath(j)) && !tempComponent.equalsIgnoreCase("Учитываемые единицы")) {
+//                            checkBox.setCheckedPaths(j, true);
+//                        }
+//                    }
+//                }
+//            }
+            fullFileName = projectName;
             // РЕАЛИЗАЦИЯ НАПОЛНЕНИЯ ПРОЕКТА В JAVA из EXCEL (таблицы + картограммы)
             if (fullFileName != null) {
                 saveAllTableFromExcel(projectName);

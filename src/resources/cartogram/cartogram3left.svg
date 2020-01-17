@@ -229,19 +229,19 @@
     <text style="fill:black;font-family:Arial;font-size:16px;" x="-41.89319610595703" y="1223.0010986328125" id="StreetName_Horizontal1" transform="matrix(0.999997 -0.0021031 0.0021031 0.999997 128.073 -571.761)">Улица горизонтальная</text>
     
     <!-- Дополнительная информация  -->
-    <text style="fill:black;font-family:Arial;font-size:14px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
-        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Участок/перекресток: </tspan>
+    <text style="fill:black;font-family:Arial;font-size:16px;stroke:none;" x="53.897396087646484" y="886.6403198242188" id="SectionOrIntersection">
+        <tspan x="53.897396087646484" id="SectionOrIntersection_tspan1" style="font-weight: bold;">Уч./пер.: </tspan>
         <tspan dx="0" id="SectionOrIntersection_tspan2"> </tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.88630676269531" y="906.0911254882812" id="Date">
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="52.88630676269531" y="906.0911254882812" id="Date">
         <tspan x="52.88630676269531" id="Date_tspan1" style="font-weight: bold;">Дата: </tspan>
         <tspan dx="0" id="Date_tspan2"> </tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="52.36008071899414" y="927.3670043945312" id="DayOfWeek">
         <tspan x="52.36008071899414" id="DayOfWeek_tspan1" style="font-weight: bold;">День недели: </tspan>
         <tspan dx="0" id="DayOfWeek_tspan2"> </tspan>
     </text>
-    <text style="fill:black;font-family:Arial;font-size:14px;" x="52.22282028198242" y="947.8796997070312" id="Time">
+    <text style="fill:black;font-family:Arial;font-size:16px;" x="52.22282028198242" y="947.8796997070312" id="Time">
         <tspan x="52.22282028198242" id="Time_tspan1" style="font-weight: bold;">Время: </tspan>
         <tspan dx="0" id="Time_tspan2"> </tspan>
     </text>

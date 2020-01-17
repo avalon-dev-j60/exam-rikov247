@@ -171,7 +171,7 @@ public class CreateMenuBar {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(helpItem3,
                         new String[]{
-                            "Тестовая версия приложения v 1.0.2.",
+                            "Версия приложения v 1.0.4.",
                             "По возникающим проблемам, вопросам или пожеланиям просьба писать по адресу:",
                             "rikov247@gmail.com"
                         },
